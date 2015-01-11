@@ -1,0 +1,64 @@
+{
+  "admin": "testuser",
+  "irc": {
+    "host": "irc.freenode.net",
+    "user": "testbot",
+    "opts": {
+      "channels": [
+        "#test-channel"
+      ],
+      "password": "testpassword"
+    }
+  },
+  "plugins": {
+    "admin": {
+      "config": {
+        "admin": "testuser"
+      }
+    },
+    "error": {
+      "config": {
+        "admin": "testuser"
+      }
+    },
+    "note": {
+      "config": {
+        "contacts": {
+          "testuser": "testuser@test.local"
+        },
+        "from": "sectry@test.local",
+        "smtpPool": {
+          "host": "test.local",
+          "port": 25,
+          "name": "test.local",
+          "ignoreTLS": true,
+          "maxConnections": 5,
+          "maxMessages": 100,
+          "secure": false
+        }
+      }
+    },
+    "scala": {
+      "config": {
+        "headers": {
+          "cookie": [
+            "JSESSIONID=71WStezX6_4sNu06cuFkng;Path=/"
+          ]
+        }
+      }
+    },
+    "sms": {
+      "config": {
+        "uri": "http://localhost",
+        "contacts": {
+          "testuser": "2125554202"
+        }
+      }
+    },
+    "tell": {
+      "config": {
+        "messages": {}
+      }
+    }
+  }
+}
