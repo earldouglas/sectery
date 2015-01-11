@@ -23,6 +23,7 @@
     },
     "note": {
       "config": {
+        "offline": true,
         "contacts": {
           "testuser": "testuser@test.local"
         },
@@ -49,7 +50,8 @@
     },
     "sms": {
       "config": {
-        "uri": "http://localhost",
+        "offline": true,
+        "uri": "http://textbelt.com/text",
         "contacts": {
           "testuser": "2125554202"
         }
