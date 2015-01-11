@@ -1,1 +1,3 @@
 config.json
+lib-cov/
+npm-debug.log
