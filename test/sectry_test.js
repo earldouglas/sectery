@@ -1,7 +1,10 @@
 'use strict';
 
-var main = require('../lib/main');
-var fsdb = require('../lib/fsdb');
+// Use instrumented code for code coverage tests
+var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
+
+var fsdb = require('../' + lib + '/fsdb');
+var main = require('../' + lib + '/main');
 
 var configFile = 'config.json.example';
 var config = fsdb.load(configFile);
