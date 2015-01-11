@@ -1,8 +1,8 @@
 {
-  "name": "sectry",
+  "name": "sectery",
   "description": "A secretary manifested as an IRC bot.",
   "version": "0.1.0",
-  "homepage": "https://github.com/earldouglas/sectry",
+  "homepage": "https://github.com/earldouglas/sectery",
   "author": {
     "name": "James Earl Douglas",
     "email": "james@earldouglas.com",
@@ -10,18 +10,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/earldouglas/sectry.git"
+    "url": "git://github.com/earldouglas/sectery.git"
   },
   "bugs": {
-    "url": "https://github.com/earldouglas/sectry/issues"
+    "url": "https://github.com/earldouglas/sectery/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/earldouglas/sectry/blob/master/LICENSE-MIT"
+      "url": "https://github.com/earldouglas/sectery/blob/master/LICENSE-MIT"
     }
   ],
-  "main": "sectry",
+  "main": "sectery",
   "engines": {
     "node": ">= 0.10.0"
   },
@@ -44,6 +44,6 @@
     "irc",
     "bot",
     "secretary",
-    "sectry"
+    "sectery"
   ]
 }

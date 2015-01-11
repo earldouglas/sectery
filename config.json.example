@@ -27,7 +27,7 @@
         "contacts": {
           "testuser": "testuser@test.local"
         },
-        "from": "sectry@test.local",
+        "from": "sectery@test.local",
         "smtpPool": {
           "host": "test.local",
           "port": 25,

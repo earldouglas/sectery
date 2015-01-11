@@ -65,7 +65,7 @@ function mockClient() {
 var client = mockClient();
 main(client, configFile);
 
-exports['sectry'] = {
+exports['sectery'] = {
   '@join': function(test) {
     test.expect(3);
     test.deepEqual(client._channels, {});

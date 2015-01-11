@@ -1,4 +1,4 @@
-# Sectry [![Build Status](https://travis-ci.org/earldouglas/sectry.svg?branch=master)](https://travis-ci.org/earldouglas/sectry) [![Coverage Status](https://coveralls.io/repos/earldouglas/sectry/badge.png)](https://coveralls.io/r/earldouglas/sectry)
+# Sectry [![Build Status](https://travis-ci.org/earldouglas/sectery.svg?branch=master)](https://travis-ci.org/earldouglas/sectery) [![Coverage Status](https://coveralls.io/repos/earldouglas/sectery/badge.png)](https://coveralls.io/r/earldouglas/sectery)
 
 ## Usage
 
@@ -13,5 +13,5 @@ npm install
 Finally fire up Sectry:
 
 ```
-node sectry
+node sectery
 ```
