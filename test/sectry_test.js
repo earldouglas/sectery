@@ -68,7 +68,7 @@ function mockClient() {
 var client = mockClient();
 main(client, configFile);
 
-exports['sectery'] = {
+exports.sectery = {
   '@join': function(test) {
     test.expect(3);
     test.deepEqual(client._channels, {});
@@ -207,7 +207,7 @@ exports['sectery'] = {
 
       test.done();
 
-    }, 1000);
+    }, 2000);
   },
   '@weather': function(test) {
     test.expect(2);
@@ -222,6 +222,6 @@ exports['sectery'] = {
 
       test.done();
 
-    }, 1000);
+    }, 2000);
   },
 };

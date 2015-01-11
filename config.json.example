@@ -1,5 +1,4 @@
 {
-  "admin": "testuser",
   "irc": {
     "host": "irc.freenode.net",
     "user": "testbot",
@@ -10,17 +9,10 @@
       "password": "testpassword"
     }
   },
+  "common": {
+    "admin": "testuser"
+  },
   "plugins": {
-    "admin": {
-      "config": {
-        "admin": "testuser"
-      }
-    },
-    "error": {
-      "config": {
-        "admin": "testuser"
-      }
-    },
     "note": {
       "config": {
         "offline": true,
@@ -36,14 +28,18 @@
           "maxConnections": 5,
           "maxMessages": 100,
           "secure": false
-        }
+        },
+        "admin": "testuser"
       }
     },
     "scala": {
       "config": {
         "headers": {
-          "cookie": []
-        }
+          "cookie": [
+            "JSESSIONID=LJiZBSxqovNn2immspSSFw;Path=/"
+          ]
+        },
+        "admin": "testuser"
       }
     },
     "sms": {
@@ -52,12 +48,14 @@
         "uri": "http://textbelt.com/text",
         "contacts": {
           "testuser": "2125554202"
-        }
+        },
+        "admin": "testuser"
       }
     },
     "tell": {
       "config": {
-        "messages": {}
+        "messages": {},
+        "admin": "testuser"
       }
     }
   }
