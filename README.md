@@ -7,7 +7,7 @@ First copy *config.json.example* to *config.json*, replacing the various *test* 
 Then install the dependencies:
 
 ```
-npm instal
+npm install
 ```
 
 Finally fire up Sectry:
