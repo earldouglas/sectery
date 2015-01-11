@@ -42,9 +42,7 @@
     "scala": {
       "config": {
         "headers": {
-          "cookie": [
-            "JSESSIONID=71WStezX6_4sNu06cuFkng;Path=/"
-          ]
+          "cookie": []
         }
       }
     },
