@@ -1,4 +1,4 @@
-# Sectry
+# Sectry [![Build Status](https://travis-ci.org/earldouglas/sectry.svg?branch=master)](https://travis-ci.org/earldouglas/sectry) [![Coverage Status](https://coveralls.io/repos/earldouglas/sectry/badge.png)](https://coveralls.io/r/earldouglas/sectry)
 
 ## Usage
 
