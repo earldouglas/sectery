@@ -224,4 +224,19 @@ exports.sectery = {
 
     }, 2000);
   },
+  '@http': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', 'https://www.google.com/');
+
+    // wait for response from http service
+    setTimeout(function() {
+
+      test.equal(client._lastSaid().to, '#test-channel');
+      test.equal(client._lastSaid().message, '| Google');
+
+      test.done();
+
+    }, 1000);
+  },
 };
