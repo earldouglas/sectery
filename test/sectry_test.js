@@ -127,8 +127,8 @@ exports.sectery = {
         test.equal(client._said[client._said.length - 1].to, '#test-channel');
         test.equal(client._said[client._said.length - 1].message, '::guess (((5 + 1) * 10) - (25 + 14))');
         test.done();
-      }, 2000);
-    }, 2000);
+      }, 3000);
+    }, 3000);
 
   },
   '@note': function(test) {
@@ -164,9 +164,9 @@ exports.sectery = {
         test.ok(/res\d+: Int = 12\n\n/.test(client._lastSaid().message));
 
         test.done();
-      }, 2000);
+      }, 3000);
 
-    }, 2000);
+    }, 3000);
   },
   '@sms': function(test) {
     test.expect(4);
@@ -207,7 +207,7 @@ exports.sectery = {
 
       test.done();
 
-    }, 2000);
+    }, 3000);
   },
   '@weather': function(test) {
     test.expect(2);
@@ -222,7 +222,7 @@ exports.sectery = {
 
       test.done();
 
-    }, 2000);
+    }, 3000);
   },
   '@http': function(test) {
     test.expect(2);
@@ -238,5 +238,13 @@ exports.sectery = {
       test.done();
 
     }, 1000);
+  },
+  'yesman': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', "IRC bots sure are handy. Isn't that right, sectery?");
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "I'll say, testuser.  I'll say.");
+    test.done();
   },
 };

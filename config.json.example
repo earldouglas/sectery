@@ -57,6 +57,11 @@
         "messages": {},
         "admin": "testuser"
       }
+    },
+    "yesman": {
+      "config": {
+        "agreement": "I'll say"
+      }
     }
   }
 }
