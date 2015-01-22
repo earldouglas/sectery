@@ -190,7 +190,7 @@ exports.sectery = {
 
     client._message('testuser1', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'testuser1: testuser left you a message: Welcome back!');
+    test.equal(client._lastSaid().message, 'testuser1: testuser said Welcome back!');
 
     test.done();
   },
