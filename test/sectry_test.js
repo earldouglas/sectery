@@ -247,4 +247,12 @@ exports.sectery = {
     test.equal(client._lastSaid().message, "I'll say, testuser.  I'll say.");
     test.done();
   },
+  'emoji': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', 'foo bar table flip baz');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, '╯°□°）╯︵ ┻━┻');
+    test.done();
+  },
 };
