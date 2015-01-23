@@ -20,7 +20,7 @@ node sectery
 
 The tests utilize the included *config.json.example*, so there's no need to copy it to *config.json* for development.
 
-**Run the tests**
+### Run the tests
 
 ```
 npm test
@@ -28,7 +28,7 @@ npm test
 
 Observe that they all pass.
 
-**Add a new test**
+### Add a new test
 
 For the feature you'd like to develop, write a new test for it in *test/sectery_test.js*:
 
@@ -42,7 +42,7 @@ For the feature you'd like to develop, write a new test for it in *test/sectery_
 },
 ```
 
-**Run the tests again**
+### Run the tests again
 
 ```
 npm test
@@ -50,7 +50,7 @@ npm test
 
 Observe that your new test fails.
 
-**Make your test pass**
+### Make your test pass
 
 *lib/plugins/emoji.js:*
 
@@ -69,7 +69,7 @@ module.exports.event    = 'message';
 module.exports.listener = listener;
 ```
 
-**Add optional configuration**
+### Add optional configuration
 
 Configuration is loaded by plugin name from *config.json* (or *config.json.example* during testing), and passed in as the second argument to `listener()` in each plugin.
 
