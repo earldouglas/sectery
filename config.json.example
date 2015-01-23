@@ -65,9 +65,13 @@
     },
     "weatherunderground": {
       "config": {
-        "autocomplete-uri": "http://autocomplete.wunderground.com/aq?query=",
-        "api-uri": "http://api.wunderground.com/api/",
-        "apikey":"API_KEY",
+        "autocomplete": {
+          "uri": "http://autocomplete.wunderground.com/aq?query="
+        },
+        "api": {
+          "uri": "http://api.wunderground.com/api/",
+          "key": "API-KEY"
+        },
         "admin": "testuser"
       }
     }
