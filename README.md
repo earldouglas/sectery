@@ -88,9 +88,7 @@ Then create some sample configuration:
 
 ```javascript
 {
-
   // ...
-
   "plugins": {
     // ...
     "emoji": {
