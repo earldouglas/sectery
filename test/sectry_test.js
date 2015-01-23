@@ -255,4 +255,15 @@ exports.sectery = {
     test.equal(client._lastSaid().message, '╯°□°）╯︵ ┻━┻');
     test.done();
   },
+  'down': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', '@down https://www.google.com/');
+
+    setTimeout(function() {
+      test.equal(client._lastSaid().to, '#test-channel');
+      test.equal(client._lastSaid().message, "It's just you.  https://www.google.com/ is up.");
+      test.done();
+    }, 3000);
+  },
 };
