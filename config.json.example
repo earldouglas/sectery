@@ -62,6 +62,15 @@
       "config": {
         "agreement": "I'll say"
       }
-    }
+    },
+
+    "weatherunderground": {
+      "config": {
+        "autocomplete-uri": "http://autocomplete.wunderground.com/aq?query=",
+        "api-uri": "http://api.wunderground.com/api/",
+        "apikey":"API_KEY",
+        "admin": "testuser"
+      }
+    },
   }
 }

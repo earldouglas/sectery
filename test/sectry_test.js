@@ -266,4 +266,30 @@ exports.sectery = {
       test.done();
     }, 3000);
   },
+  '@wu-city': function(test) {
+
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@wu San Francisco');
+
+    // wait for response from weather service
+    setTimeout(function() {
+      test.equal(client._lastSaid().to, '#test-channel');
+      test.ok(/^Temp/.test(client._lastSaid().message));
+      test.done();
+
+    }, 3000);
+  },
+  '@wu-zip-code': function(test) {
+
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@wu 90210');
+
+    // wait for response from weather service
+    setTimeout(function() {
+      test.equal(client._lastSaid().to, '#test-channel');
+      test.ok(/^Temp/.test(client._lastSaid().message));
+      test.done();
+
+    }, 3000);
+  },
 };
