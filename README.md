@@ -68,3 +68,38 @@ function listener(client) {
 module.exports.event    = 'message';
 module.exports.listener = listener;
 ```
+
+**Add optional configuration**
+
+Configuration is loaded by plugin name from *config.json* (or *config.json.example* during testing), and passed in as the second argument to `listener()` in each plugin.
+
+To add configuration to the above *emoji* plugin, add an argument for its configuration:
+
+*lib/plugins/emoji.js:*
+
+```
+function listener(client, config) {
+  console.log(config.foo.bar);
+```
+
+Then create some sample configuration:
+
+*config.json.example:*
+
+```javascript
+{
+
+  // ...
+
+  "plugins": {
+    // ...
+    "emoji": {
+      "config": {
+        "foo": {
+          "bar": 42
+        }
+      }
+    }
+  }
+}
+```
