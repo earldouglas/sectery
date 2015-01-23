@@ -10,7 +10,7 @@ Install the dependencies:
 npm install
 ```
 
-Fire up Sectery:
+Fire it up:
 
 ```
 node sectery
