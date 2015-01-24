@@ -71,8 +71,7 @@
         "api": {
           "uri": "http://api.wunderground.com/api/",
           "key": "API-KEY"
-        },
-        "admin": "testuser"
+        }
       }
     }
   }
