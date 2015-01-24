@@ -6,7 +6,7 @@ var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
 var fsdb = require('../' + lib + '/fsdb');
 var main = require('../' + lib + '/main');
 
-var configFile = 'config.json.example';
+var configFile = 'config.example.json';
 var config = fsdb.load(configFile);
 
 function mockClient() {
