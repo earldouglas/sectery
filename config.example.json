@@ -73,6 +73,11 @@
           "key": "API-KEY"
         }
       }
+    },
+    "emoji": {
+      "config": {
+        "table\\s*flip": "╯°□°）╯︵ ┻━┻"
+      }
     }
   }
 }
