@@ -82,7 +82,7 @@ function keepTry(f) {
     try {
       f();
     } catch (e) {
-      if (Date.now() - start < 10000) {
+      if (Date.now() - start < 20000) {
         setTimeout(tryIt, 150);
       } else {
         throw e;
