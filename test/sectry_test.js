@@ -266,6 +266,17 @@ exports.sectery = {
       test.done();
     });
   },
+  '@weather :: zip code': function(test) {
+    client._message('testuser', '#test-channel', '@weather 90210');
+
+    // wait for response from weather service
+    keepTry(function() {
+      equal(client._lastSaid().to, '#test-channel');
+      equal(true, /^Temp/.test(client._lastSaid().message));
+      test.done();
+
+    });
+  },
   '@weather :: city': function(test) {
     client._message('testuser', '#test-channel', '@weather San Francisco');
 
@@ -276,15 +287,14 @@ exports.sectery = {
       test.done();
     });
   },
-  '@weather :: zip code': function(test) {
-    client._message('testuser', '#test-channel', '@weather 90210');
+  '@weather :: forecast :: city': function(test) {
+    client._message('testuser', '#test-channel', '@weather forecast San Francisco');
 
     // wait for response from weather service
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
-      equal(true, /^Temp/.test(client._lastSaid().message));
+      equal(true, /^(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day/.test(client._lastSaid().message));
       test.done();
-
     });
   },
 };
