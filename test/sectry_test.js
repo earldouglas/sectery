@@ -6,7 +6,7 @@ var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
 var fsdb = require('../' + lib + '/fsdb');
 var main = require('../' + lib + '/main');
 
-var configFile = 'config.json.example';
+var configFile = 'config.example.json';
 var config = fsdb.load(configFile);
 
 function mockClient() {
@@ -68,6 +68,30 @@ function mockClient() {
 var client = mockClient();
 main(client, configFile);
 
+function equal(x, y) {
+  if (x === y) {
+    return true;
+  } else {
+    throw new Error(x + ' !== ' + y);
+  }
+}
+
+function keepTry(f) {
+  var start = Date.now();
+  function tryIt() {
+    try {
+      f();
+    } catch (e) {
+      if (Date.now() - start < 20000) {
+        setTimeout(tryIt, 150);
+      } else {
+        throw e;
+      }
+    }
+  }
+  tryIt();
+}
+
 exports.sectery = {
   '@join': function(test) {
     test.expect(3);
@@ -112,23 +136,21 @@ exports.sectery = {
     test.done();
   },
   '@krypto': function(test) {
-    test.expect(4);
-
     client._message('kryptobot', '#test-channel', 'Cards: 5, 25, 10, 1, 14 Objective Card: 21');
 
     // wait for solution to be retrieved
-    setTimeout(function() {
+    keepTry(function() {
       client._message('testuser', '#test-channel', '@krypto');
-      test.equal(client._said[client._said.length - 1].to, '#test-channel');
-      test.equal(client._said[client._said.length - 1].message, '::krypto');
+      equal(client._said[client._said.length - 1].to, '#test-channel');
+      equal(client._said[client._said.length - 1].message, '::krypto');
 
       // wait for auto delay between ::krypto and ::guess messages
-      setTimeout(function() {
-        test.equal(client._said[client._said.length - 1].to, '#test-channel');
-        test.equal(client._said[client._said.length - 1].message, '::guess (((5 + 1) * 10) - (25 + 14))');
+      keepTry(function() {
+        equal(client._said[client._said.length - 1].to, '#test-channel');
+        equal(client._said[client._said.length - 1].message, '::guess (((5 + 1) * 10) - (25 + 14))');
         test.done();
-      }, 3000);
-    }, 3000);
+      });
+    });
 
   },
   '@note': function(test) {
@@ -145,28 +167,26 @@ exports.sectery = {
     test.done();
   },
   '@scala': function(test) {
-    test.expect(4);
-
     client._message('testuser', '#test-channel', '@scala 2 + 3');
 
     // wait for response from scala evaluator
-    setTimeout(function() {
+    keepTry(function() {
 
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.ok(/res\d+: Int = 5\n\n/.test(client._lastSaid().message));
+      equal(client._lastSaid().to, '#test-channel');
+      equal(true, /res\d+: Int = 5\n\n/.test(client._lastSaid().message));
 
       client._message('testuser', '#test-channel', '@scala 5 + 7');
 
       // wait for response from scala evaluator
-      setTimeout(function() {
+      keepTry(function() {
 
-        test.equal(client._lastSaid().to, '#test-channel');
-        test.ok(/res\d+: Int = 12\n\n/.test(client._lastSaid().message));
+        equal(client._lastSaid().to, '#test-channel');
+        equal(true, /res\d+: Int = 12\n\n/.test(client._lastSaid().message));
 
         test.done();
-      }, 3000);
+      });
 
-    }, 3000);
+    });
   },
   '@sms': function(test) {
     test.expect(4);
@@ -195,49 +215,30 @@ exports.sectery = {
     test.done();
   },
   '@translate': function(test) {
-    test.expect(2);
-
     client._message('testuser', '#test-channel', '@translate en es Hello, world!');
 
     // wait for response from translation service
-    setTimeout(function() {
+    keepTry(function() {
 
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message, 'Hola Mundo!');
-
-      test.done();
-
-    }, 3000);
-  },
-  '@weather': function(test) {
-    test.expect(2);
-
-    client._message('testuser', '#test-channel', '@weather san francisco');
-
-    // wait for response from weather service
-    setTimeout(function() {
-
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.ok(/^Temp/.test(client._lastSaid().message));
+      equal(client._lastSaid().to, '#test-channel');
+      equal(client._lastSaid().message, 'Hola Mundo!');
 
       test.done();
 
-    }, 3000);
+    });
   },
   '@http': function(test) {
-    test.expect(2);
-
     client._message('testuser', '#test-channel', 'https://www.google.com/');
 
     // wait for response from http service
-    setTimeout(function() {
+    keepTry(function() {
 
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message, '| Google');
+      equal(client._lastSaid().to, '#test-channel');
+      equal(client._lastSaid().message, '| Google');
 
       test.done();
 
-    }, 1000);
+    });
   },
   'yesman': function(test) {
     test.expect(2);
@@ -256,40 +257,34 @@ exports.sectery = {
     test.done();
   },
   'down': function(test) {
-    test.expect(2);
-
     client._message('testuser', '#test-channel', '@down https://www.google.com/');
 
-    setTimeout(function() {
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message, "It's just you.  https://www.google.com/ is up.");
+    // wait for response from downforjustme service
+    keepTry(function() {
+      equal(client._lastSaid().to, '#test-channel');
+      equal(client._lastSaid().message, "It's just you.  https://www.google.com/ is up.");
       test.done();
-    }, 3000);
+    });
   },
-  '@wu-city': function(test) {
-
-    test.expect(2);
-    client._message('testuser', '#test-channel', '@wu San Francisco');
+  '@weather :: city': function(test) {
+    client._message('testuser', '#test-channel', '@weather San Francisco');
 
     // wait for response from weather service
-    setTimeout(function() {
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.ok(/^Temp/.test(client._lastSaid().message));
+    keepTry(function() {
+      equal(client._lastSaid().to, '#test-channel');
+      equal(true, /^Temp/.test(client._lastSaid().message));
       test.done();
-
-    }, 3000);
+    });
   },
-  '@wu-zip-code': function(test) {
-
-    test.expect(2);
-    client._message('testuser', '#test-channel', '@wu 90210');
+  '@weather :: zip code': function(test) {
+    client._message('testuser', '#test-channel', '@weather 90210');
 
     // wait for response from weather service
-    setTimeout(function() {
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.ok(/^Temp/.test(client._lastSaid().message));
+    keepTry(function() {
+      equal(client._lastSaid().to, '#test-channel');
+      equal(true, /^Temp/.test(client._lastSaid().message));
       test.done();
 
-    }, 3000);
+    });
   },
 };

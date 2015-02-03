@@ -63,7 +63,7 @@
         "agreement": "I'll say"
       }
     },
-    "weatherunderground": {
+    "weather": {
       "config": {
         "autocomplete": {
           "uri": "http://autocomplete.wunderground.com/aq?query="
@@ -71,8 +71,12 @@
         "api": {
           "uri": "http://api.wunderground.com/api/",
           "key": "API-KEY"
-        },
-        "admin": "testuser"
+        }
+      }
+    },
+    "emoji": {
+      "config": {
+        "table\\s*flip": "╯°□°）╯︵ ┻━┻"
       }
     }
   }
