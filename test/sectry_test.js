@@ -33,11 +33,17 @@ function mockClient() {
     },
     _join: function(channel, nick, message) {
       this._nicks[channel] = this._nicks[channel] || {};
-      this._nicks[chanell][nick] = true;
+      this._nicks[channel][nick] = true;
+      this.listeners('join').forEach(function (listener) {
+        listener(channel, nick, message);
+      });
     },
     _part: function(channel, nick, reason, message) {
       this._nicks[channel] = this._nicks[channel] || {};
-      delete this._nicks[chanell][nick];
+      delete this._nicks[channel][nick];
+      this.listeners('part').forEach(function (listener) {
+        listener(channel, nick, reason, message);
+      });
     },
     _message: function (from, to, message) {
       this._said.push({ from: from, to: to, message: message });
@@ -102,6 +108,39 @@ function keepTry(f) {
 }
 
 exports.sectery = {
+  '@tell *': function(test) {
+    test.expect(10);
+    client._join('#test-channel','fred',"what up?");
+    client._join('#test-channel','testuser',"what up?");
+    client._join('#test-channel','bob',"yo");
+    client._join('#test-channel','foo',"doh");
+    client._part('#test-channel','bob','i-don\'t-know',"yo");
+
+    var message = 'Hey-Diddly-Ho!';
+    client._message('testuser', '#test-channel', '@tell * ' + message);
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'I\'ll pass your message along.');
+
+    client._message('fred', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'fred: testuser said ' + message);
+
+    client._message('testuser', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'Hey, everyone!');
+
+    // bob should not get the message.
+    client._join('#test-channel','bob',"yo");
+    client._message('bob', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message,  'Hey, everyone!');
+
+    client._message('foo', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'foo: testuser said ' + message);
+
+    test.done();
+  },
   '@join': function(test) {
     test.expect(3);
     test.deepEqual(client._channels, {});
@@ -304,51 +343,6 @@ exports.sectery = {
       equal(client._lastSaid().to, '#test-channel');
       equal(true, /^(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day/.test(client._lastSaid().message));
       test.done();
-    });
-  },
-  '@weather :: zip code': function(test) {
-    client._message('testuser', '#test-channel', '@weather 90210');
-
-    // wait for response from weather service
-    keepTry(function() {
-      equal(client._lastSaid().to, '#test-channel');
-      equal(true, /^Temp/.test(client._lastSaid().message));
-      test.done();
-
-    });
-  },
-  '@tell *': function(test) {
-    test.expect(10);
-    client._join('#test-channel','fred',"what up?");
-    client._join('#test-channel','testuser',"what up?");
-    client._join('#test-channel','bob',"yo");
-    client._join('#test-channel','foo',"doh");
-    client._part('#test-channel','bob','i-don\'t-know',"yo");
-    var message = 'Hey-Diddly-Ho!';
-    client._message('testuser', '#test-channel', '@tell * ' + message);
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'I\'ll pass your message along.');
-
-    client._message('fred', '#test-channel', 'Hey, everyone!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'fred: testuser said ' + message);
-
-    client._message('testuser', '#test-channel', 'Hey, everyone!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'Hey, everyone!');
-
-    // bob should not get the message.
-    client._join('#test-channel','bob',"yo");
-    client._message('bob', '#test-channel', 'Hey, everyone!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message,  'Hey, everyone!');
-
-    client._message('foo', '#test-channel', 'Hey, everyone!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'fred: testuser said ' + message);
-
-    test.done();
-
     });
   },
 };
