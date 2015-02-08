@@ -79,5 +79,13 @@
         "table\\s*flip": "╯°□°）╯︵ ┻━┻"
       }
     }
+  },
+  "nicks": {
+    "#test-channel": {
+      "fred": true,
+      "testuser": true,
+      "foo": true,
+      "bob": true
+    }
   }
 }
