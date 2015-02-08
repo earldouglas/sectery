@@ -109,7 +109,7 @@ function keepTry(f) {
 
 exports.sectery = {
   '@tell *': function(test) {
-    test.expect(10);
+    test.expect(12);
     client._join('#test-channel','fred',"what up?");
     client._join('#test-channel','testuser',"what up?");
     client._join('#test-channel','bob',"yo");
@@ -138,6 +138,11 @@ exports.sectery = {
     client._message('foo', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, 'foo: testuser said ' + message);
+
+    //testuser should not get the message
+    client._message('testuser', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message,  'Hey, everyone!');
 
     test.done();
   },
