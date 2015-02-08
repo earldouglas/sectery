@@ -54,7 +54,140 @@
     },
     "tell": {
       "config": {
-        "messages": {},
+        "messages": {
+          "0": [
+            {
+              "channel": "#test-channel",
+              "to": "0",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "0",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "0",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "0",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "0",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "0",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "0",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            }
+          ],
+          "1": [
+            {
+              "channel": "#test-channel",
+              "to": "1",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "1",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "1",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "1",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "1",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "1",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "1",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            }
+          ],
+          "2": [
+            {
+              "channel": "#test-channel",
+              "to": "2",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "2",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "2",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "2",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "2",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "2",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            },
+            {
+              "channel": "#test-channel",
+              "to": "2",
+              "from": "testuser",
+              "message": "Hey-Diddly-Ho!"
+            }
+          ]
+        },
         "admin": "testuser"
       }
     },
