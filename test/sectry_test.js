@@ -19,9 +19,13 @@ function mockClient() {
     },
     join: function (channel) {
       this._channels[channel] = true;
+      this.names(channel);
     },
     part: function (channel) {
       delete this._channels[channel];
+    },
+    names: function(channel) {
+      this._names(channel,this._nicks[channel]);
     },
     _pm: function (from, to, message) {
       this._said.push({ from: from, to: to, message: message });
@@ -33,7 +37,7 @@ function mockClient() {
     },
     _join: function(channel, nick, message) {
       this._nicks[channel] = this._nicks[channel] || {};
-      this._nicks[channel][nick] = true;
+      this._nicks[channel][nick] = '';
       this.listeners('join').forEach(function (listener) {
         listener(channel, nick, message);
       });
@@ -43,6 +47,11 @@ function mockClient() {
       delete this._nicks[channel][nick];
       this.listeners('part').forEach(function (listener) {
         listener(channel, nick, reason, message);
+      });
+    },
+    _names: function(channel,names) {
+      this.listeners('names').forEach(function (listener) {
+        listener(channel,names);
       });
     },
     _message: function (from, to, message) {
@@ -146,6 +155,7 @@ exports.sectery = {
 
     test.done();
   },
+
   '@join': function(test) {
     test.expect(3);
     test.deepEqual(client._channels, {});
@@ -162,6 +172,47 @@ exports.sectery = {
     test.deepEqual(client._channels, { '#test-channel-2': true });
     client._pm('testuser', config.irc.user, '@part #test-channel-2');
     test.deepEqual(client._channels, {});
+    test.done();
+  },
+
+  '@tell *: join full channel w/ no joins/parts ': function(test) {
+    test.expect(12);
+    client._join('#test-channel','fred',"what up?");
+    client._join('#test-channel','testuser',"what up?");
+    client._join('#test-channel','bob',"yo");
+    client._join('#test-channel','foo',"doh");
+    client._part('#test-channel','bob','i-don\'t-know',"yo");
+    client.part('#test-channel');
+    client.join('#test-channel');
+
+    var message = 'Hey-Diddly-Ho!';
+    client._message('testuser', '#test-channel', '@tell * ' + message);
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'I\'ll pass your message along.');
+
+    client._message('fred', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'fred: testuser said ' + message);
+
+    client._message('testuser', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'Hey, everyone!');
+
+    // bob should not get the message.
+    client._join('#test-channel','bob',"yo");
+    client._message('bob', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message,  'Hey, everyone!');
+
+    client._message('foo', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'foo: testuser said ' + message);
+
+    //testuser should not get the message
+    client._message('testuser', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message,  'Hey, everyone!');
+
     test.done();
   },
   '@date': function(test) {
