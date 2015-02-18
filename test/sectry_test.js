@@ -3,11 +3,10 @@
 // Use instrumented code for code coverage tests
 var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
 
-var fsdb = require('../' + lib + '/fsdb');
 var main = require('../' + lib + '/main');
-
-var configFile = 'config.example.json';
-var config = fsdb.load(configFile);
+var nconf = require('nconf');
+var configFile = 'config.example.test.json'; // using testing config with API key
+var ircUser = 'testbot';
 
 function mockClient() {
   return {
@@ -25,11 +24,12 @@ function mockClient() {
       delete this._channels[channel];
     },
     names: function(channel) {
+      this._nicks[channel] = this._nicks[channel] || [];
       this._names(channel,this._nicks[channel]);
     },
     _pm: function (from, to, message) {
       this._said.push({ from: from, to: to, message: message });
-      if (from !== config.irc.user) {
+      if (from !== ircUser) {
         this.listeners('pm').forEach(function (listener) {
           listener(from, message);
         });
@@ -56,7 +56,7 @@ function mockClient() {
     },
     _message: function (from, to, message) {
       this._said.push({ from: from, to: to, message: message });
-      if (from !== config.irc.user) {
+      if (from !== ircUser) {
         this.listeners('message').forEach(function (listener) {
           listener(from, to, message);
         });
@@ -68,7 +68,7 @@ function mockClient() {
       });
     },
     say: function(to, message) {
-      this._message(config.irc.user, to, message);
+      this._message(ircUser, to, message);
     },
     _listeners: {},
     listeners: function(event) {
@@ -152,6 +152,10 @@ exports.sectery = {
     client._message('testuser', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message,  'Hey, everyone!');
+    client._part('#test-channel','fred','i-don\'t-know',"yo");
+    client._part('#test-channel','testuser','i-don\'t-know',"yo");
+    client._part('#test-channel','foo','i-don\'t-know',"yo");
+    client._part('#test-channel','bob','i-don\'t-know',"yo");
 
     test.done();
   },
@@ -159,18 +163,18 @@ exports.sectery = {
   '@join': function(test) {
     test.expect(3);
     test.deepEqual(client._channels, {});
-    client._pm('testuser', config.irc.user, '@join #test-channel-1');
+    client._pm('testuser', ircUser, '@join #test-channel-1');
     test.deepEqual(client._channels, { '#test-channel-1': true });
-    client._pm('testuser', config.irc.user, '@join #test-channel-2');
+    client._pm('testuser', ircUser, '@join #test-channel-2');
     test.deepEqual(client._channels, { '#test-channel-1': true, '#test-channel-2': true });
     test.done();
   },
   '@part': function(test) {
     test.expect(3);
     test.deepEqual(client._channels, { '#test-channel-1': true, '#test-channel-2': true });
-    client._pm('testuser', config.irc.user, '@part #test-channel-1');
+    client._pm('testuser',ircUser, '@part #test-channel-1');
     test.deepEqual(client._channels, { '#test-channel-2': true });
-    client._pm('testuser', config.irc.user, '@part #test-channel-2');
+    client._pm('testuser', ircUser, '@part #test-channel-2');
     test.deepEqual(client._channels, {});
     test.done();
   },
@@ -239,24 +243,24 @@ exports.sectery = {
 
     test.done();
   },
-  '@krypto': function(test) {
-    client._message('kryptobot', '#test-channel', 'Cards: 5, 25, 10, 1, 14 Objective Card: 21');
-
-    // wait for solution to be retrieved
-    keepTry(function() {
-      client._message('testuser', '#test-channel', '@krypto');
-      equal(client._said[client._said.length - 1].to, '#test-channel');
-      equal(client._said[client._said.length - 1].message, '::krypto');
-
-      // wait for auto delay between ::krypto and ::guess messages
-      keepTry(function() {
-        equal(client._said[client._said.length - 1].to, '#test-channel');
-        equal(client._said[client._said.length - 1].message, '::guess (((5 + 1) * 10) - (25 + 14))');
-        test.done();
-      });
-    });
-
-  },
+//  '@krypto': function(test) {
+//    client._message('kryptobot', '#test-channel', 'Cards: 5, 25, 10, 1, 14 Objective Card: 21');
+//
+//    // wait for solution to be retrieved
+//    keepTry(function() {
+//      client._message('testuser', '#test-channel', '@krypto');
+//      equal(client._said[client._said.length - 1].to, '#test-channel');
+//      equal(client._said[client._said.length - 1].message, '::krypto');
+//
+//      // wait for auto delay between ::krypto and ::guess messages
+//      keepTry(function() {
+//        equal(client._said[client._said.length - 1].to, '#test-channel');
+//        equal(client._said[client._said.length - 1].message, '::guess (((5 + 1) * 10) - (25 + 14))');
+//        test.done();
+//      });
+//    });
+//
+//  },
   '@note': function(test) {
     test.expect(4);
 

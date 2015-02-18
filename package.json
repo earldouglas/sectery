@@ -33,7 +33,8 @@
     "irc": "0.3.7",
     "nodemailer": "1.3.0",
     "nodemailer-smtp-pool": "0.1.8",
-    "preq": "0.3.5"
+    "preq": "0.3.5",
+    "nconf": "0.7.1"
   },
   "devDependencies": {
     "coveralls": "2.11.2",

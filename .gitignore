@@ -2,3 +2,4 @@ config.json
 lib-cov/
 npm-debug.log
 node_modules/
+config.example.test.json
