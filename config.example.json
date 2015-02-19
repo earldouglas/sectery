@@ -10,82 +10,68 @@
     }
   },
   "common": {
-    "admin": "testuser"
-  },
-  "plugins": {
-    "note": {
-      "config": {
-        "offline": true,
-        "contacts": {
-          "testuser": "testuser@test.local"
-        },
-        "from": "sectery@test.local",
-        "smtpPool": {
-          "host": "test.local",
-          "port": 25,
-          "name": "test.local",
-          "ignoreTLS": true,
-          "maxConnections": 5,
-          "maxMessages": 100,
-          "secure": false
-        },
-        "admin": "testuser"
-      }
-    },
-    "scala": {
-      "config": {
-        "headers": {
-          "cookie": [
-            "JSESSIONID=LJiZBSxqovNn2immspSSFw;Path=/"
-          ]
-        },
-        "admin": "testuser"
-      }
-    },
-    "sms": {
-      "config": {
-        "offline": true,
-        "uri": "http://textbelt.com/text",
-        "contacts": {
-          "testuser": "2125554202"
-        },
-        "admin": "testuser"
-      }
-    },
-    "tell": {
-      "config": {
-        "messages": {},
-        "admin": "testuser"
-      }
-    },
-    "yesman": {
-      "config": {
-        "agreement": "I'll say"
-      }
-    },
-    "weather": {
-      "config": {
-        "autocomplete": {
-          "uri": "http://autocomplete.wunderground.com/aq?query="
-        },
-        "api": {
-          "uri": "http://api.wunderground.com/api/",
-          "key": "API-KEY"
-        }
-      }
-    },
-    "emoji": {
-      "config": {
-        "table\\s*flip": "╯°□°）╯︵ ┻━┻"
+    "admin": "testuser",
+    "nicks": {
+      "#test-channel": {
+        "fred": true,
+        "testuser": true,
+        "foo": true,
+        "bob": true
       }
     }
   },
-  "nicks": {
-    "#test-channel": {
-      "fred": true,
-      "testuser": true,
-      "foo": true,
-      "bob": true
+  "plugins": {
+    "note": {
+      "offline": true,
+      "contacts": {
+        "testuser": "testuser@test.local"
+      },
+      "from": "sectery@test.local",
+      "smtpPool": {
+        "host": "test.local",
+        "port": 25,
+        "name": "test.local",
+        "ignoreTLS": true,
+        "maxConnections": 5,
+        "maxMessages": 100,
+        "secure": false
+      },
+      "admin": "testuser"
+    },
+    "scala": {
+      "headers": {
+        "cookie": [
+          "JSESSIONID=LJiZBSxqovNn2immspSSFw;Path=/"
+          ]
+      },
+      "admin": "testuser"
+    },
+    "sms": {
+      "offline": true,
+      "uri": "http://textbelt.com/text",
+      "contacts": {
+        "testuser": "2125554202"
+      },
+      "admin": "testuser"
+    },
+    "tell": {
+      "messages": {},
+      "admin": "testuser"
+    },
+    "yesman": {
+      "agreement": "I'll say"
+    },
+    "weather": {
+      "autocomplete": {
+        "uri": "http://autocomplete.wunderground.com/aq?query="
+      },
+      "api": {
+        "uri": "http://api.wunderground.com/api/",
+        "key": "API-KEY"
+      }
+    },
+    "emoji": {
+      "table\\s*flip": "╯°□°）╯︵ ┻━┻"
     }
   }
 }
