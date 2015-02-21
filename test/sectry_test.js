@@ -4,7 +4,7 @@
 var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
 
 var main = require('../' + lib + '/main');
-var configFile = 'config.example.test.json'; // using testing config with API key
+var configFile = 'config.example.json';
 var ircUser = 'testbot';
 
 function mockClient() {

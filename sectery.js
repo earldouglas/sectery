@@ -5,7 +5,7 @@ var irc = require('irc');
 var main = require('./lib/main');
 var nconf = require('nconf');
 
-nconf.file('config.json');
+nconf.env().file('config.json');
 var client = new irc.Client(
   nconf.get('irc:host'),
   nconf.get('irc:user'),
