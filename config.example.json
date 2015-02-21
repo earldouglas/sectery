@@ -35,28 +35,17 @@
         "maxConnections": 5,
         "maxMessages": 100,
         "secure": false
-      },
-      "admin": "testuser"
-    },
-    "scala": {
-      "headers": {
-        "cookie": [
-          "JSESSIONID=LJiZBSxqovNn2immspSSFw;Path=/"
-          ]
-      },
-      "admin": "testuser"
+      }
     },
     "sms": {
       "offline": true,
       "uri": "http://textbelt.com/text",
       "contacts": {
         "testuser": "2125554202"
-      },
-      "admin": "testuser"
+      }
     },
     "tell": {
-      "messages": {},
-      "admin": "testuser"
+      "messages": {}
     },
     "yesman": {
       "agreement": "I'll say"
