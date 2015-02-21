@@ -3,9 +3,12 @@
 var irc = require('irc');
 
 var main = require('./lib/main');
-var fsdb = require('./lib/fsdb');
+var nconf = require('nconf');
 
-var config = fsdb.load('config.json');
-var client = new irc.Client(config.irc.host, config.irc.user, config.irc.opts);
+nconf.file('config.json');
+var client = new irc.Client(
+  nconf.get('irc:host'),
+  nconf.get('irc:user'),
+  nconf.get('irc:opts'));
 
 main(client, 'config.json');

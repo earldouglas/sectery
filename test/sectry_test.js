@@ -4,7 +4,6 @@
 var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
 
 var main = require('../' + lib + '/main');
-var nconf = require('nconf');
 var configFile = 'config.example.test.json'; // using testing config with API key
 var ircUser = 'testbot';
 
