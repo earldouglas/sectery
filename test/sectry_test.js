@@ -116,6 +116,13 @@ function keepTry(f) {
 }
 
 exports.sectery = {
+  '@help': function(test) {
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@help');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'Available commands: @help, @scala, @tell, @date, @krypto, @note, @translate, @sms, @weather');
+    test.done();
+  },
   '@tell *': function(test) {
     var date = (new Date()).toString();
     test.expect(12);
@@ -159,7 +166,6 @@ exports.sectery = {
 
     test.done();
   },
-
   '@join': function(test) {
     test.expect(3);
     test.deepEqual(client._channels, {});
@@ -244,24 +250,13 @@ exports.sectery = {
 
     test.done();
   },
-//  '@krypto': function(test) {
-//    client._message('kryptobot', '#test-channel', 'Cards: 5, 25, 10, 1, 14 Objective Card: 21');
-//
-//    // wait for solution to be retrieved
-//    keepTry(function() {
-//      client._message('testuser', '#test-channel', '@krypto');
-//      equal(client._said[client._said.length - 1].to, '#test-channel');
-//      equal(client._said[client._said.length - 1].message, '::krypto');
-//
-//      // wait for auto delay between ::krypto and ::guess messages
-//      keepTry(function() {
-//        equal(client._said[client._said.length - 1].to, '#test-channel');
-//        equal(client._said[client._said.length - 1].message, '::guess (((5 + 1) * 10) - (25 + 14))');
-//        test.done();
-//      });
-//    });
-//
-//  },
+  '@note (help)': function(test) {
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@note');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @note <message>");
+    test.done();
+  },
   '@note': function(test) {
     test.expect(4);
 
@@ -275,10 +270,16 @@ exports.sectery = {
 
     test.done();
   },
+  '@scala (help)': function(test) {
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@scala');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @scala <expression>");
+    test.done();
+  },
   '@scala': function(test) {
     client._message('testuser', '#test-channel', '@scala 2 + 3');
 
-    // wait for response from scala evaluator
     keepTry(function() {
 
       equal(client._lastSaid().to, '#test-channel');
@@ -286,7 +287,6 @@ exports.sectery = {
 
       client._message('testuser', '#test-channel', '@scala 5 + 7');
 
-      // wait for response from scala evaluator
       keepTry(function() {
 
         equal(client._lastSaid().to, '#test-channel');
@@ -296,6 +296,13 @@ exports.sectery = {
       });
 
     });
+  },
+  '@sms (help)': function(test) {
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@sms');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @sms <message>");
+    test.done();
   },
   '@sms': function(test) {
     test.expect(4);
@@ -308,6 +315,14 @@ exports.sectery = {
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, 'I don\'t know your phone number.');
 
+    test.done();
+  },
+  '@tell (help)': function(test) {
+    var date = (new Date()).toString();
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@tell');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'Usage: @tell <username> <message>');
     test.done();
   },
   '@tell': function(test) {
@@ -324,10 +339,16 @@ exports.sectery = {
 
     test.done();
   },
+  '@translate (help)': function(test) {
+    test.expect(2);
+    client._message('testuser1', '#test-channel', '@translate');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'Usage: @translate <src lang> <dest lang> <text>');
+    test.done();
+  },
   '@translate': function(test) {
     client._message('testuser', '#test-channel', '@translate en es Hello, world!');
 
-    // wait for response from translation service
     keepTry(function() {
 
       equal(client._lastSaid().to, '#test-channel');
@@ -340,7 +361,6 @@ exports.sectery = {
   '@http': function(test) {
     client._message('testuser', '#test-channel', 'https://www.google.com/');
 
-    // wait for response from http service
     keepTry(function() {
 
       equal(client._lastSaid().to, '#test-channel');
@@ -360,16 +380,30 @@ exports.sectery = {
   },
   'emoji': function(test) {
     test.expect(2);
-
     client._message('testuser', '#test-channel', 'foo bar table flip baz');
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, '╯°□°）╯︵ ┻━┻');
     test.done();
   },
-  'down': function(test) {
+  '@down (help)': function(test) {
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@down');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @down <uri>");
+    test.done();
+  },
+  '@down (down)': function(test) {
+    client._message('testuser', '#test-channel', '@down https://foo.bar/');
+
+    keepTry(function() {
+      equal(client._lastSaid().to, '#test-channel');
+      equal(client._lastSaid().message, "It's not just you!  https://foo.bar/ looks down from here.");
+      test.done();
+    });
+  },
+  '@down (up)': function(test) {
     client._message('testuser', '#test-channel', '@down https://www.google.com/');
 
-    // wait for response from downforjustme service
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
       equal(client._lastSaid().message, "It's just you.  https://www.google.com/ is up.");
@@ -379,7 +413,6 @@ exports.sectery = {
   '@weather :: zip code': function(test) {
     client._message('testuser', '#test-channel', '@weather 90210');
 
-    // wait for response from weather service
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
       equal(true, /^Temp/.test(client._lastSaid().message));
@@ -390,7 +423,6 @@ exports.sectery = {
   '@weather :: city': function(test) {
     client._message('testuser', '#test-channel', '@weather San Francisco');
 
-    // wait for response from weather service
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
       equal(true, /^Temp/.test(client._lastSaid().message));
@@ -400,7 +432,6 @@ exports.sectery = {
   '@weather :: forecast :: city': function(test) {
     client._message('testuser', '#test-channel', '@weather forecast San Francisco');
 
-    // wait for response from weather service
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
       equal(true, /^(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day/.test(client._lastSaid().message));
