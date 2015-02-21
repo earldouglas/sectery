@@ -118,6 +118,7 @@ function keepTry(f) {
 
 exports.sectery = {
   '@tell *': function(test) {
+    var date = (new Date()).toString();
     test.expect(12);
     client._join('#test-channel','fred',"what up?");
     client._join('#test-channel','testuser',"what up?");
@@ -132,7 +133,7 @@ exports.sectery = {
 
     client._message('fred', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'fred: testuser said ' + message);
+    test.equal(client._lastSaid().message, 'fred: testuser said "' + message + '" on ' + date);
 
     client._message('testuser', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
@@ -146,7 +147,7 @@ exports.sectery = {
 
     client._message('foo', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'foo: testuser said ' + message);
+    test.equal(client._lastSaid().message, 'foo: testuser said "' + message + '" on ' + date);
 
     //testuser should not get the message
     client._message('testuser', '#test-channel', 'Hey, everyone!');
@@ -180,6 +181,7 @@ exports.sectery = {
   },
 
   '@tell *: join full channel w/ no joins/parts ': function(test) {
+    var date = (new Date()).toString();
     test.expect(12);
     client._join('#test-channel','fred',"what up?");
     client._join('#test-channel','testuser',"what up?");
@@ -196,7 +198,7 @@ exports.sectery = {
 
     client._message('fred', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'fred: testuser said ' + message);
+    test.equal(client._lastSaid().message, 'fred: testuser said "' + message + '" on ' + date);
 
     client._message('testuser', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
@@ -210,7 +212,7 @@ exports.sectery = {
 
     client._message('foo', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'foo: testuser said ' + message);
+    test.equal(client._lastSaid().message, 'foo: testuser said "' + message + '" on ' + date);
 
     //testuser should not get the message
     client._message('testuser', '#test-channel', 'Hey, everyone!');
@@ -310,6 +312,7 @@ exports.sectery = {
     test.done();
   },
   '@tell': function(test) {
+    var date = (new Date()).toString();
     test.expect(4);
 
     client._message('testuser', '#test-channel', '@tell testuser1 Welcome back!');
@@ -318,7 +321,7 @@ exports.sectery = {
 
     client._message('testuser1', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'testuser1: testuser said Welcome back!');
+    test.equal(client._lastSaid().message, 'testuser1: testuser said "Welcome back!" on ' + date);
 
     test.done();
   },
