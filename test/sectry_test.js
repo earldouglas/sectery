@@ -358,7 +358,31 @@ exports.sectery = {
 
     });
   },
-  '@http': function(test) {
+  'html title with numeric http code(s)': function(test) {
+    client._message('testuser', '#test-channel', 'http://stackoverflow.com/questions/11037123/%C3%A9-html-entity-code-in-title-tags');
+
+    keepTry(function() {
+
+      equal(client._lastSaid().to, '#test-channel');
+      equal(client._lastSaid().message, '| é HTML Entity code in title tags - Stack Overflow');
+
+      test.done();
+
+    });
+  },
+  'html title with no title': function(test) {
+    client._message('testuser', '#test-channel', 'https://www.google.com/images/srpr/logo11w.png');
+
+    keepTry(function() {
+
+      equal(client._lastSaid().to, '#test-channel');
+      equal(client._lastSaid().message, 'I can\'t find a title for that page.');
+
+      test.done();
+
+    });
+  },
+  'html title': function(test) {
     client._message('testuser', '#test-channel', 'https://www.google.com/');
 
     keepTry(function() {
@@ -392,12 +416,21 @@ exports.sectery = {
     test.equal(client._lastSaid().message, "Usage: @down <uri>");
     test.done();
   },
-  '@down (down)': function(test) {
+  '@down (bad domain)': function(test) {
     client._message('testuser', '#test-channel', '@down https://foo.bar/');
 
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
       equal(client._lastSaid().message, "It's not just you!  https://foo.bar/ looks down from here.");
+      test.done();
+    });
+  },
+  '@down (404)': function(test) {
+    client._message('testuser', '#test-channel', '@down https://www.google.com/foo/bar/baz');
+
+    keepTry(function() {
+      equal(client._lastSaid().to, '#test-channel');
+      equal(client._lastSaid().message, "It's not just you!  https://www.google.com/foo/bar/baz looks down from here.");
       test.done();
     });
   },
@@ -409,6 +442,13 @@ exports.sectery = {
       equal(client._lastSaid().message, "It's just you.  https://www.google.com/ is up.");
       test.done();
     });
+  },
+  '@weather (help)': function(test) {
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@weather');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'Usage: @weather [forecast] <location>');
+    test.done();
   },
   '@weather :: zip code': function(test) {
     client._message('testuser', '#test-channel', '@weather 90210');
