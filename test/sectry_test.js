@@ -121,12 +121,12 @@ exports.sectery = {
 
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'Usage: @setup <email|sms> <email@email.com|phone|code>');
+      equal(true, client._lastSaid().message === 'Usage: @setup <note|sms> <email@email.com|phone|code>');
       test.done();
     });
   },
-  '@setup (email)': function(test) {
-    client._message('testuser', '#test-channel', '@setup email email@email.com');
+  '@setup (note)': function(test) {
+    client._message('testuser', '#test-channel', '@setup note email@email.com');
 
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
@@ -134,17 +134,18 @@ exports.sectery = {
       test.done();
     });
   },
-  '@setup (email-code)': function(test) {
-    client._message('testuser', '#test-channel', '@setup email 4115c366-68f0-48d5-9a2e-6fe0b8b2b566');
+  '@setup (note-code)': function(test) {
+    client._message('testuser', '#test-channel', '@setup note 4115c366-68f0-48d5-9a2e-6fe0b8b2b566');
 
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
+      console.log(client._lastSaid());
       equal(true, client._lastSaid().message === 'testuser, code validated.');
       test.done();
     });
   },
-  '@setup (email-code-error)': function(test) {
-    client._message('testuser', '#test-channel', '@setup email 00000000-68f0-48d5-9a2e-6fe0b8b2b566');
+  '@setup (note-code-error)': function(test) {
+    client._message('testuser', '#test-channel', '@setup note 00000000-68f0-48d5-9a2e-6fe0b8b2b566');
 
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
@@ -152,12 +153,12 @@ exports.sectery = {
       test.done();
     });
   },
-  '@setup (email-error)': function(test) {
-    client._message('testuser', '#test-channel', '@setup email email');
+  '@setup (note-error)': function(test) {
+    client._message('testuser', '#test-channel', '@setup note email');
 
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'Usage: @setup <email|sms> <email@email.com|phone|code>');
+      equal(true, client._lastSaid().message === 'Usage: @setup <note|sms> <email@email.com|phone|code>');
       test.done();
     });
   },
@@ -175,7 +176,16 @@ exports.sectery = {
 
     keepTry(function() {
       equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'Usage: @setup <email|sms> <email@email.com|phone|code>');
+      equal(true, client._lastSaid().message === 'Usage: @setup <note|sms> <email@email.com|phone|code>');
+      test.done();
+    });
+  },
+  '@setup (sms-code-validation)': function(test) {
+    client._message('testuser', '#test-channel', '@setup sms 4115c366-68f0-48d5-9a2e-6fe0b8b2b567');
+
+    keepTry(function() {
+      equal(client._lastSaid().to, '#test-channel');
+      equal(true, client._lastSaid().message === 'testuser, code validated.');
       test.done();
     });
   },
