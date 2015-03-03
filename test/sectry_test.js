@@ -4,9 +4,11 @@
 var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
 
 var main = require('../' + lib + '/main');
+var nconf = require('nconf');
 var configFile = 'config.example.json';
 var ircUser = 'testbot';
 
+nconf.env().file(configFile);
 function mockClient() {
   return {
     _channels: {},
@@ -117,67 +119,66 @@ function keepTry(f) {
 
 exports.sectery = {
   '@setup (help)': function(test) {
+    test.expect(1);
     client._message('testuser', '#test-channel', '@setup');
 
-    keepTry(function() {
-      equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'Usage: @setup <email|sms> <email@email.com|phone|code>');
-      test.done();
-    });
+    equal(client._lastSaid().to, '#test-channel');
+    test.equal(true, client._lastSaid().message === 'Usage: @setup <note|sms> <email@email.com|phone|code>');
+    test.done();
   },
-  '@setup (email)': function(test) {
-    client._message('testuser', '#test-channel', '@setup email email@email.com');
+  '@setup (note)': function(test) {
+    test.expect(1);
+    client._message('testuser', '#test-channel', '@setup note email@email.com');
 
-    keepTry(function() {
-      equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'testuser, validation code sent! Check your email.');
-      test.done();
-    });
+    equal(client._lastSaid().to, '#test-channel');
+    test.equal(true, client._lastSaid().message === 'testuser, validation code sent! Check your email.');
+    test.done();
   },
-  '@setup (email-code)': function(test) {
-    client._message('testuser', '#test-channel', '@setup email 4115c366-68f0-48d5-9a2e-6fe0b8b2b566');
+  '@setup (note-code-error)': function(test) {
+    test.expect(1);
+    client._message('testuser', '#test-channel', '@setup note 00000000-68f0-48d5-9a2e-6fe0b8b2b566');
 
-    keepTry(function() {
-      equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'testuser, code validated.');
-      test.done();
-    });
+    equal(client._lastSaid().to, '#test-channel');
+    test.equal(true, client._lastSaid().message === 'testuser, code invalid. Please try again.');
+    test.done();
   },
-  '@setup (email-code-error)': function(test) {
-    client._message('testuser', '#test-channel', '@setup email 00000000-68f0-48d5-9a2e-6fe0b8b2b566');
-
-    keepTry(function() {
-      equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'testuser, code invalid. Please try again.');
-      test.done();
-    });
-  },
-  '@setup (email-error)': function(test) {
-    client._message('testuser', '#test-channel', '@setup email email');
-
-    keepTry(function() {
-      equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'Usage: @setup <email|sms> <email@email.com|phone|code>');
-      test.done();
-    });
+  '@setup (note-error)': function(test) {
+    test.expect(1);
+    client._message('testuser', '#test-channel', '@setup note email');
+    equal(client._lastSaid().to, '#test-channel');
+    test.equal(true, client._lastSaid().message === 'Usage: @setup <note|sms> <email@email.com|phone|code>');
+    test.done();
   },
   '@setup (sms)': function(test) {
+    test.expect(1);
     client._message('testuser', '#test-channel', '@setup sms 555-555-5551');
-
-    keepTry(function() {
-      equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'testuser, validation code sent! Check your texts.');
-      test.done();
-    });
+    equal(client._lastSaid().to, '#test-channel');
+    test.equal(true, client._lastSaid().message === 'testuser, validation code sent! Check your texts.');
+    test.done();
   },
   '@setup (sms-error)': function(test) {
+    test.expect(1);
     client._message('testuser', '#test-channel', '@setup sms 555-555-555');
 
-    keepTry(function() {
-      equal(client._lastSaid().to, '#test-channel');
-      equal(true, client._lastSaid().message === 'Usage: @setup <email|sms> <email@email.com|phone|code>');
-      test.done();
-    });
+    equal(client._lastSaid().to, '#test-channel');
+    test.equal(true, client._lastSaid().message === 'Usage: @setup <note|sms> <email@email.com|phone|code>');
+    test.done();
+  },
+  '@setup (sms-code-validation)': function(test) {
+
+    test.expect(1);
+    var code = nconf.get('plugins:setup:#test-channel:testuser:sms:code');
+    client._message('testuser', '#test-channel', '@setup sms ' + code);
+    test.equal(true, client._lastSaid().message === 'testuser, code validated.');
+    test.done();
+  },
+  '@setup (note-code)': function(test) {
+    test.expect(1);
+    var code = nconf.get('plugins:setup:#test-channel:testuser:note:code');
+    client._message('testuser', '#test-channel', '@setup note ' + code);
+    equal(client._lastSaid().to, '#test-channel');
+    test.equal(true, client._lastSaid().message === 'testuser, code validated.');
+    test.done();
   },
   '@help': function(test) {
     test.expect(2);
