@@ -22,9 +22,6 @@
   },
   "plugins": {
     "setup": {
-      "#test-channel": {
-        "testuser":{"email":"4115c366-68f0-48d5-9a2e-6fe0b8b2b566",
-                      "sms":"4115c366-68f0-48d5-9a2e-6fe0b8b2b566"}}
     },
     "note": {
       "offline": true,
