@@ -73,4 +73,26 @@ exports.sectery = {
 
     test.done();
   },
+
+  'html title with numeric http code(s)': function(test) {
+    client._message('testuser', '#test-channel', 'http://stackoverflow.com/questions/11037123/%C3%A9-html-entity-code-in-title-tags');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'é HTML Entity code in title tags - Stack Overflow');
+    test.done();
+  },
+
+  'html title with no title': function(test) {
+    client._message('testuser', '#test-channel', 'https://www.google.com/images/srpr/logo11w.png');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'https://www.google.com/images/srpr/logo11w.png');
+    test.done();
+  },
+
+  'html title': function(test) {
+    client._message('testuser', '#test-channel', 'https://www.google.com/');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'Google');
+    test.done();
+  },
+
 };
