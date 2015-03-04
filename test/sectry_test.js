@@ -65,11 +65,11 @@ exports.sectery = {
 
     client._message('testuser', '#test-channel', '@scala 2 + 3');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(true, /res\d+: Int = 5\n\n/.test(client._lastSaid().message));
+    test.equal('res0: Int = 5', client._lastSaid().message);
 
     client._message('testuser', '#test-channel', '@scala 5 + 7');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(true, /res\d+: Int = 12\n\n/.test(client._lastSaid().message));
+    test.equal('res1: Int = 12', client._lastSaid().message);
 
     test.done();
   },
