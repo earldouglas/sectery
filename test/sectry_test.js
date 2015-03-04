@@ -10,7 +10,7 @@ sectery(client);
 
 exports.sectery = {
   '@names': function(test) {
-    test.expect(9);
+    test.expect(4);
 
     client._join('#test-channel','fred',"what up?");
     test.equal(client._lastSaid().message, 'Hey, fred!');
@@ -23,18 +23,12 @@ exports.sectery = {
     client._part('#test-channel','bob','i-don\'t-know',"yo");
 
     client._message('testuser', '#test-channel', '@names');
-    test.equal(client._said[client._said.length - 1].message, 'testuser');
-    test.equal(client._said[client._said.length - 2].message, 'fred');
-    test.equal(client._said[client._said.length - 3].message, 'foo');
+    test.equal(client._lastSaid().message, 'names: foo, fred, testuser');
 
     client._join('#test-channel','bob',"yo");
 
     client._message('testuser', '#test-channel', '@names');
-    test.equal(client._said[client._said.length - 1].message, 'testuser');
-    test.equal(client._said[client._said.length - 2].message, 'fred');
-    test.equal(client._said[client._said.length - 3].message, 'foo');
-    test.equal(client._said[client._said.length - 4].message, 'bob');
-
+    test.equal(client._lastSaid().message, 'names: bob, foo, fred, testuser');
 
     // clean up
     client._part('#test-channel','fred','i-don\'t-know',"yo");
