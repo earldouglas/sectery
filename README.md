@@ -2,8 +2,6 @@
 
 ## Usage
 
-Copy *config.json.example* to *config.json*, replacing the various *test* values with your own.
-
 Install the dependencies:
 
 ```
@@ -17,8 +15,6 @@ node sectery
 ```
 
 ## Development
-
-The tests utilize the included *config.json.example*, so there's no need to copy it to *config.json* for development.
 
 ### Run the tests
 
@@ -52,52 +48,16 @@ Observe that your new test fails.
 
 ### Make your test pass
 
-*lib/plugins/emoji.js:*
+*lib/listeners/message/emoji.js:*
 
 ```javascript
 'use strict';
 
-function listener(client) {
-  return function(from, to, message) {
-    if (/table\s*flip/i.test(message)) {
-      client.say(to, '╯°□°）╯︵ ┻━┻');
-    }
-  };
-}
-
-module.exports.event    = 'message';
-module.exports.listener = listener;
-```
-
-### Add optional configuration
-
-Configuration is loaded by plugin name from *config.json* (or *config.json.example* during testing), and passed in as the second argument to `listener()` in each plugin.
-
-To add configuration to the above *emoji* plugin, add an argument for its configuration:
-
-*lib/plugins/emoji.js:*
-
-```
-function listener(client, config) {
-  console.log(config.foo.bar);
-```
-
-Then create some sample configuration:
-
-*config.json.example:*
-
-```javascript
-{
-  // ...
-  "plugins": {
-    // ...
-    "emoji": {
-      "config": {
-        "foo": {
-          "bar": 42
-        }
-      }
-    }
+function messageListener(db, from, channel, message) {
+  if (/table\s*flip/.test(message) || /flip\s*table/.test(message)) {
+    return [ { to: channel, message: '╯°□°）╯︵ ┻━┻' } ];
   }
 }
+
+module.exports = messageListener;
 ```

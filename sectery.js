@@ -1,14 +1,21 @@
 'use strict';
 
-var irc = require('irc');
+var irc     = require('irc');
+var sectery = require('./lib/sectery');
 
-var main = require('./lib/main');
-var nconf = require('nconf');
+var client;
 
-nconf.env().file('config.json');
+[ 'IRC_HOST', 'IRC_USER', 'IRC_PASS', ].forEach(function (x) {
+  if (process.env[x] === undefined) {
+      console.log('Please set ' + x + ' and try again.');                      
+      process.exit();                                                                
+  }  
+});
+
 var client = new irc.Client(
-  nconf.get('irc:host'),
-  nconf.get('irc:user'),
-  nconf.get('irc:opts'));
+  process.env.IRC_HOST,
+  process.env.IRC_USER,
+  { password: process.env.IRC_PASS }
+);
 
-main(client, 'config.json');
+sectery(client);
