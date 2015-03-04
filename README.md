@@ -48,19 +48,16 @@ Observe that your new test fails.
 
 ### Make your test pass
 
-*lib/plugins/emoji.js:*
+*lib/listeners/message/emoji.js:*
 
 ```javascript
 'use strict';
 
-function listener(client) {
-  return function(from, to, message) {
-    if (/table\s*flip/i.test(message)) {
-      client.say(to, '╯°□°）╯︵ ┻━┻');
-    }
-  };
+function messageListener(db, from, channel, message) {
+  if (/table\s*flip/.test(message) || /flip\s*table/.test(message)) {
+    return [ { to: channel, message: '╯°□°）╯︵ ┻━┻' } ];
+  }
 }
 
-module.exports.event    = 'message';
-module.exports.listener = listener;
+module.exports = messageListener;
 ```
