@@ -9,7 +9,7 @@ var client  = require('./mock-client')('testbot');
 sectery(client);
 
 exports.sectery = {
-  '@names': function(test) {
+  '@all': function(test) {
     test.expect(4);
 
     client._join('#test-channel','fred',"what up?");
@@ -22,13 +22,13 @@ exports.sectery = {
     client._join('#test-channel','foo',"doh");
     client._part('#test-channel','bob','i-don\'t-know',"yo");
 
-    client._message('testuser', '#test-channel', '@names');
-    test.equal(client._lastSaid().message, 'names: foo, fred, testuser');
+    client._message('testuser', '#test-channel', '@all');
+    test.equal(client._lastSaid().message, 'foo, fred, testuser');
 
     client._join('#test-channel','bob',"yo");
 
-    client._message('testuser', '#test-channel', '@names');
-    test.equal(client._lastSaid().message, 'names: bob, foo, fred, testuser');
+    client._message('testuser', '#test-channel', '@all');
+    test.equal(client._lastSaid().message, 'bob, foo, fred, testuser');
 
     // clean up
     client._part('#test-channel','fred','i-don\'t-know',"yo");
