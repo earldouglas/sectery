@@ -53,4 +53,24 @@ exports.sectery = {
     test.done();
   },
 
+  '@scala (help)': function(test) {
+    test.expect(2);
+    client._message('testuser', '#test-channel', '@scala');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @scala <expression>");
+    test.done();
+  },
+
+  '@scala': function(test) {
+
+    client._message('testuser', '#test-channel', '@scala 2 + 3');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(true, /res\d+: Int = 5\n\n/.test(client._lastSaid().message));
+
+    client._message('testuser', '#test-channel', '@scala 5 + 7');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(true, /res\d+: Int = 12\n\n/.test(client._lastSaid().message));
+
+    test.done();
+  },
 };
