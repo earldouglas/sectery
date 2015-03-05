@@ -4,7 +4,7 @@
 var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
 
 var sectery = require('../' + lib + '/sectery');
-var client  = require('./mock-client')('testbot');
+var client  = require('../lib/client');
 
 sectery(client);
 
