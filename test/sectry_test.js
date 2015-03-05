@@ -10,8 +10,6 @@ sectery(client);
 
 exports.sectery = {
   '@all': function(test) {
-    test.expect(4);
-
     client._join('#test-channel','fred',"what up?");
     test.equal(client._lastSaid().message, 'Hey, fred!');
 
@@ -40,7 +38,6 @@ exports.sectery = {
   },
 
   'emoji': function(test) {
-    test.expect(2);
     client._message('testuser', '#test-channel', 'foo bar table flip baz');
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, '╯°□°）╯︵ ┻━┻');
@@ -48,7 +45,6 @@ exports.sectery = {
   },
 
   '@scala (help)': function(test) {
-    test.expect(2);
     client._message('testuser', '#test-channel', '@scala');
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, "Usage: @scala <expression>");
@@ -89,4 +85,14 @@ exports.sectery = {
     test.done();
   },
 
+  '[pm] @echo': function(test) {
+    test.deepEqual(client._channels, {});
+    client._pm('testuser', 'testbot', '@echo ping');
+    test.equal(client._lastSaid().from, 'testbot');
+    test.equal(client._lastSaid().to, 'testuser');
+    test.equal(client._lastSaid().message, 'ping');
+    test.done();
+  },
+
 };
+
