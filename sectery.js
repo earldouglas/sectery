@@ -1,6 +1,7 @@
 'use strict';
 
 var sectery = require('./lib/sectery');
+var client = require('./lib/client');
 
 [ 'IRC_ENV', 'IRC_HOST', 'IRC_USER', 'IRC_PASS', 'IRC_CHANNELS', ].forEach(
   function (x) {
@@ -11,5 +12,4 @@ var sectery = require('./lib/sectery');
   }
 );
 
-var client = sectery(require('./lib/client'));
 sectery(client);
