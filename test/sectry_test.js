@@ -113,9 +113,9 @@ exports.sectery = {
     test.done();
   },
   '[pm] @setup - sms code': function(test) {
-    var message = "testuser, code validated!";
-
-    var code = "<code>";
+    var message = "testuser, code validated.";
+    var uuid = require('../lib/utilities');
+    var code = uuid.uuid();
     test.deepEqual(client._channels, {});
     client._pm('testuser', 'testbot', '@setup sms ' + code);
     test.equal(client._lastSaid().from, 'testbot');
@@ -124,7 +124,7 @@ exports.sectery = {
     test.done();
   },
   '[pm] @setup - email': function(test) {
-    var message = "testuser, check your email!";
+    var message = "testuser, validation code sent! Check your email.";
     test.deepEqual(client._channels, {});
     client._pm('testuser', 'testbot', '@setup email email@email.com');
     test.equal(client._lastSaid().from, 'testbot');
@@ -133,8 +133,9 @@ exports.sectery = {
     test.done();
   },
   '[pm] @setup - email code': function(test) {
-    var message = "testuser, code validated!";
-    var code = "<code>";
+    var message = "testuser, code validated.";
+    var uuid = require('../lib/utilities');
+    var code = uuid.uuid();
     test.deepEqual(client._channels, {});
     client._pm('testuser', 'testbot', '@setup email ' + code);
     test.equal(client._lastSaid().from, 'testbot');
