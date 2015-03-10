@@ -94,5 +94,53 @@ exports.sectery = {
     test.done();
   },
 
+  '[pm] @setup - usage': function(test) {
+    var message = "Usage: @setup <email|sms> <email@email.com|phone|code>";
+    test.deepEqual(client._channels, {});
+    client._pm('testuser', 'testbot', '@setup');
+    test.equal(client._lastSaid().from, 'testbot');
+    test.equal(client._lastSaid().to, 'testuser');
+    test.equal(client._lastSaid().message,message);
+    test.done();
+  },
+  '[pm] @setup - sms': function(test) {
+    var message = "testuser, validation code sent! Check your texts.";
+    test.deepEqual(client._channels, {});
+    client._pm('testuser', 'testbot', '@setup sms 555-555-5555');
+    test.equal(client._lastSaid().from, 'testbot');
+    test.equal(client._lastSaid().to, 'testuser');
+    test.equal(client._lastSaid().message,message);
+    test.done();
+  },
+  '[pm] @setup - sms code': function(test) {
+    var message = "testuser, code validated!";
+
+    var code = "<code>";
+    test.deepEqual(client._channels, {});
+    client._pm('testuser', 'testbot', '@setup sms ' + code);
+    test.equal(client._lastSaid().from, 'testbot');
+    test.equal(client._lastSaid().to, 'testuser');
+    test.equal(client._lastSaid().message,message);
+    test.done();
+  },
+  '[pm] @setup - email': function(test) {
+    var message = "testuser, check your email!";
+    test.deepEqual(client._channels, {});
+    client._pm('testuser', 'testbot', '@setup email email@email.com');
+    test.equal(client._lastSaid().from, 'testbot');
+    test.equal(client._lastSaid().to, 'testuser');
+    test.equal(client._lastSaid().message,message);
+    test.done();
+  },
+  '[pm] @setup - email code': function(test) {
+    var message = "testuser, code validated!";
+    var code = "<code>";
+    test.deepEqual(client._channels, {});
+    client._pm('testuser', 'testbot', '@setup email ' + code);
+    test.equal(client._lastSaid().from, 'testbot');
+    test.equal(client._lastSaid().to, 'testuser');
+    test.equal(client._lastSaid().message,message);
+    test.done();
+  },
 };
 
