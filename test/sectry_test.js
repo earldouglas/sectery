@@ -149,7 +149,7 @@ exports.sectery = {
   },
 
   '@tell': function(test) {
-    var date = (new Date()).toUTCString();
+    var date = (new Date()).toString();
     test.expect(4);
 
     client._message('testuser', '#test-channel', '@tell testuser1 Welcome back!');
