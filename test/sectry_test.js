@@ -149,7 +149,12 @@ exports.sectery = {
   },
 
   '@tell': function(test) {
-    var date = (new Date()).toString();
+    var options = {
+      weekday: "long", year: "numeric", month: "short",
+      day: "numeric", hour: "2-digit", minute: "2-digit"
+    };
+    var date =(new Date()).toLocaleTimeString("en-us", options);
+
     test.expect(4);
 
     client._message('testuser', '#test-channel', '@tell testuser1 Welcome back!');
