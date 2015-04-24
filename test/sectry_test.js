@@ -103,6 +103,7 @@ exports.sectery = {
     test.equal(client._lastSaid().message,message);
     test.done();
   },
+
   '[pm] @setup - sms': function(test) {
     var message = "testuser, validation code sent! Check your texts.";
     test.deepEqual(client._channels, {});
@@ -112,6 +113,7 @@ exports.sectery = {
     test.equal(client._lastSaid().message,message);
     test.done();
   },
+
   '[pm] @setup - sms code': function(test) {
     var message = "testuser, code validated.";
     var uuid = require('../lib/utilities');
@@ -123,6 +125,7 @@ exports.sectery = {
     test.equal(client._lastSaid().message,message);
     test.done();
   },
+
   '[pm] @setup - email': function(test) {
     var message = "testuser, validation code sent! Check your email.";
     test.deepEqual(client._channels, {});
@@ -132,6 +135,7 @@ exports.sectery = {
     test.equal(client._lastSaid().message,message);
     test.done();
   },
+
   '[pm] @setup - email code': function(test) {
     var message = "testuser, code validated.";
     var uuid = require('../lib/utilities');
@@ -143,5 +147,21 @@ exports.sectery = {
     test.equal(client._lastSaid().message,message);
     test.done();
   },
+
+  '@tell': function(test) {
+    var date = (new Date()).toString();
+    test.expect(4);
+
+    client._message('testuser', '#test-channel', '@tell testuser1 Welcome back!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'I\'ll pass your message along.');
+
+    client._message('testuser1', '#test-channel', 'Hey, everyone!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'testuser1: testuser said "Welcome back!" on ' + date);
+
+    test.done();
+  },
+
 };
 
