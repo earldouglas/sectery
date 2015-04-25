@@ -96,7 +96,7 @@ exports.sectery = {
   },
 
   '[pm] @setup - usage': function(test) {
-    var message = "Usage: @setup <email|sms> <email@email.com|phone|code>";
+    var message = "Usage: @setup <email|sms> <email@example.com|phone|code>";
     test.deepEqual(client._channels, {});
     client._pm('testuser', 'testbot', '@setup');
     test.equal(client._lastSaid().from, 'testbot');
@@ -130,7 +130,7 @@ exports.sectery = {
   '[pm] @setup - email': function(test) {
     var message = "testuser, validation code sent! Check your email.";
     test.deepEqual(client._channels, {});
-    client._pm('testuser', 'testbot', '@setup email email@email.com');
+    client._pm('testuser', 'testbot', '@setup email email@example.com');
     test.equal(client._lastSaid().from, 'testbot');
     test.equal(client._lastSaid().to, 'testuser');
     test.equal(client._lastSaid().message,message);
@@ -176,7 +176,7 @@ exports.sectery = {
 
     client._message('testuser1', '#test-channel', '@note remind me to be reminded');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'PM me with: /msg sectery @setup email');
+    test.equal(client._lastSaid().message, 'PM me with: /msg sectery @setup email <email@example.com>');
 
     test.done();
   },
