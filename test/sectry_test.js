@@ -3,8 +3,9 @@
 // Use instrumented code for code coverage tests
 var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
 
-var sectery = require('../' + lib + '/sectery');
-var client  = require('../lib/client');
+var sectery   = require('../' + lib + '/sectery');
+var client    = require('../lib/client');
+var utilities = require('../lib/utilities');
 
 sectery(client);
 
@@ -149,7 +150,6 @@ exports.sectery = {
   },
 
   '@tell': function(test) {
-    var date = (new Date()).toString();
     test.expect(4);
 
     client._message('testuser', '#test-channel', '@tell testuser1 Welcome back!');
@@ -158,7 +158,7 @@ exports.sectery = {
 
     client._message('testuser1', '#test-channel', 'Hey, everyone!');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'testuser1: testuser said "Welcome back!" on ' + date);
+    test.equal(client._lastSaid().message, 'testuser1: testuser said "Welcome back!" at ' + utilities.now());
 
     test.done();
   },
