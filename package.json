@@ -30,6 +30,7 @@
     "coveralls": "jscoverage lib && LIB_COV=1 nodeunit --reporter=lcov test | coveralls"
   },
   "dependencies": {
+    "dateformat": "^1.0.11",
     "irc": "0.3.7",
     "nconf": "0.7.1",
     "node-uuid": "1.4.2",
