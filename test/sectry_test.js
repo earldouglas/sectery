@@ -163,5 +163,23 @@ exports.sectery = {
     test.done();
   },
 
+  '@note': function(test) {
+    test.expect(6);
+
+    client._message('testuser', '#test-channel', '@note');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @note <message>");
+
+    client._message('testuser', '#test-channel', '@note remind me to be reminded');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'I\'ll email you a reminder.');
+
+    client._message('testuser1', '#test-channel', '@note remind me to be reminded');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'PM me with: /msg sectery @setup email');
+
+    test.done();
+  },
+
 };
 
