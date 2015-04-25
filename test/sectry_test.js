@@ -176,7 +176,7 @@ exports.sectery = {
 
     client._message('testuser1', '#test-channel', '@note remind me to be reminded');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'PM me with: /msg sectery @setup email name@example.com');
+    test.equal(client._lastSaid().message, 'testuser1: PM me your email address with: /msg sectery @setup email name@example.com');
 
     test.done();
   },
