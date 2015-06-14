@@ -2,8 +2,10 @@ language: node_js
 node_js:
 - '0.10'
 before_script:
-- npm test
+- sudo apt-get install graphicsmagick
 - export IRC_ENV=integration
+script:
+- npm test
 after_script:
 - npm run coveralls
 env:

@@ -181,5 +181,17 @@ exports.sectery = {
     test.done();
   },
 
+  'ascii art': function(test) {
+    client._message('testuser', '#test-channel', 'ascii http://example.com/test.png');
+
+    setTimeout(function() {
+      test.expect(2);
+
+      test.equal(client._lastSaid().to, '#test-channel');
+      test.equal(client._lastSaid().message, "[ascii art]");
+
+      test.done();
+    }, 2000);
+  },
 };
 
