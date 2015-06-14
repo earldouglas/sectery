@@ -181,7 +181,7 @@ exports.sectery = {
     test.done();
   },
 
-  'ascii art': function(test) {
+  '@ascii art': function(test) {
     client._message('testuser', '#test-channel', '@ascii http://example.com/test.png');
 
     setTimeout(function() {
@@ -193,5 +193,31 @@ exports.sectery = {
       test.done();
     }, 2000);
   },
+
+  '@ascii text': function(test) {
+    client._message('testuser', '#test-channel', '@ascii hello');
+
+    setTimeout(function() {
+      test.expect(1);
+
+      var ascii_hello = [
+        "                                ",
+        ",--.            ,--.,--.        ",
+        "|  ,---.  ,---. |  ||  | ,---.  ",
+        "|  .-.  || .-. :|  ||  || .-. | ",
+        "|  | |  |\\   --.|  ||  |' '-' ' ",
+        "`--' `--' `----'`--'`--' `---'  ",
+        "                                "
+      ].join("\n");
+
+      var message = client._said.splice(client._said.length - 7).map(function(reply) {
+        return reply.message;
+      }).join("\n");
+
+      test.equal(message, ascii_hello);
+
+      test.done();
+    }, 4000);
+  }
 };
 
