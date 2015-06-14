@@ -182,7 +182,7 @@ exports.sectery = {
   },
 
   'ascii art': function(test) {
-    client._message('testuser', '#test-channel', 'ascii http://example.com/test.png');
+    client._message('testuser', '#test-channel', '@ascii http://example.com/test.png');
 
     setTimeout(function() {
       test.expect(2);
