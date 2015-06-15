@@ -220,10 +220,10 @@ exports.sectery = {
     }, 4000);
   },
 
-  '@simpons': function(test) {
+  '@simpsons': function(test) {
     test.expect(2);
 
-    client._message('testuser', '#test-channel', '@simpons');
+    client._message('testuser', '#test-channel', '@simpsons');
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, "(S2E1): We have time for one more report. Bart Simpson? ");
 
