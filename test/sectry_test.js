@@ -281,29 +281,10 @@ exports.sectery = {
     test.done();
   },
   '@guess - right user, right guess': function(test) {
-    
-    var solutions = null;
-    
-    do {
-
-      client._message('testuser', '#test-channel', '@guess 0');
-      client._message('testuser', '#test-channel', '@cards');
-      var str = client._lastSaid().message;
-      var myRe = /\d+/g;
-      var myArray;
-      var cards = [];
-      while ((myArray = myRe.exec(str)) !== null) {
-        cards.push(myArray[0]);
-      }
-
-      var k = new krypto.Krypto();
-
-      solutions = k.solve(cards.slice(0,5),cards[5]);
-    } while (solutions === null || solutions.length === 0);
-    client._message('testuser', '#test-channel', '@krypto');
-    client._message('testuser', '#test-channel', '@guess ' + solutions[0]);
-    test.equal('testuser: Nice job! You got it correct!',
-               client._said[client._said.length - 2].message);
+    var k = new krypto.Krypto();
+    k.hand = [[6],[4],[22],[6],[2],[1]];
+    k.guesser = 'testuser';
+    test.ok(k.checkSolution(k.guesser,'(6 + 4) / (22 - 6 * 2)'),'check solution is false');
     test.done();
   },
 };
