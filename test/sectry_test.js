@@ -6,7 +6,7 @@ var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
 var sectery   = require('../' + lib + '/sectery');
 var client    = require('../lib/client');
 var utilities = require('../lib/utilities');
-
+var krypto = require('../lib/krypto-game');
 sectery(client);
 
 exports.sectery = {
@@ -227,6 +227,83 @@ exports.sectery = {
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, "(S2E1): We have time for one more report. Bart Simpson? ");
 
+    test.done();
+  },
+  '@cards': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', '@cards');
+    test.equal(client._lastSaid().to, '#test-channel');
+    var match = /^(\d+,?\s+){5}Objective\s+Card:\s+\d+$/.exec(client._lastSaid().message);
+    test.ok(match, 'cards not found.');
+    test.done();
+  },
+  '@krypto': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', '@krypto');
+    test.equal(client._lastSaid().to, '#test-channel');
+    var match = /testuser: OK - take a guess./.exec(client._lastSaid().message);
+    test.ok(match, 'Not ready to guess');
+    test.done();
+    client._message('testuser', '#test-channel', '@guess 0');
+  },
+  '@krypto - wrong user': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', '@krypto');
+    test.equal(client._lastSaid().to, '#test-channel');
+    client._message('testuser1', '#test-channel', '@krypto');
+    var match = /testuser1: sorry, but testuser already is guessing\./.exec(client._lastSaid().message);
+    test.ok(match, 'Second user doesn\'t get failure message.');
+    test.done();
+    client._message('testuser', '#test-channel', '@guess 0');
+  },
+  '@guess - wrong user': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', '@krypto');
+    test.equal(client._lastSaid().to, '#test-channel');
+    client._message('testuser1', '#test-channel', '@guess');
+    var match = /testuser1: sorry, but it\'s testuser\'s turn\./.exec(client._lastSaid().message);
+    test.ok(match, 'Second user doesn\'t get failure message.');
+    test.done();
+    client._message('testuser', '#test-channel', '@guess 0');
+  },
+  '@guess - right user, wrong guess': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', '@krypto');
+    test.equal(client._lastSaid().to, '#test-channel');
+    client._message('testuser', '#test-channel', '@guess 0');
+    var match = /testuser: Sorry, your answer is incorrect\./.exec(client._lastSaid().message);
+    test.ok(match, 'User gets correct error message.');
+    test.done();
+  },
+  '@guess - right user, right guess': function(test) {
+    
+    var solutions = null;
+    
+    do {
+
+      client._message('testuser', '#test-channel', '@guess 0');
+      client._message('testuser', '#test-channel', '@cards');
+      var str = client._lastSaid().message;
+      var myRe = /\d+/g;
+      var myArray;
+      var cards = [];
+      while ((myArray = myRe.exec(str)) !== null) {
+        cards.push(myArray[0]);
+      }
+
+      var k = new krypto.Krypto();
+
+      solutions = k.solve(cards.slice(0,5),cards[5]);
+    } while (solutions === null || solutions.length === 0);
+    client._message('testuser', '#test-channel', '@krypto');
+    client._message('testuser', '#test-channel', '@guess ' + solutions[0]);
+    test.equal('testuser: Nice job! You got it correct!',
+               client._said[client._said.length - 2].message);
     test.done();
   },
 };
