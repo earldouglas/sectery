@@ -287,5 +287,26 @@ exports.sectery = {
     test.ok(k.checkSolution(k.guesser,'(6 + 4) / (22 - 6 * 2)'),'check solution is false');
     test.done();
   },
+  '@time': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', '@time');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'now of the clock');
+    test.done();
+  },
+  '@remind': function(test) {
+    test.expect(2);
+
+    client._message('testuser', '#test-channel', '@remind 1 test');
+
+    setTimeout(function() {
+      test.expect(2);
+
+      test.equal(client._lastSaid().to, '#test-channel');
+      test.equal(client._lastSaid().message,'testuser: Reminder: test ' + utilities.now())
+      test.done();
+    }, 100);
+  },
 };
 
