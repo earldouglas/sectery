@@ -310,7 +310,7 @@ exports.sectery = {
       test.expect(2);
 
       test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message,msg);
+      test.equal(client._lastSaid().message,'testuser: reminder added.');
       test.done();
     },1000);
 
