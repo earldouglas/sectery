@@ -292,21 +292,43 @@ exports.sectery = {
 
     client._message('testuser', '#test-channel', '@time');
     test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'now of the clock');
+
+    var match = new RegExp('.*, (\\d+ days?)? ?(\\d+ hours?)? ?(\\d+ minutes?)? ?(\\d+ seconds?)? ?until end of next workday\\.');
+    
+    var match = match.exec(client._lastSaid().message);
+    test.ok(match, 'Incorrect time format');
     test.done();
   },
-  '@remind': function(test) {
+  '@remind-before': function(test) {
     test.expect(2);
 
-    client._message('testuser', '#test-channel', '@remind 1 test');
+    var msg = '@remind 2 test';
+    client._message('testuser', '#test-channel',msg);
+    var now = utilities.now();
 
     setTimeout(function() {
       test.expect(2);
 
       test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message,'testuser: Reminder: test ' + utilities.now())
+      test.equal(client._lastSaid().message,msg);
       test.done();
-    }, 100);
+    },1000);
+
+  },
+  '@remind-after': function(test) {
+    test.expect(2);
+
+    var msg = '@remind 2 test';
+    client._message('testuser', '#test-channel',msg);
+    var now = utilities.now();
+
+    setTimeout(function() {
+      test.expect(2);
+
+      test.equal(client._lastSaid().to, '#test-channel');
+      test.equal(client._lastSaid().message,'testuser: Reminder: test ' + now);
+      test.done();
+    },2000);
   },
 };
 
