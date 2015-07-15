@@ -2,6 +2,7 @@
 
 var sectery   = require('../lib/sectery');
 var utilities = require('../lib/utilities');
+<<<<<<< HEAD
 var krypto    = require('../lib/krypto-game');
 var irc       = require('irc');
 
