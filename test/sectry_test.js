@@ -413,7 +413,7 @@ exports.sectery = {
     test.done();
   },
   '@quote': function(test) {
-    test.expect(10);
+    test.expect(12);
     
     var user1 = Math.random().toString(36).substr(2, 5);
     var user2 = Math.random().toString(36).substr(2, 5);
@@ -440,6 +440,10 @@ exports.sectery = {
     client._message('testuser', '#test-channel', '@grab ' + user1);
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, 'testuser: OK - message grabbed.');
+
+    client._message(user1,'#test-channel', '@grab ' + user1);
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, user1 + ': Sorry, you can\'t grab yourself.');
 
     client._message('testuser', '#test-channel', '@quote ' + user1);
     test.equal(client._lastSaid().to, '#test-channel');
