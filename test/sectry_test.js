@@ -386,5 +386,65 @@ exports.sectery = {
 
     test.done();
   },
+  '@grab': function(test) {
+    test.expect(6);
+    
+    var user1 = Math.random().toString(36).substr(2, 5);
+    var user2 = Math.random().toString(36).substr(2, 5);
+
+    
+    client._message('testuser', '#test-channel', '@grab');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @grab <username>");
+
+    var util = require('../lib/utilities');
+    client._message('testuser', '#test-channel', '@grab ' + user1);
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message,'testuser: Sorry, ' + util.bot + ' has not recorded anything for ' + user1 + '.');
+
+    client._message(user1, '#test-channel', 'this is not a test yet.');
+    client._message(user1, '#test-channel', 'this is a test.');
+    client._message(user2, '#test-channel', 'this is not a test.');
+
+    client._message('testuser', '#test-channel', '@grab ' + user1);
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'testuser: OK - message grabbed.');
+
+    test.done();
+  },
+  '@quote': function(test) {
+    test.expect(10);
+    
+    var user1 = Math.random().toString(36).substr(2, 5);
+    var user2 = Math.random().toString(36).substr(2, 5);
+
+    
+    client._message('testuser', '#test-channel', '@quote');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @quote <username>");
+
+    var util = require('../lib/utilities');
+    client._message('testuser', '#test-channel', '@quote ' + user1);
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message,'testuser: Sorry, ' + util.bot + ' has not recorded anything for ' + user1 + '.');
+
+    var messages = [ 'this is not a test yet.', 'this is a test.'];
+    client._message(user1, '#test-channel', messages[0]);
+    client._message(user2, '#test-channel', 'this is not a test.');
+
+    client._message('testuser', '#test-channel', '@grab ' + user1);
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'testuser: OK - message grabbed.');
+
+    client._message(user1, '#test-channel', messages[1]);
+    client._message('testuser', '#test-channel', '@grab ' + user1);
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'testuser: OK - message grabbed.');
+
+    client._message('testuser', '#test-channel', '@quote ' + user1);
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.ok(messages.map(function (x) { return  '<' + user1 + '>: ' +x; }).indexOf(client._lastSaid().message) !== -1);
+    test.done();
+  },
 };
 
