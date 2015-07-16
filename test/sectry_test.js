@@ -352,7 +352,7 @@ exports.sectery = {
     var uuid = require('../lib/utilities');
     var code = uuid.uuid();
     client._pm(user, 'sectery', '@setup email ' + code);
-    client._message('testuser', '#test-channel', '@email ' + user + ' test!');
+    client._message('testuser', '#test-channel', '@email ' + user + ' test this bitch!');
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, 'I\'ll email ' + user + '.');
 
@@ -369,7 +369,7 @@ exports.sectery = {
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, "Usage: @sms <user> <message>");
 
-    client._message('testuser', '#test-channel', '@sms ' + user + ' test!');
+    client._message('testuser', '#test-channel', '@sms ' + user + ' test this bitch!');
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._said[client._said.length - 2].message, 'testuser: Sorry, ' + user + ' doesn\'t have their phone number setup.');
     test.equal(client._lastSaid().message, user + ': PM me your contact info with: /msg sectery @setup sms <phone number>');
