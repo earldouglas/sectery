@@ -7,6 +7,7 @@ var sectery   = require('../' + lib + '/sectery');
 var client    = require('../lib/client');
 var utilities = require('../lib/utilities');
 var krypto = require('../lib/krypto-game');
+
 sectery(client);
 
 exports.sectery = {
@@ -329,6 +330,61 @@ exports.sectery = {
       test.equal(client._lastSaid().message,'testuser: Reminder: test ' + now);
       test.done();
     },2000);
+  },
+  '@email': function(test) {
+    test.expect(7);
+    
+    var user = Math.random().toString(36).substr(2, 5);
+
+    
+    client._message('testuser', '#test-channel', '@email');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @email <user> <message>");
+
+    client._message('testuser', '#test-channel', '@email ' + user + ' test!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._said[client._said.length - 2].message, 'testuser: Sorry, ' + user + ' doesn\'t have their email address setup.');
+    test.equal(client._lastSaid().message, user + ': PM me your email address with: /msg sectery @setup email name@example.com');
+
+
+    client._pm(user, 'testbot', '@setup email email@example.com');
+
+    var uuid = require('../lib/utilities');
+    var code = uuid.uuid();
+    client._pm(user, 'sectery', '@setup email ' + code);
+    client._message('testuser', '#test-channel', '@email ' + user + ' test!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'I\'ll email ' + user + '.');
+
+    test.done();
+  },
+
+  '@sms': function(test) {
+    test.expect(7);
+    
+    var user = Math.random().toString(36).substr(2, 5);
+
+    
+    client._message('testuser', '#test-channel', '@sms');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, "Usage: @sms <user> <message>");
+
+    client._message('testuser', '#test-channel', '@sms ' + user + ' test!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._said[client._said.length - 2].message, 'testuser: Sorry, ' + user + ' doesn\'t have their phone number setup.');
+    test.equal(client._lastSaid().message, user + ': PM me your contact info with: /msg sectery @setup sms <phone number>');
+
+
+    client._pm(user, 'testbot', '@setup sms 555-555-5555');
+
+    var uuid = require('../lib/utilities');
+    var code = uuid.uuid();
+    client._pm(user, 'sectery', '@setup sms ' + code);
+    client._message('testuser', '#test-channel', '@sms ' + user + ' test!');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, 'I\'ll sms ' + user + '.');
+
+    test.done();
   },
 };
 
