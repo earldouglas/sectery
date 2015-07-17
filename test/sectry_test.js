@@ -450,5 +450,20 @@ exports.sectery = {
     test.ok(messages.map(function (x) { return  '<' + user1 + '>: ' +x + ' at ' + util.now(); }).indexOf(client._lastSaid().message) !== -1);
     test.done();
   },
+
+  '@regex': function(test) {
+    test.expect(2);
+    
+    var user1 = Math.random().toString(36).substr(2, 5);
+    var user2 = Math.random().toString(36).substr(2, 5);
+
+    var messages = [ 'This is an awesome post.', 'This is an amazing post.'];
+    client._message(user1, '#test-channel', messages[0]);
+    test.equal(client._lastSaid().to, '#test-channel');
+    client._message(user2, '#test-channel', 's/awesome/amazing/');
+    test.equal(client._lastSaid().message, '<' + user1 + '>: '+messages[1]);
+
+    test.done();
+  },
 };
 
