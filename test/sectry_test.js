@@ -447,7 +447,7 @@ exports.sectery = {
 
     client._message('testuser', '#test-channel', '@quote ' + user1);
     test.equal(client._lastSaid().to, '#test-channel');
-    test.ok(messages.map(function (x) { return  '<' + user1 + '>: ' +x; }).indexOf(client._lastSaid().message) !== -1);
+    test.ok(messages.map(function (x) { return  '<' + user1 + '>: ' +x + ' at ' + util.now(); }).indexOf(client._lastSaid().message) !== -1);
     test.done();
   },
 };
