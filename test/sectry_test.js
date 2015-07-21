@@ -508,5 +508,21 @@ exports.sectery = {
     }, 3000);
 
   },
+  '@cron [cmd]': function(test) {
+    test.expect(4);
+    
+    var user1 = Math.random().toString(36).substr(2, 5);
+    client._message(user1, '#test-channel', '@cron add "* * * * * *" @simpsons');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, user1 + ': OK - cron job 2 scheduled!');
+    
+    setTimeout(function() {
+      test.equal(client._lastSaid().to, '#test-channel');
+      test.equal(client._lastSaid().message, "(S2E1): We have time for one more report. Bart Simpson? ");
+
+      test.done();
+    }, 2000);
+
+  },
 };
 
