@@ -466,7 +466,7 @@ exports.sectery = {
     test.done();
   },
   '@cron': function(test) {
-    test.expect(11);
+    test.expect(15);
     
     var user1 = Math.random().toString(36).substr(2, 5);
     client._message(user1, '#test-channel', '@cron');
@@ -485,9 +485,13 @@ exports.sectery = {
     test.equal(client._lastSaid().to, '#test-channel');
     test.equal(client._lastSaid().message, user1 + ': OK - cron job 0 scheduled!');
     
+    client._message(user1, '#test-channel', '@cron add "10 * * * * *" This is cool.');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message, user1 + ': OK - cron job 1 scheduled!');
+
     setTimeout(function() {
-      var expected = "This is cool. This is cool. This is cool. This is cool.";
-      var message = client._said.splice(client._said.length - 4).map(function(reply) {
+      var expected = "This is cool. This is cool.";
+      var message = client._said.splice(client._said.length - 2).map(function(reply) {
         return reply.message;
       }).join(" ");
       test.equal(message, expected);
@@ -496,8 +500,12 @@ exports.sectery = {
       test.equal(client._lastSaid().to, '#test-channel');
       test.equal(client._lastSaid().message, user1 + ': OK - cron job 0 stopped!' );
 
+      client._message(user1, '#test-channel', '@cron remove 1');
+      test.equal(client._lastSaid().to, '#test-channel');
+      test.equal(client._lastSaid().message, user1 + ': OK - cron job 1 stopped!' );
+
       test.done();
-    }, 5000);
+    }, 3000);
 
   },
 };
