@@ -527,5 +527,14 @@ exports.sectery = {
     }, 2000);
 
   },
+
+  '@8ball': function(test) {
+    test.expect(2);
+    
+    client._message('testuser', '#test-channel', '@8ball What time is it?');
+    test.equal(client._lastSaid().to, '#test-channel');
+    test.equal(client._lastSaid().message.indexOf('testuser: '), 0);
+
+  },
 };
 
