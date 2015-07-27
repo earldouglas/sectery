@@ -1,563 +1,313 @@
 'use strict';
 
-// Use instrumented code for code coverage tests
-var lib = process.env.LIB_COV ? 'lib-cov' : 'lib';
-
-var sectery   = require('../' + lib + '/sectery');
-var client    = require('../lib/client');
+var sectery   = require('../lib/sectery');
 var utilities = require('../lib/utilities');
-var krypto = require('../lib/krypto-game');
+var krypto    = require('../lib/krypto-game');
+var irc       = require('irc');
 
-sectery(client);
+var assert   = require('assert');
 
-exports.sectery = {
-  '@all': function(test) {
-    client._join('#test-channel','fred',"what up?");
-    test.equal(client._lastSaid().message, 'Hey, fred!');
+function user(suffix) {
 
-    client._join('#test-channel','testuser',"what up?");
-    test.equal(client._lastSaid().message, 'Hey, testuser!');
+  var nick = 'sectery|' + suffix;
 
-    client._join('#test-channel','bob',"yo");
-    client._join('#test-channel','foo',"doh");
-    client._part('#test-channel','bob','i-don\'t-know',"yo");
+  var client = new irc.Client(
+    'irc.freenode.net',
+    nick,
+    {
+      password: process.env.IRC_PASS,
+      channels: ['#sectery'],
+    }
+  );
 
-    client._message('testuser', '#test-channel', '@all');
-    test.equal(client._lastSaid().message, 'foo, fred, testuser');
+  client.addListener('error', function (message) {
+    console.log(suffix, 'error', messsage);
+  });
 
-    client._join('#test-channel','bob',"yo");
+  var expectM = function (done, expectedFrom, messagePredicate) {
+    var listener =
+      function (from, to, message) {
+        if (expectedFrom === from && messagePredicate(message)) {
+          client.removeListener('message', listener);
+          done();
+        }
+      };
+    client.addListener('message', listener);
+  };
 
-    client._message('testuser', '#test-channel', '@all');
-    test.equal(client._lastSaid().message, 'bob, foo, fred, testuser');
+  return {
+    nick: nick,
+    expectM: expectM,
+    expectMessage: function (done, expectedFrom, expectedMessage) {
+      return expectM(done, expectedFrom, function (x) {
+        return x === expectedMessage;
+      });
+    },
+    expectMessageR: function (done, expectedFrom, expectedMessageR) {
+      return expectM(done, expectedFrom, function (x) {
+        return expectedMessageR.test(x);
+      });
+    },
+    expectPM: function (done, expectedFrom, expectedMessage) {
+      var listener =
+        function (from, message) {
+          if (expectedFrom === from && expectedMessage === message) {
+            client.removeListener('pm', listener);
+            done();
+          }
+        };
+      client.addListener('pm', listener);
+    },
+    client: client,
+    message: function (x) {
+      client.say('#sectery', x);
+    },
+    privateMessage: function (x) {
+      client.say(secteryUser.nick, x);
+    },
+    part: function (k) {
+      client.part('#sectery', k);
+    },
+    join: function (k) {
+      client.join('#sectery', k);
+    },
+  };
 
-    // clean up
-    client._part('#test-channel','fred','i-don\'t-know',"yo");
-    client._part('#test-channel','testuser','i-don\'t-know',"yo");
-    client._part('#test-channel','foo','i-don\'t-know',"yo");
-    client._part('#test-channel','bob','i-don\'t-know',"yo");
+}
 
-    test.done();
-  },
+var secteryUser = user('test');
+var testUser = user('test1');
+var testUser2 = user('test2');
 
-  'emoji': function(test) {
-    client._message('testuser', '#test-channel', 'foo bar table flip baz');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, '╯°□°）╯︵ ┻━┻');
-    test.done();
-  },
+process.env.IRC_USER = secteryUser.nick;
+var replyInterval = sectery(secteryUser.client);
 
-  '@scala (help)': function(test) {
-    client._message('testuser', '#test-channel', '@scala');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, "Usage: @scala <expression>");
-    test.done();
-  },
+describe('sectery', function () {
+  this.timeout(60000);
 
-  '@scala': function(test) {
+  it('should wait for sectery to join', function (done) {
+    var joinListener = function (channel, nick, message) {
+      if (nick === secteryUser.nick) {
+        secteryUser.client.removeListener('join', joinListener);
+        done();
+      }
+    };
+    secteryUser.client.addListener('join', joinListener);
+  });
 
-    client._message('testuser', '#test-channel', '@scala 2 + 3');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal('res0: Int = 5', client._lastSaid().message);
+  it('should greet user upon joining', function (done) {
+    testUser.part(function (nick) {
+      testUser.expectMessage(done, secteryUser.nick, 'Hey, ' + testUser.nick + '!');
+      testUser.join('#sectery');
+    });
+  });
 
-    client._message('testuser', '#test-channel', '@scala 5 + 7');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal('res1: Int = 12', client._lastSaid().message);
+  it('@all', function (done) {
+    testUser.expectM(done, secteryUser.nick, function (x) {
+      var substr = testUser.nick;
+      return x.indexOf(substr >= 0);
+    });
+    testUser.message('@all');
+  });
 
-    test.done();
-  },
+  it('emoji', function(done) {
+    testUser.expectMessage(done, secteryUser.nick, '╯°□°）╯︵ ┻━┻');
+    testUser.message('foo bar table flip baz');
+  });
 
-  'html title with numeric http code(s)': function(test) {
-    client._message('testuser', '#test-channel', 'http://stackoverflow.com/questions/11037123/%C3%A9-html-entity-code-in-title-tags');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'é HTML Entity code in title tags - Stack Overflow');
-    test.done();
-  },
+  it('@scala (help)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick, 'Usage: @scala <expression>');
+    testUser.message('@scala');
+  });
 
-  'html title with no title': function(test) {
-    client._message('testuser', '#test-channel', 'https://www.google.com/images/srpr/logo11w.png');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'https://www.google.com/images/srpr/logo11w.png');
-    test.done();
-  },
+  it.skip('@scala', function(done) {
+    testUser.expectMessage(done, secteryUser.nick, 'res0: Int = 42');
+    testUser.message('@scala 6 * 7');
+  });
 
-  'html title': function(test) {
-    client._message('testuser', '#test-channel', 'https://www.google.com/');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'Google');
-    test.done();
-  },
+  it('html title with numeric http code(s)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick,
+      'é HTML Entity code in title tags - Stack Overflow');
+    testUser.message('http://stackoverflow.com/questions/11037123/' +
+      '%C3%A9-html-entity-code-in-title-tags');
+  });
 
-  '[pm] @echo': function(test) {
-    test.deepEqual(client._channels, {});
-    client._pm('testuser', 'testbot', '@echo ping');
-    test.equal(client._lastSaid().from, 'testbot');
-    test.equal(client._lastSaid().to, 'testuser');
-    test.equal(client._lastSaid().message, 'ping');
-    test.done();
-  },
+  it('html title', function(done) {
+    testUser.expectMessage(done, secteryUser.nick, 'James Earl Douglas');
+    testUser.message('http://earldouglas.com/');
+  });
 
-  '[pm] @setup - usage': function(test) {
+  it('[pm] @echo', function(done) {
+    testUser.expectPM(done, secteryUser.nick, 'ping');
+    testUser.privateMessage('@echo ping');
+  });
+
+  it('[pm] @setup - usage', function(done) {
     var message = "Usage: @setup <email|sms> <email@example.com|phone|code>";
-    test.deepEqual(client._channels, {});
-    client._pm('testuser', 'testbot', '@setup');
-    test.equal(client._lastSaid().from, 'testbot');
-    test.equal(client._lastSaid().to, 'testuser');
-    test.equal(client._lastSaid().message,message);
-    test.done();
-  },
+    testUser.expectPM(done, secteryUser.nick, message);
+    testUser.privateMessage('@setup');
+  });
 
-  '[pm] @setup - sms': function(test) {
-    var message = "testuser, validation code sent! Check your texts.";
-    test.deepEqual(client._channels, {});
-    client._pm('testuser', 'testbot', '@setup sms 555-555-5555');
-    test.equal(client._lastSaid().from, 'testbot');
-    test.equal(client._lastSaid().to, 'testuser');
-    test.equal(client._lastSaid().message,message);
-    test.done();
-  },
+  it('@tell (set)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick, "I'll pass your message along.");
+    testUser.message('@tell ' + testUser2.nick + ' Welcome back!');
+  });
 
-  '[pm] @setup - sms code': function(test) {
-    var message = "testuser, code validated.";
-    var uuid = require('../lib/utilities');
-    var code = uuid.uuid();
-    test.deepEqual(client._channels, {});
-    client._pm('testuser', 'testbot', '@setup sms ' + code);
-    test.equal(client._lastSaid().from, 'testbot');
-    test.equal(client._lastSaid().to, 'testuser');
-    test.equal(client._lastSaid().message,message);
-    test.done();
-  },
+  it('@tell (get)', function(done) {
+    testUser2.part(function (nick) {
+      testUser2.join(function (nick) {
+        testUser2.expectMessageR(done, secteryUser.nick,
+          new RegExp(testUser2.nick + ': ' + testUser.nick +
+            ' said "Welcome back!"'));
+        testUser2.message('Hey, everyone!');
+      });
+    });
+  });
 
-  '[pm] @setup - email': function(test) {
-    var message = "testuser, validation code sent! Check your email.";
-    test.deepEqual(client._channels, {});
-    client._pm('testuser', 'testbot', '@setup email email@example.com');
-    test.equal(client._lastSaid().from, 'testbot');
-    test.equal(client._lastSaid().to, 'testuser');
-    test.equal(client._lastSaid().message,message);
-    test.done();
-  },
+  it('@note (usage)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick, 'Usage: @note <message>');
+    testUser.message('@note');
+  });
 
-  '[pm] @setup - email code': function(test) {
-    var message = "testuser, code validated.";
-    var uuid = require('../lib/utilities');
-    var code = uuid.uuid();
-    test.deepEqual(client._channels, {});
-    client._pm('testuser', 'testbot', '@setup email ' + code);
-    test.equal(client._lastSaid().from, 'testbot');
-    test.equal(client._lastSaid().to, 'testuser');
-    test.equal(client._lastSaid().message,message);
-    test.done();
-  },
+  it('@note (no email)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick, testUser.nick +
+      ': PM me your email address with: /msg ' +
+      secteryUser.nick + ' @setup email name@example.com');
+    testUser.message('@note Testing is hard.');
+  });
 
-  '@tell': function(test) {
-    test.expect(4);
+  it.skip('@ascii art', function(done) {
+    testUser.expectMessage(done, secteryUser.nick, '[ascii art]');
+    testUser.message('@ascii http://example.com/test.png');
+  });
 
-    client._message('testuser', '#test-channel', '@tell testuser1 Welcome back!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'I\'ll pass your message along.');
+  it('@simpsons', function(done) {
+    testUser.expectMessageR(done, secteryUser.nick, /^\(S\d+E\d+\): /);
+    testUser.message('@simpsons');
+  });
 
-    client._message('testuser1', '#test-channel', 'Hey, everyone!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'testuser1: testuser said "Welcome back!" at ' + utilities.now());
+  it('@cards', function (done) {
+    testUser.expectMessageR(done, secteryUser.nick,
+      /^(\d+,?\s+){5}Objective\s+Card:\s+\d+$/);
+    testUser.message('@cards');
+  });
 
-    test.done();
-  },
+  it('@krypto (premature @guess)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick,
+      testUser.nick + ': please say "@krypto" first!');
+    testUser.message('@guess');
+  });
 
-  '@note': function(test) {
-    test.expect(6);
+  it('@krypto', function(done) {
+    testUser.expectMessage(done, secteryUser.nick,
+      testUser.nick + ': OK - take a guess.');
+    testUser.message('@krypto');
+  });
 
-    client._message('testuser', '#test-channel', '@note');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, "Usage: @note <message>");
+  it('@krypto (wrong user)', function(done) {
+    testUser2.expectMessage(done, secteryUser.nick,
+      testUser2.nick + ": sorry, but it's " + testUser.nick + "'s turn.");
+    testUser2.message('@guess');
+  });
+  it('@cron (usage)', function(done) {
+    testUser2.expectMessage(done, secteryUser.nick,
+                            'Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>');
+    testUser2.message('@cron');
+  });
 
-    client._message('testuser', '#test-channel', '@note remind me to be reminded');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'I\'ll email you a reminder.');
+  it('@cron (bogus input)', function(done) {
+    testUser2.expectMessage(done, secteryUser.nick,
+                            'Error: '+ testUser2.nick + ': The cron string "bogus input" is not valid. Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>');
+    testUser2.message('@cron add "bogus input" test');
+  });
 
-    client._message('testuser1', '#test-channel', '@note remind me to be reminded');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'testuser1: PM me your email address with: /msg sectery @setup email name@example.com');
-
-    test.done();
-  },
-
-  '@ascii art': function(test) {
-    client._message('testuser', '#test-channel', '@ascii http://example.com/test.png');
-
-    setTimeout(function() {
-      test.expect(2);
-
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message, "[ascii art]");
-
-      test.done();
-    }, 2000);
-  },
-
-  '@ascii text': function(test) {
-    client._message('testuser', '#test-channel', '@ascii hello');
-
-    setTimeout(function() {
-      test.expect(1);
-
-      var ascii_hello = [
-        "                                ",
-        ",--.            ,--.,--.        ",
-        "|  ,---.  ,---. |  ||  | ,---.  ",
-        "|  .-.  || .-. :|  ||  || .-. | ",
-        "|  | |  |\\   --.|  ||  |' '-' ' ",
-        "`--' `--' `----'`--'`--' `---'  ",
-        "                                "
-      ].join("\n");
-
-      var message = client._said.splice(client._said.length - 7).map(function(reply) {
-        return reply.message;
-      }).join("\n");
-
-      test.equal(message, ascii_hello);
-
-      test.done();
-    }, 4000);
-  },
-
-  '@simpsons': function(test) {
-    test.expect(2);
-
-    client._message('testuser', '#test-channel', '@simpsons');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, "(S2E1): We have time for one more report. Bart Simpson? ");
-
-    test.done();
-  },
-  '@cards': function(test) {
-    test.expect(2);
-
-    client._message('testuser', '#test-channel', '@cards');
-    test.equal(client._lastSaid().to, '#test-channel');
-    var match = /^(\d+,?\s+){5}Objective\s+Card:\s+\d+$/.exec(client._lastSaid().message);
-    test.ok(match, 'cards not found.');
-    test.done();
-  },
-  '@krypto': function(test) {
-    test.expect(2);
-
-    client._message('testuser', '#test-channel', '@krypto');
-    test.equal(client._lastSaid().to, '#test-channel');
-    var match = /testuser: OK - take a guess./.exec(client._lastSaid().message);
-    test.ok(match, 'Not ready to guess');
-    test.done();
-    client._message('testuser', '#test-channel', '@guess 0');
-  },
-  '@krypto - wrong user': function(test) {
-    test.expect(2);
-
-    client._message('testuser', '#test-channel', '@krypto');
-    test.equal(client._lastSaid().to, '#test-channel');
-    client._message('testuser1', '#test-channel', '@krypto');
-    var match = /testuser1: sorry, but testuser already is guessing\./.exec(client._lastSaid().message);
-    test.ok(match, 'Second user doesn\'t get failure message.');
-    test.done();
-    client._message('testuser', '#test-channel', '@guess 0');
-  },
-  '@guess - wrong user': function(test) {
-    test.expect(2);
-
-    client._message('testuser', '#test-channel', '@krypto');
-    test.equal(client._lastSaid().to, '#test-channel');
-    client._message('testuser1', '#test-channel', '@guess');
-    var match = /testuser1: sorry, but it\'s testuser\'s turn\./.exec(client._lastSaid().message);
-    test.ok(match, 'Second user doesn\'t get failure message.');
-    test.done();
-    client._message('testuser', '#test-channel', '@guess 0');
-  },
-  '@guess - right user, wrong guess': function(test) {
-    test.expect(2);
-
-    client._message('testuser', '#test-channel', '@krypto');
-    test.equal(client._lastSaid().to, '#test-channel');
-    client._message('testuser', '#test-channel', '@guess 0');
-    var match = /testuser: Sorry, your answer is incorrect\./.exec(client._lastSaid().message);
-    test.ok(match, 'User gets correct error message.');
-    test.done();
-  },
-  '@guess - right user, right guess': function(test) {
-    var k = new krypto.Krypto();
-    k.hand = [[6],[4],[22],[6],[2],[1]];
-    k.guesser = 'testuser';
-    test.ok(k.checkSolution(k.guesser,'(6 + 4) / (22 - 6 * 2)'),'check solution is false');
-    test.done();
-  },
-  '@time': function(test) {
-    test.expect(2);
-
-    client._message('testuser', '#test-channel', '@time');
-    test.equal(client._lastSaid().to, '#test-channel');
-
-    var match = new RegExp('.*, (\\d+ days?)? ?(\\d+ hours?)? ?(\\d+ minutes?)? ?(\\d+ seconds?)? ?until end of next workday\\.');
+  it('@cron (remove-not found)', function(done) {
+    testUser2.expectMessage(done, secteryUser.nick,
+                            'Error: '+ testUser2.nick + ': The cron job with id "1" was not found. Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>');
+    testUser2.message('@cron remove 1');
+  });
+  it('@cron (add)', function(done) {
+    testUser2.expectMessage(done, secteryUser.nick,
+                            testUser2.nick + ': OK - cron job 0 scheduled!');
+    testUser2.message('@cron add "* * * * * *" This is cool. ');
+    testUser2.message('@cron remove 0');
+  });
+});
     
-    var match = match.exec(client._lastSaid().message);
-    test.ok(match, 'Incorrect time format');
-    test.done();
-  },
-  '@remind-before': function(test) {
-    test.expect(2);
-
-    var msg = '@remind 2 test';
-    client._message('testuser', '#test-channel',msg);
-    var now = utilities.now();
-
-    setTimeout(function() {
-      test.expect(2);
-
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message,'testuser: reminder added.');
-      test.done();
-    },1000);
-
-  },
-  '@remind-after': function(test) {
-    test.expect(2);
-
-    var msg = '@remind 2 test';
-    client._message('testuser', '#test-channel',msg);
-    var now = utilities.now();
-
-    setTimeout(function() {
-      test.expect(2);
-
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message,'testuser: Reminder: test ' + now);
-      test.done();
-    },2000);
-  },
-  '@email': function(test) {
-    test.expect(7);
-    
-    var user = Math.random().toString(36).substr(2, 5);
-
-    
-    client._message('testuser', '#test-channel', '@email');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, "Usage: @email <user> <message>");
-
-    client._message('testuser', '#test-channel', '@email ' + user + ' test!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._said[client._said.length - 2].message, 'testuser: Sorry, ' + user + ' doesn\'t have their email address setup.');
-    test.equal(client._lastSaid().message, user + ': PM me your email address with: /msg sectery @setup email name@example.com');
-
-
-    client._pm(user, 'testbot', '@setup email email@example.com');
-
-    var uuid = require('../lib/utilities');
-    var code = uuid.uuid();
-    client._pm(user, 'sectery', '@setup email ' + code);
-    client._message('testuser', '#test-channel', '@email ' + user + ' test this bitch!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'I\'ll email ' + user + '.');
-
-    test.done();
-  },
-
-  '@sms': function(test) {
-    test.expect(7);
-    
-    var user = Math.random().toString(36).substr(2, 5);
-
-    
-    client._message('testuser', '#test-channel', '@sms');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, "Usage: @sms <user> <message>");
-
-    client._message('testuser', '#test-channel', '@sms ' + user + ' test this bitch!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._said[client._said.length - 2].message, 'testuser: Sorry, ' + user + ' doesn\'t have their phone number setup.');
-    test.equal(client._lastSaid().message, user + ': PM me your contact info with: /msg sectery @setup sms <phone number>');
-
-
-    client._pm(user, 'testbot', '@setup sms 555-555-5555');
-
-    var uuid = require('../lib/utilities');
-    var code = uuid.uuid();
-    client._pm(user, 'sectery', '@setup sms ' + code);
-    client._message('testuser', '#test-channel', '@sms ' + user + ' test!');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'I\'ll sms ' + user + '.');
-
-    test.done();
-  },
-  '@grab': function(test) {
-    test.expect(6);
-    
-    var user1 = Math.random().toString(36).substr(2, 5);
-    var user2 = Math.random().toString(36).substr(2, 5);
-
-    
-    client._message('testuser', '#test-channel', '@grab');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, "Usage: @grab <username>");
-
-    var util = require('../lib/utilities');
-    client._message('testuser', '#test-channel', '@grab ' + user1);
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message,'testuser: Sorry, ' + util.bot + ' has not recorded anything for ' + user1 + '.');
-
-    client._message(user1, '#test-channel', 'this is not a test yet.');
-    client._message(user1, '#test-channel', 'this is a test.');
-    client._message(user2, '#test-channel', 'this is not a test.');
-
-    client._message('testuser', '#test-channel', '@grab ' + user1);
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'testuser: OK - message grabbed.');
-
-    test.done();
-  },
-  '@quote': function(test) {
-    test.expect(12);
-    
-    var user1 = Math.random().toString(36).substr(2, 5);
-    var user2 = Math.random().toString(36).substr(2, 5);
-
-    
-    client._message('testuser', '#test-channel', '@quote');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, "Usage: @quote <username>");
-
-    var util = require('../lib/utilities');
-    client._message('testuser', '#test-channel', '@quote ' + user1);
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message,'testuser: Sorry, ' + util.bot + ' has not recorded anything for ' + user1 + '.');
-
-    var messages = [ 'this is not a test yet.', 'this is a test.'];
-    client._message(user1, '#test-channel', messages[0]);
-    client._message(user2, '#test-channel', 'this is not a test.');
-
-    client._message('testuser', '#test-channel', '@grab ' + user1);
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'testuser: OK - message grabbed.');
-
-    client._message(user1, '#test-channel', messages[1]);
-    client._message('testuser', '#test-channel', '@grab ' + user1);
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'testuser: OK - message grabbed.');
-
-    client._message(user1,'#test-channel', '@grab ' + user1);
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, user1 + ': Sorry, you can\'t grab yourself.');
-
-    client._message('testuser', '#test-channel', '@quote ' + user1);
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.ok(messages.map(function (x) { return  '<' + user1 + '>: ' +x + ' at ' + util.now(); }).indexOf(client._lastSaid().message) !== -1);
-    test.done();
-  },
-
-  '@regex': function(test) {
-    test.expect(2);
-    
-    var user1 = Math.random().toString(36).substr(2, 5);
-    var user2 = Math.random().toString(36).substr(2, 5);
-
-    var messages = [ 'This is an awesome post.', 'This is an amazing post.'];
-    client._message(user1, '#test-channel', messages[0]);
-    test.equal(client._lastSaid().to, '#test-channel');
-    client._message(user2, '#test-channel', 's/awesome/amazing/');
-    test.equal(client._lastSaid().message, '<' + user1 + '>: '+messages[1]);
-
-    test.done();
-  },
-  '@cron': function(test) {
-    test.expect(15);
-    
-    var user1 = Math.random().toString(36).substr(2, 5);
-    client._message(user1, '#test-channel', '@cron');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>' );
-
-    client._message(user1, '#test-channel', '@cron add "bogus input" test');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'Error: '+ user1 + ': The cron string "bogus input" is not valid. Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>' );
-
-    client._message(user1, '#test-channel', '@cron remove 1');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'Error: '+ user1 + ': The cron job with id "1" was not found. Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>' );
-    
-    client._message(user1, '#test-channel', '@cron add "* * * * * *" This is cool.');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, user1 + ': OK - cron job 0 scheduled!');
-    
-    client._message(user1, '#test-channel', '@cron add "10 * * * * *" This is cool.');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, user1 + ': OK - cron job 1 scheduled!');
-
-    setTimeout(function() {
-      var expected = "This is cool. This is cool.";
-      var message = client._said.splice(client._said.length - 2).map(function(reply) {
-        return reply.message;
-      }).join(" ");
-      test.equal(message, expected);
-
-      client._message(user1, '#test-channel', '@cron remove 0');
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message, user1 + ': OK - cron job 0 stopped!' );
-
-      client._message(user1, '#test-channel', '@cron remove 1');
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message, user1 + ': OK - cron job 1 stopped!' );
-
-      test.done();
-    }, 3000);
-
-  },
-  '@cron [ls]': function(test) {
-    test.expect(8);
-    
-    var user1 = Math.random().toString(36).substr(2, 5);
-    client._message(user1, '#test-channel', '@cron');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, 'Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>' );
-
-    client._message(user1, '#test-channel', '@cron add "20 * * * * *" This is cool.');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, user1 + ': OK - cron job 2 scheduled!');
-    
-    client._message(user1, '#test-channel', '@cron add "10 * * * * *" This is cool.');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, user1 + ': OK - cron job 3 scheduled!');
-
-    var then = utilities.now();
-    client._message(user1, '#test-channel', '@cron ls');
-    test.equal(client._lastSaid().to, '#test-channel');
-
-    setTimeout(function() {
-      var message = client._said.splice(client._said.length - 2).map(function(reply) {
-        return reply.message;
-      }).join(" ");
-      var expected = '2: "20 * * * * *" "This is cool." ' + then + " " + '3: "10 * * * * *" "This is cool." ' + then;
-      test.equal(message, expected);
-
-      client._message(user1, '#test-channel', '@cron remove 2');
-      client._message(user1, '#test-channel', '@cron remove 3');
-      test.done();
-    }, 500);
-  },
-  '@cron [cmd]': function(test) {
-    test.expect(6);
-    
-    var user1 = Math.random().toString(36).substr(2, 5);
-    client._message(user1, '#test-channel', '@cron add "* * * * * *" @simpsons');
-    test.equal(client._lastSaid().to, '#test-channel');
-    test.equal(client._lastSaid().message, user1 + ': OK - cron job 4 scheduled!');
-    
-    setTimeout(function() {
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message, "(S2E1): We have time for one more report. Bart Simpson? ");
-
-      client._message(user1, '#test-channel', '@cron remove 4');
-      test.equal(client._lastSaid().to, '#test-channel');
-      test.equal(client._lastSaid().message, user1 + ': OK - cron job 4 stopped!' );
-      test.done();
-    }, 2000);
-
-  },
-};
-
+//    
+//    client._message(user1, '#test-channel', '@cron add "10 * * * * *" This is cool.');
+//    test.equal(client._lastSaid().to, '#test-channel');
+//    test.equal(client._lastSaid().message, user1 + ': OK - cron job 1 scheduled!');
+//
+//    setTimeout(function() {
+//      var expected = "This is cool. This is cool.";
+//      var message = client._said.splice(client._said.length - 2).map(function(reply) {
+//        return reply.message;
+//      }).join(" ");
+//      test.equal(message, expected);
+//
+//      client._message(user1, '#test-channel', '@cron remove 0');
+//      test.equal(client._lastSaid().to, '#test-channel');
+//      test.equal(client._lastSaid().message, user1 + ': OK - cron job 0 stopped!' );
+//
+//      client._message(user1, '#test-channel', '@cron remove 1');
+//      test.equal(client._lastSaid().to, '#test-channel');
+//      test.equal(client._lastSaid().message, user1 + ': OK - cron job 1 stopped!' );
+//
+//      test.done();
+//    }, 3000);
+//
+//  },
+//  '@cron [ls]': function(test) {
+//    test.expect(8);
+//    
+//    var user1 = Math.random().toString(36).substr(2, 5);
+//    client._message(user1, '#test-channel', '@cron');
+//    test.equal(client._lastSaid().to, '#test-channel');
+//    test.equal(client._lastSaid().message, 'Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>' );
+//
+//    client._message(user1, '#test-channel', '@cron add "20 * * * * *" This is cool.');
+//    test.equal(client._lastSaid().to, '#test-channel');
+//    test.equal(client._lastSaid().message, user1 + ': OK - cron job 2 scheduled!');
+//    
+//    client._message(user1, '#test-channel', '@cron add "10 * * * * *" This is cool.');
+//    test.equal(client._lastSaid().to, '#test-channel');
+//    test.equal(client._lastSaid().message, user1 + ': OK - cron job 3 scheduled!');
+//
+//    var then = utilities.now();
+//    client._message(user1, '#test-channel', '@cron ls');
+//    test.equal(client._lastSaid().to, '#test-channel');
+//
+//    setTimeout(function() {
+//      var message = client._said.splice(client._said.length - 2).map(function(reply) {
+//        return reply.message;
+//      }).join(" ");
+//      var expected = '2: "20 * * * * *" "This is cool." ' + then + " " + '3: "10 * * * * *" "This is cool." ' + then;
+//      test.equal(message, expected);
+//
+//      client._message(user1, '#test-channel', '@cron remove 2');
+//      client._message(user1, '#test-channel', '@cron remove 3');
+//      test.done();
+//    }, 500);
+//  },
+//  '@cron [cmd]': function(test) {
+//    test.expect(6);
+//    
+//    var user1 = Math.random().toString(36).substr(2, 5);
+//    client._message(user1, '#test-channel', '@cron add "* * * * * *" @simpsons');
+//    test.equal(client._lastSaid().to, '#test-channel');
+//    test.equal(client._lastSaid().message, user1 + ': OK - cron job 4 scheduled!');
+//    
+//    setTimeout(function() {
+//      test.equal(client._lastSaid().to, '#test-channel');
+//      test.equal(client._lastSaid().message, "(S2E1): We have time for one more report. Bart Simpson? ");
+//
+//      client._message(user1, '#test-channel', '@cron remove 4');
+//      test.equal(client._lastSaid().to, '#test-channel');
+//      test.equal(client._lastSaid().message, user1 + ': OK - cron job 4 stopped!' );
+//      test.done();
+//    }, 2000);
+//
+//  },
+//};
+//
