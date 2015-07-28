@@ -231,4 +231,17 @@ describe('sectery', function () {
     testUser2.message('s/foo/bar/');
   });
 
+  it('@grab', function(done) {
+    testUser2.expectMessage(done, secteryUser.nick,
+      testUser2.nick + ': OK - message grabbed.');
+    testUser.message('bananas');
+    testUser2.message('@grab ' + testUser.nick);
+  });
+
+  it('@quote', function(done) {
+    testUser2.expectMessageR(done, secteryUser.nick,
+      new RegExp('<' + testUser.nick + '>: bananas'));
+    testUser2.message('@quote ' + testUser.nick);
+  });
+
 });
