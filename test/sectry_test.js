@@ -224,4 +224,11 @@ describe('sectery', function () {
     testUser2.message('@time');
   });
 
+  it('regex', function(done) {
+    testUser2.expectMessage(done, secteryUser.nick,
+      '<' + testUser2.nick + '>: bar');
+    testUser2.message('foo');
+    testUser2.message('s/foo/bar/');
+  });
+
 });
