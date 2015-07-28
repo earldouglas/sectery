@@ -201,27 +201,26 @@ describe('sectery', function () {
   });
 
   it('@cron (add)', function(done) {
-    testUser2.expectMessage(done, secteryUser.nick,
-                            testUser2.nick + ': OK - cron job 0 scheduled!');
+    testUser2.expectMessageR(done, secteryUser.nick,
+      new RegExp(testUser2.nick + ': OK - cron job \d+ scheduled!'));
     testUser2.message('@cron add "* * * * * *" This is cool.');
   });
 
   it('@cron (ls)', function(done) {
-    var then = utilities.now();
-    testUser2.expectMessage(done, secteryUser.nick,
-                            '0: "* * * * * *" "This is cool." ' + then);
+    testUser2.expectMessageR(done, secteryUser.nick,
+      /\d+: "\* \* \* \* \* \*" "This is cool."/);
     testUser2.message('@cron ls');
   });
 
   it('@cron (remove)', function(done) {
-    testUser2.expectMessage(done, secteryUser.nick,
-                            testUser2.nick + ': OK - cron job 0 stopped!');
+    testUser2.expectMessageR(done, secteryUser.nick,
+      new RegExp(testUser2.nick + ': OK - cron job \d+ stopped!'));
     testUser2.message('@cron remove 0');
   });
 
   it('@time', function(done) {
     testUser2.expectMessageR(done, secteryUser.nick,
-      new RegExp('until end of next workday.'));
+      /until end of next workday./);
     testUser2.message('@time');
   });
 
