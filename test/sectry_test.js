@@ -209,5 +209,27 @@ describe('sectery', function () {
       testUser2.nick + ": sorry, but it's " + testUser.nick + "'s turn.");
     testUser2.message('@guess');
   });
+  it('@cron (add)', function(done) {
+    testUser2.expectMessage(done, secteryUser.nick,
+                            testUser2.nick + ': OK - cron job 0 scheduled!');
+    testUser2.message('@cron add "* * * * * *" This is cool. ');
+    setTimeout(function() {
+      testUser2.message('@cron remove 0');
+    }, 2000);
+  });
 
+  it('@cron (ls)', function(done) {
+    var then = utilities.now();
+    testUser2.expectMessage(done, secteryUser.nick,
+                            '1: "20 * * * * *" "This is cool." ' + then);
+    
+    testUser2.message('@cron add "20 * * * * *" This is cool.');
+
+    setTimeout(function() {
+      testUser2.message('@cron ls');
+    }, 2000);
+    setTimeout(function() {
+      testUser2.message('@cron remove 1');
+    }, 4000);
+  });
 });
