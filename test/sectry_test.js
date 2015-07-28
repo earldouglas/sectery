@@ -213,7 +213,8 @@ describe('sectery', function () {
   it('@cron (remove)', function(done) {
     testUser2.expectMessageR(done, secteryUser.nick(),
       new RegExp(testUser2.nick() + ': OK - cron job \d+ stopped!'));
-    testUser2.message('@cron remove 0');
+    testUser2.message('@cron remove 1');
+    testUser2.message('@cron remove 2');
   });
 
   it('@time', function(done) {
