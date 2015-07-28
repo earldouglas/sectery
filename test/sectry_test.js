@@ -184,7 +184,7 @@ describe('sectery', function () {
   it('@krypto (premature @guess)', function(done) {
     testUser.expectMessage(done, secteryUser.nick(),
       testUser.nick() + ': please say "@krypto" first!');
-    testUser.message('@guess');
+    testUser.message('@guess 0');
   });
 
   it('@krypto', function(done) {
@@ -196,7 +196,7 @@ describe('sectery', function () {
   it('@krypto (wrong user)', function(done) {
     testUser2.expectMessage(done, secteryUser.nick(),
       testUser2.nick() + ": sorry, but it's " + testUser.nick() + "'s turn.");
-    testUser2.message('@guess');
+    testUser2.message('@guess 0');
   });
 
   var cronJob = null;
