@@ -115,16 +115,6 @@ describe('sectery', function () {
     testUser.message('foo bar table flip baz');
   });
 
-  it('@scala (help)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick, 'Usage: @scala <expression>');
-    testUser.message('@scala');
-  });
-
-  it.skip('@scala', function(done) {
-    testUser.expectMessage(done, secteryUser.nick, 'res0: Int = 42');
-    testUser.message('@scala 6 * 7');
-  });
-
   it('html title with numeric http code(s)', function(done) {
     testUser.expectMessage(done, secteryUser.nick,
       'é HTML Entity code in title tags - Stack Overflow');
@@ -227,6 +217,12 @@ describe('sectery', function () {
     testUser2.expectMessage(done, secteryUser.nick,
                             testUser2.nick + ': OK - cron job 0 stopped!');
     testUser2.message('@cron remove 0');
+  });
+
+  it('@time', function(done) {
+    testUser2.expectMessageR(done, secteryUser.nick,
+      new RegExp('until end of next workday.'));
+    testUser2.message('@time');
   });
 
 });
