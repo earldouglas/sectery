@@ -58,10 +58,10 @@ function user() {
     },
     client: client,
     message: function (x) {
-      setTimeout(function () { client.say('#sectery', x); }, 2000);
+      client.say('#sectery', x);
     },
     privateMessage: function (x) {
-      setTimeout(function () { client.say(secteryUser.nick(), x); }, 2000);
+      client.say(secteryUser.nick(), x);
     },
     part: function (k) {
       client.part('#sectery', k);
@@ -95,7 +95,8 @@ describe('sectery', function () {
 
   it('should greet user upon joining', function (done) {
     testUser.part(function (nick) {
-      testUser.expectMessage(done, secteryUser.nick(), 'Hey, ' + testUser.nick() + '!');
+      testUser.expectMessage(done, secteryUser.nick(),
+        'Hey, ' + testUser.nick() + '!');
       testUser.join('#sectery');
     });
   });
@@ -198,23 +199,29 @@ describe('sectery', function () {
     testUser2.message('@guess');
   });
 
+  var cronJob = null;
+
   it('@cron (add)', function(done) {
-    testUser2.expectMessageR(done, secteryUser.nick(),
-      new RegExp(testUser2.nick() + ': OK - cron job \d+ scheduled!'));
+    testUser2.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser2.nick().replace(/[|]/g, '\\|') +
+        ': OK - cron job (\\d+) scheduled');
+      var match = regex.exec(x);
+      cronJob = match[1];
+      return match;
+    });
     testUser2.message('@cron add "* * * * * *" This is cool.');
   });
 
   it('@cron (ls)', function(done) {
     testUser2.expectMessageR(done, secteryUser.nick(),
-      /\d+: "\* \* \* \* \* \*" "This is cool."/);
+      new RegExp(cronJob + ': "\\* \\* \\* \\* \\* \\*" "This is cool."'));
     testUser2.message('@cron ls');
   });
 
   it('@cron (remove)', function(done) {
     testUser2.expectMessageR(done, secteryUser.nick(),
-      new RegExp(testUser2.nick() + ': OK - cron job \d+ stopped!'));
-    testUser2.message('@cron remove 1');
-    testUser2.message('@cron remove 2');
+      new RegExp(testUser2.nick() + ': OK - cron job ' + cronJob + ' stopped!'));
+    testUser2.message('@cron remove ' + cronJob);
   });
 
   it('@time', function(done) {
@@ -226,8 +233,8 @@ describe('sectery', function () {
   it('regex', function(done) {
     testUser2.expectMessage(done, secteryUser.nick(),
       '<' + testUser2.nick() + '>: bar');
-    testUser2.message('foo');
-    testUser2.message('s/foo/bar/');
+    testUser2.message('qux');
+    testUser2.message('s/qux/bar/');
   });
 
   it('@grab', function(done) {
