@@ -209,105 +209,27 @@ describe('sectery', function () {
       testUser2.nick + ": sorry, but it's " + testUser.nick + "'s turn.");
     testUser2.message('@guess');
   });
-  it('@cron (usage)', function(done) {
-    testUser2.expectMessage(done, secteryUser.nick,
-                            'Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>');
-    testUser2.message('@cron');
-  });
-
-  it('@cron (bogus input)', function(done) {
-    testUser2.expectMessage(done, secteryUser.nick,
-                            'Error: '+ testUser2.nick + ': The cron string "bogus input" is not valid. Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>');
-    testUser2.message('@cron add "bogus input" test');
-  });
-
-  it('@cron (remove-not found)', function(done) {
-    testUser2.expectMessage(done, secteryUser.nick,
-                            'Error: '+ testUser2.nick + ': The cron job with id "1" was not found. Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>');
-    testUser2.message('@cron remove 1');
-  });
   it('@cron (add)', function(done) {
     testUser2.expectMessage(done, secteryUser.nick,
                             testUser2.nick + ': OK - cron job 0 scheduled!');
     testUser2.message('@cron add "* * * * * *" This is cool. ');
-    testUser2.message('@cron remove 0');
+    setTimeout(function() {
+      testUser2.message('@cron remove 0');
+    }, 2000);
+  });
+
+  it('@cron (ls)', function(done) {
+    var then = utilities.now();
+    testUser2.expectMessage(done, secteryUser.nick,
+                            '1: "20 * * * * *" "This is cool." ' + then);
+    
+    testUser2.message('@cron add "20 * * * * *" This is cool.');
+
+    setTimeout(function() {
+      testUser2.message('@cron ls');
+    }, 2000);
+    setTimeout(function() {
+      testUser2.message('@cron remove 1');
+    }, 4000);
   });
 });
-    
-//    
-//    client._message(user1, '#test-channel', '@cron add "10 * * * * *" This is cool.');
-//    test.equal(client._lastSaid().to, '#test-channel');
-//    test.equal(client._lastSaid().message, user1 + ': OK - cron job 1 scheduled!');
-//
-//    setTimeout(function() {
-//      var expected = "This is cool. This is cool.";
-//      var message = client._said.splice(client._said.length - 2).map(function(reply) {
-//        return reply.message;
-//      }).join(" ");
-//      test.equal(message, expected);
-//
-//      client._message(user1, '#test-channel', '@cron remove 0');
-//      test.equal(client._lastSaid().to, '#test-channel');
-//      test.equal(client._lastSaid().message, user1 + ': OK - cron job 0 stopped!' );
-//
-//      client._message(user1, '#test-channel', '@cron remove 1');
-//      test.equal(client._lastSaid().to, '#test-channel');
-//      test.equal(client._lastSaid().message, user1 + ': OK - cron job 1 stopped!' );
-//
-//      test.done();
-//    }, 3000);
-//
-//  },
-//  '@cron [ls]': function(test) {
-//    test.expect(8);
-//    
-//    var user1 = Math.random().toString(36).substr(2, 5);
-//    client._message(user1, '#test-channel', '@cron');
-//    test.equal(client._lastSaid().to, '#test-channel');
-//    test.equal(client._lastSaid().message, 'Usage: @cron <add|remove|ls> "<cron-string>" <message>|<id>' );
-//
-//    client._message(user1, '#test-channel', '@cron add "20 * * * * *" This is cool.');
-//    test.equal(client._lastSaid().to, '#test-channel');
-//    test.equal(client._lastSaid().message, user1 + ': OK - cron job 2 scheduled!');
-//    
-//    client._message(user1, '#test-channel', '@cron add "10 * * * * *" This is cool.');
-//    test.equal(client._lastSaid().to, '#test-channel');
-//    test.equal(client._lastSaid().message, user1 + ': OK - cron job 3 scheduled!');
-//
-//    var then = utilities.now();
-//    client._message(user1, '#test-channel', '@cron ls');
-//    test.equal(client._lastSaid().to, '#test-channel');
-//
-//    setTimeout(function() {
-//      var message = client._said.splice(client._said.length - 2).map(function(reply) {
-//        return reply.message;
-//      }).join(" ");
-//      var expected = '2: "20 * * * * *" "This is cool." ' + then + " " + '3: "10 * * * * *" "This is cool." ' + then;
-//      test.equal(message, expected);
-//
-//      client._message(user1, '#test-channel', '@cron remove 2');
-//      client._message(user1, '#test-channel', '@cron remove 3');
-//      test.done();
-//    }, 500);
-//  },
-//  '@cron [cmd]': function(test) {
-//    test.expect(6);
-//    
-//    var user1 = Math.random().toString(36).substr(2, 5);
-//    client._message(user1, '#test-channel', '@cron add "* * * * * *" @simpsons');
-//    test.equal(client._lastSaid().to, '#test-channel');
-//    test.equal(client._lastSaid().message, user1 + ': OK - cron job 4 scheduled!');
-//    
-//    setTimeout(function() {
-//      test.equal(client._lastSaid().to, '#test-channel');
-//      test.equal(client._lastSaid().message, "(S2E1): We have time for one more report. Bart Simpson? ");
-//
-//      client._message(user1, '#test-channel', '@cron remove 4');
-//      test.equal(client._lastSaid().to, '#test-channel');
-//      test.equal(client._lastSaid().message, user1 + ': OK - cron job 4 stopped!' );
-//      test.done();
-//    }, 2000);
-//
-//  },
-//};
-//
