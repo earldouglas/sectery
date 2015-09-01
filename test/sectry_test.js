@@ -77,7 +77,7 @@ var secteryUser = user();
 var testUser = user();
 var testUser2 = user();
 
-var replyInterval = sectery(secteryUser.client);
+sectery(secteryUser.client);
 
 describe('sectery', function () {
   this.timeout(60000);
