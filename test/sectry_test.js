@@ -180,4 +180,13 @@ describe('sectery', function () {
     var command = '@poll close 0';
     testUser.message(command);
   });
+  it('@poll (ls)', function(done) {
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp('Usage: @poll <start|close> <message>');
+      return regex.test(x);
+    });
+    var command = '@poll';
+    testUser.message(command);
+  });
 });
