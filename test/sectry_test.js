@@ -250,4 +250,158 @@ describe('sectery', function () {
     testUser2.message('@quote ' + testUser.nick());
   });
 
+  it('@poll (ls)', function(done) {
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp('Usage: @poll <start|close> <message>');
+      return regex.test(x);
+    });
+    var command = '@poll';
+    testUser.message(command);
+  });
+
+  it('@poll (add)', function(done) {
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Poll \\d+ started!');
+      return regex.test(x);
+    });
+    var command = '@poll start Is this a poll?';
+    testUser.message(command);
+  });
+
+
+  it('@poll (close) - wrong user', function(done) {
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser2.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll \\d+ can only be closed by "' +  testUser.nick().replace(/[|]/g, '\\|') + '"!');
+      return regex.test(x);
+    });
+    var command = '@poll close 0';
+    testUser2.message(command);
+  });
+
+  it('@poll (close) - wrong id', function(done) {
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll \\d+ was not found.');
+      return regex.test(x);
+    });
+    var command = '@poll close 2';
+    testUser.message(command);
+  });
+  it('@poll (close)', function(done) {
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Poll \\d+ closed!');
+      return regex.test(x);
+    });
+    var command = '@poll close 0';
+    testUser.message(command);
+  });
+
+  it('@poll (closed)', function(done) {
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll \\d+ is already closed!');
+      return regex.test(x);
+    });
+    var command = '@poll close 0';
+    testUser.message(command);
+  });
+  it('@poll (ls)', function(done) {
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp('Usage: @poll <start|close> <message>');
+      return regex.test(x);
+    });
+    var command = '@poll';
+    testUser.message(command);
+  });
+
+  it('@vote (usage)', function(done) {
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp('Usage: @poll <start|close> <message>');
+      return regex.test(x);
+    });
+    var command = '@poll';
+    testUser.message(command);
+  });
+
+  it('@vote (usage)', function(done) {
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp('Usage: @vote <poll Id> aye|no');
+      return regex.test(x);
+    });
+    var command = '@vote';
+    testUser.message(command);
+  });
+
+  it('@vote (aye)', function(done) {
+     
+    var vote = 'aye';
+    var id = 1;
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick() + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: ayes:1 noes:0');
+      return regex.test(x);
+    });
+
+    var command = '@poll start Am I Awesome?';
+    testUser.message(command);
+    command = '@vote ' + id + ' ' + vote;
+    testUser.message(command);
+  });
+
+  it('@vote (aye 2)', function(done) {
+     
+    var vote = 'aye';
+    var id = 1;
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick() + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: ayes:2 noes:0');
+      return regex.test(x);
+    });
+
+    var command = '@vote ' + id + ' ' + vote;
+    testUser.message(command);
+  });
+
+  it('@vote (no)', function(done) {
+     
+    var vote = 'no';
+    var id = 1;
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick() + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: ayes:2 noes:1');
+      return regex.test(x);
+    });
+
+    var command = '@vote ' + id + ' ' + vote;
+    testUser.message(command);
+  });
+
+  it('@vote (closed)', function(done) {
+     
+    var vote = 'no';
+    var id = 0;
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick() + ': Sorry - Poll ' + id +' is already closed!');
+      return regex.test(x);
+    });
+
+    var command = '@vote ' + id + ' ' + vote;
+    testUser.message(command);
+  });
+
+  it('@vote (non-existant)', function(done) {
+     
+    var vote = 'no';
+    var id = 100;
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick() + ': Sorry - Poll ' + id +' was not found.');
+      return regex.test(x);
+    });
+
+    var command = '@vote ' + id + ' ' + vote;
+    testUser.message(command);
+  });
 });
