@@ -328,20 +328,20 @@ describe('sectery', function () {
   it('@vote (usage)', function(done) {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp('Usage: @vote <poll Id> aye|nay');
+      var regex = new RegExp('Usage: @vote <poll Id> yea|nay');
       return regex.test(x);
     });
     var command = '@vote';
     testUser.message(command);
   });
 
-  it('@vote (aye)', function(done) {
+  it('@vote (yea)', function(done) {
      
-    var vote = 'aye';
+    var vote = 'yea';
     var id = 1;
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick() + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: ayes:1 noes:0');
+      var regex = new RegExp(testUser.nick() + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: Yeas:1 Nays:0');
       return regex.test(x);
     });
 
@@ -351,13 +351,13 @@ describe('sectery', function () {
     testUser.message(command);
   });
 
-  it('@vote (aye 2)', function(done) {
+  it('@vote (yea 2)', function(done) {
      
-    var vote = 'aye';
+    var vote = 'yea';
     var id = 1;
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick() + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: ayes:2 noes:0');
+      var regex = new RegExp(testUser.nick() + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: Yeas:2 Nays:0');
       return regex.test(x);
     });
 
@@ -371,7 +371,7 @@ describe('sectery', function () {
     var id = 1;
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick() + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: ayes:2 noes:1');
+      var regex = new RegExp(testUser.nick() + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: Yeas:2 Nays:1');
       return regex.test(x);
     });
 
