@@ -170,6 +170,7 @@ describe('sectery', function () {
     testUser.message('@ascii http://example.com/test.png');
   });
 
+
   it('@simpsons', function(done) {
     testUser.expectMessageR(done, secteryUser.nick(), /^\(S\d+E\d+\): /);
     testUser.message('@simpsons');
@@ -250,6 +251,7 @@ describe('sectery', function () {
     testUser2.message('@quote ' + testUser.nick());
   });
 
+
   it('@poll (ls)', function(done) {
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp('Usage: @poll <start|close> <message>');
@@ -313,7 +315,7 @@ describe('sectery', function () {
     testUser.message(command);
   });
 
-  it('@vote (usage)', function(done) {
+  it('@poll (usage)', function(done) {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp('Usage: @poll <start|close> <message>');
@@ -326,7 +328,7 @@ describe('sectery', function () {
   it('@vote (usage)', function(done) {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp('Usage: @vote <poll Id> aye|no');
+      var regex = new RegExp('Usage: @vote <poll Id> aye|nay');
       return regex.test(x);
     });
     var command = '@vote';
@@ -365,7 +367,7 @@ describe('sectery', function () {
 
   it('@vote (no)', function(done) {
      
-    var vote = 'no';
+    var vote = 'nay';
     var id = 1;
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
@@ -379,7 +381,7 @@ describe('sectery', function () {
 
   it('@vote (closed)', function(done) {
      
-    var vote = 'no';
+    var vote = 'nay';
     var id = 0;
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
@@ -393,7 +395,7 @@ describe('sectery', function () {
 
   it('@vote (non-existant)', function(done) {
      
-    var vote = 'no';
+    var vote = 'nay';
     var id = 100;
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
