@@ -7,6 +7,13 @@ var irc       = require('irc');
 
 var assert   = require('assert');
 
+function log(x,regex) {
+  console.log('-------------------');
+  console.log(x);
+  console.log(regex);
+  console.log(regex.test(x));
+  console.log('-------------------');
+}
 function user() {
 
   var client = new irc.Client(
@@ -47,8 +54,7 @@ function user() {
       });
     },
     expectPM: function (done, expectedFrom, expectedMessage) {
-      var listener =
-        function (from, message) {
+      var listener = function (from, message) {
           if (expectedFrom === from && expectedMessage === message) {
             client.removeListener('pm', listener);
             done();
@@ -255,6 +261,7 @@ describe('sectery', function () {
   it('@poll (ls)', function(done) {
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp('Usage: @poll <start|close> <message>');
+      log(x,regex);
       return regex.test(x);
     });
     var command = '@poll';
@@ -264,6 +271,7 @@ describe('sectery', function () {
   it('@poll (add)', function(done) {
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Poll \\d+ started!');
+      log(x,regex);
       return regex.test(x);
     });
     var command = '@poll start Is this a poll?';
@@ -274,6 +282,7 @@ describe('sectery', function () {
   it('@poll (close) - wrong user', function(done) {
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser2.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll \\d+ can only be closed by "' +  testUser.nick().replace(/[|]/g, '\\|') + '"!');
+      log(x,regex);
       return regex.test(x);
     });
     var command = '@poll close 0';
@@ -283,6 +292,7 @@ describe('sectery', function () {
   it('@poll (close) - wrong id', function(done) {
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll \\d+ was not found.');
+      log(x,regex);
       return regex.test(x);
     });
     var command = '@poll close 2';
@@ -291,6 +301,7 @@ describe('sectery', function () {
   it('@poll (close)', function(done) {
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Poll \\d+ closed!');
+      log(x,regex);
       return regex.test(x);
     });
     var command = '@poll close 0';
@@ -300,6 +311,7 @@ describe('sectery', function () {
   it('@poll (closed)', function(done) {
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll \\d+ is already closed!');
+      log(x,regex);
       return regex.test(x);
     });
     var command = '@poll close 0';
@@ -309,6 +321,7 @@ describe('sectery', function () {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp('Usage: @poll <start\|close> <message>');
+      log(x,regex);
       return regex.test(x);
     });
     var command = '@poll';
@@ -319,6 +332,7 @@ describe('sectery', function () {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp('Usage: @poll <start\|close> <message>');
+      log(x,regex);
       return regex.test(x);
     });
     var command = '@poll';
@@ -329,6 +343,7 @@ describe('sectery', function () {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp('Usage: @vote <poll Id> yea\|nay');
+      log(x,regex);
       return regex.test(x);
     });
     var command = '@vote';
@@ -342,6 +357,7 @@ describe('sectery', function () {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: Yeas:1 Nays:0');
+      log(x,regex);
       return regex.test(x);
     });
 
@@ -358,6 +374,7 @@ describe('sectery', function () {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: Yeas:2 Nays:0');
+      log(x,regex);
       return regex.test(x);
     });
 
@@ -372,6 +389,7 @@ describe('sectery', function () {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: Yeas:2 Nays:1');
+      log(x,regex);
       return regex.test(x);
     });
 
@@ -386,6 +404,7 @@ describe('sectery', function () {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll ' + id +' is already closed!');
+      log(x,regex);
       return regex.test(x);
     });
 
@@ -400,6 +419,7 @@ describe('sectery', function () {
 
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll ' + id +' was not found.');
+      log(x,regex);
       return regex.test(x);
     });
 
