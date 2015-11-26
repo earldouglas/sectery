@@ -426,4 +426,47 @@ describe('sectery', function () {
     var command = '@vote ' + id + ' ' + vote;
     testUser.message(command);
   });
+  it('@poll (delete)', function(done) {
+     
+    var command = 'delete';
+    var id = 0;
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Poll ' + id +' deleted!');
+      log(x,regex);
+      return regex.test(x);
+    });
+
+    var command = '@poll ' + command + ' '  + id;
+    testUser.message(command);
+  });
+
+  it('@poll (delete open)', function(done) {
+     
+    var command = 'delete';
+    var id = 1;
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll ' + id +' is still open!');
+      log(x,regex);
+      return regex.test(x);
+    });
+
+    var command = '@poll ' + command + ' '  + id;
+    testUser.message(command);
+  });
+  it('@poll (delete not found)', function(done) {
+     
+    var command = 'delete';
+    var id = 4;
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll ' + id +' was not found.');
+      log(x,regex);
+      return regex.test(x);
+    });
+
+    var command = '@poll ' + command + ' '  + id;
+    testUser.message(command);
+  });
 });
