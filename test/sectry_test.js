@@ -469,4 +469,16 @@ describe('sectery', function () {
     var command = '@poll ' + command + ' '  + id;
     testUser.message(command);
   });
+  
+  it('@help', function(done) {
+     
+    var command = '@help';
+
+    testUser.expectM(done, secteryUser.nick(), function (x) {
+      var regex = new RegExp('Available commands: .*');
+      log(x,regex);
+      return regex.test(x);
+    });
+    testUser.message(command);
+  });
 });
