@@ -481,4 +481,10 @@ describe('sectery', function () {
     });
     testUser.message(command);
   });
+
+  it('weather', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(), 'not rainy enough');
+    testUser.message('@weather san francisco');
+  });
+
 });
