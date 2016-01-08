@@ -19,6 +19,7 @@ node sectery
 ### Run the tests
 
 ```
+npm install
 npm test
 ```
 
