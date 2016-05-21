@@ -120,6 +120,29 @@ describe('sectery', function () {
     testUser.message('foo bar table flip baz');
   });
 
+  it('autoreply (usage)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(), '@reply <name> /<regex>/[ig] <reply>');
+    testUser.message('@reply');
+  });
+  it('autoreply (addition)', function(done) {
+    testUser.expectMessageR(done, secteryUser.nick(),
+      new RegExp(testUser.nick() + ': OK - auto-reply "every-day" added.'));
+    testUser.message('@reply every-day /everyday/ EVERYDAY');
+  });
+  it('autoreply (test)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(),'EVERYDAY');
+    testUser.message('everyday');
+  });
+
+  it('autoreply (replace)', function(done) {
+    testUser.expectMessageR(done, secteryUser.nick(),
+      new RegExp(testUser.nick() + ': OK - auto-reply "every-day" added.'));
+    testUser.message('@reply every-day /everyday/ NOT-EVERYDAY');
+  });
+  it('autoreply (test replace)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(),'NOT-EVERYDAY');
+    testUser.message('everyday');
+  });
   it('html title with numeric http code(s)', function(done) {
     testUser.expectMessage(done, secteryUser.nick(),
       'é HTML Entity code in title tags - Stack Overflow');
