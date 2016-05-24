@@ -481,4 +481,21 @@ describe('sectery', function () {
     });
     testUser.message(command);
   });
+
+  it('list (add) ', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': OK - "Band of Brothers by Stephen Ambrose" was added to books.');
+    testUser.message('@list books add Band of Brothers by Stephen Ambrose');
+  });
+  it('list (remove)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': OK - "Band of Brothers by Stephen Ambrose" was deleted from books.');
+    testUser.message('@list books delete Band of Brothers by Stephen Ambrose');
+  });
+  it('list (remove list not found)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': Sorry - "not-found" was not found.');
+    testUser.message('@list not-found delete item');
+  });
+  it('list (remove not found)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': Sorry - "Not Found" was not found in books.');
+    testUser.message('@list books delete Not Found');
+  });
 });
