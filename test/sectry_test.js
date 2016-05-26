@@ -498,4 +498,15 @@ describe('sectery', function () {
     testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': Sorry - "Not Found" was not found in books.');
     testUser.message('@list books delete Not Found');
   });
+  it('list (list) ', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(),'Book1, Book2');
+    testUser.message('@list books add Book1');
+    testUser.message('@list books add Book2');
+    testUser.message('@list books list');
+  });
+  it('list (cleanup) ', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': OK - "Book2" was deleted from books.');
+    testUser.message('@list books delete Book1');
+    testUser.message('@list books delete Book2');
+  });
 });
