@@ -143,6 +143,16 @@ describe('sectery', function () {
     testUser.expectMessage(done, secteryUser.nick(),'NOT-EVERYDAY');
     testUser.message('everyday');
   });
+  it('autoreply (remove not found)', function(done) {
+    testUser.expectMessageR(done, secteryUser.nick(),
+      new RegExp(testUser.nick() + ': Sorry - auto-reply "ED" not found.'));
+    testUser.message('@reply delete ED');
+  });
+  it('autoreply (remove)', function(done) {
+    testUser.expectMessageR(done, secteryUser.nick(),
+      new RegExp(testUser.nick() + ': OK - auto-reply "every-day" removed.'));
+    testUser.message('@reply delete every-day');
+  });
   it('html title with numeric http code(s)', function(done) {
     testUser.expectMessage(done, secteryUser.nick(),
       'é HTML Entity code in title tags - Stack Overflow');
