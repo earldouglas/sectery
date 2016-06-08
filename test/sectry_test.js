@@ -120,14 +120,22 @@ describe('sectery', function () {
     testUser.message('foo bar table flip baz');
   });
 
-  it('autoreply (usage)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), '@reply <name> /<regex>/[ig] <reply>');
-    testUser.message('@reply');
-  });
   it('autoreply (addition)', function(done) {
     testUser.expectMessageR(done, secteryUser.nick(),
       new RegExp(testUser.nick() + ': OK - auto-reply "every-day" added.'));
     testUser.message('@reply every-day /everyday/ EVERYDAY');
+  });
+  it('autoreply (usage 1)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(), '@reply <name> /<regex>/[ig] <reply>');
+    testUser.message('@reply');
+  });
+  it('autoreply (usage 2)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(), '@reply delete <name>');
+    testUser.message('@reply');
+  });
+  it('autoreply (usage 3)', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(), 'Replies: every-day');
+    testUser.message('@reply');
   });
   it('autoreply (test)', function(done) {
     testUser.expectMessage(done, secteryUser.nick(),'EVERYDAY');
