@@ -115,6 +115,14 @@ describe('sectery', function () {
     testUser.message('@all');
   });
 
+  it('weather (usage) ', function(done) {
+    testUser.expectMessage(done, secteryUser.nick(),'@weather <location>')
+    testUser.message('@weather');
+  });
+  it('weather (usage) ', function(done) {
+    testUser.message('@weather Boulder');
+    done();
+  });
   it('emoji', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), '╯°□°）╯︵ ┻━┻');
     testUser.message('foo bar table flip baz');
