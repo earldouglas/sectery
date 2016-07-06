@@ -28,6 +28,31 @@ describe('join listeners', function () {
 
 });
 
+describe('part listeners', function () {
+
+  var test = function (name, req, res) {
+    var listener = require('../lib/listeners/part/' + name + '.js');
+    assert.deepEqual(listener(req.db, req.channel, req.nick, req.reason, req.message), res.messages);
+    assert.deepEqual(req.db, res.db);
+  }
+
+  it('default', function () {
+
+    test('default',
+      {
+        db: { nicks: { '#test-channel': { 'test-user': true } } },
+        channel: '#test-channel', nick: 'test-user', reason: '', message: ''
+      },
+      {
+        db: { nicks: { '#test-channel': { } } },
+        messages: undefined
+      }
+    );
+
+  });
+
+});
+
 describe('message listeners', function () {
 
   var test = function (name, req, res) {
