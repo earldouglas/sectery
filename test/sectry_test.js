@@ -19,7 +19,7 @@ describe('join listeners', function () {
     test('default',
       { db: {}, channel: '#test-channel', nick: 'test-user', message: '' },
       {
-        db: { nicks: { '#test-channel': { 'test-user': true } }},
+        db: { nicks: { '#test-channel': { 'test-user': true } } },
         messages: [ { message: 'Hey, test-user!', to: '#test-channel' } ]
       }
     );
