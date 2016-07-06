@@ -3,10 +3,10 @@
 var sectery   = require('../lib/sectery');
 var utilities = require('../lib/utilities');
 var krypto    = require('../lib/krypto-game');
-var irc       = require('irc');
 
 var assert   = require('assert');
 
+/*
 function log(x,regex) {
   console.log('-------------------');
   console.log(x);
@@ -559,3 +559,4 @@ describe('sectery', function () {
     testUser.message('@list books delete Book2');
   });
 });
+*/
