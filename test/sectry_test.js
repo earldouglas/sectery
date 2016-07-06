@@ -28,6 +28,25 @@ describe('join listeners', function () {
 
 });
 
+describe('message listeners', function () {
+
+  var test = function (name, req, res) {
+    var listener = require('../lib/listeners/message/' + name + '.js');
+    assert.deepEqual(listener(req.db, req.user, req.channel, req.message), res.messages);
+    assert.deepEqual(req.db, res.db);
+  }
+
+  it('emoji', function () {
+
+    test('emoji',
+      { db: {}, from: 'test-user', channel: '#test-channel', message: 'foo bar table flip baz' },
+      { db: {}, messages: [ { message: "╯°□°）╯︵ ┻━┻", to: "#test-channel" } ] }
+    );
+
+  });
+
+});
+
 /*
 function log(x,regex) {
   console.log('-------------------');
@@ -136,10 +155,6 @@ describe('sectery', function () {
   it('weather (usage) ', function(done) {
     testUser.message('@weather Boulder');
     done();
-  });
-  it('emoji', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), '╯°□°）╯︵ ┻━┻');
-    testUser.message('foo bar table flip baz');
   });
 
   it('autoreply (addition)', function(done) {
