@@ -121,14 +121,6 @@ describe('sectery', function () {
     secteryUser.client.addListener('join', joinListener);
   });
 
-  it('should greet user upon joining', function (done) {
-    testUser.part(function (nick) {
-      testUser.expectMessage(done, secteryUser.nick(),
-        'Hey, ' + testUser.nick() + '!');
-      testUser.join('#sectery');
-    });
-  });
-
   it('@all', function (done) {
     testUser.expectM(done, secteryUser.nick(), function (x) {
       var substr = testUser.nick();
