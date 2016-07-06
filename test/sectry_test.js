@@ -6,6 +6,28 @@ var krypto    = require('../lib/krypto-game');
 
 var assert   = require('assert');
 
+describe('join listeners', function () {
+
+  var test = function (name, req, res) {
+    var listener = require('../lib/listeners/join/' + name + '.js');
+    assert.deepEqual(listener(req.db, req.channel, req.nick, req.message), res.messages);
+    assert.deepEqual(req.db, res.db);
+  }
+
+  it('default', function () {
+
+    test('default',
+      { db: {}, channel: '#test-channel', nick: 'test-user', message: '' },
+      {
+        db: { nicks: { '#test-channel': { 'test-user': true } }},
+        messages: [ { message: 'Hey, test-user!', to: '#test-channel' } ]
+      }
+    );
+
+  });
+
+});
+
 /*
 function log(x,regex) {
   console.log('-------------------');
