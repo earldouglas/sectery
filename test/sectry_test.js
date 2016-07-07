@@ -105,6 +105,19 @@ describe('message listeners', function () {
     }
   );
 
+  var everyDayDb = {
+    replies: {
+      '#test-channel': [
+	{
+	  flags: '',
+	  name: 'every-day',
+	  regex: 'everyday',
+	  reply: 'EVERYDAY',
+	}
+      ]
+    }
+  };
+
   test('auto-reply',
     {
       db: { },
@@ -112,18 +125,7 @@ describe('message listeners', function () {
       message: '@reply every-day /everyday/ EVERYDAY'
     },
     {
-      db: {
-        replies: {
-          '#test-channel': [
-            {
-              flags: '',
-              name: 'every-day',
-              regex: 'everyday',
-              reply: 'EVERYDAY',
-            }
-          ]
-        }
-      },
+      db: everyDayDb,
       from: 'test-user', channel: '#test-channel',
       messages: [ { message: 'test-user: OK - auto-reply "every-day" added.', to: '#test-channel' } ]
     }
@@ -131,33 +133,11 @@ describe('message listeners', function () {
 
   test('auto-reply',
     {
-      db: {
-        replies: {
-          '#test-channel': [
-            {
-              flags: '',
-              name: 'every-day',
-              regex: 'everyday',
-              reply: 'EVERYDAY',
-            }
-          ]
-        }
-      },
+      db: everyDayDb,
       from: 'test-user', channel: '#test-channel', message: '@reply'
     },
     {
-      db: {
-        replies: {
-          '#test-channel': [
-            {
-              flags: '',
-              name: 'every-day',
-              regex: 'everyday',
-              reply: 'EVERYDAY',
-            }
-          ]
-        }
-      },
+      db: everyDayDb,
       messages: [
         { message: '@reply <name> /<regex>/[ig] <reply>', to: '#test-channel' },
         { message: '@reply delete <name>', to: '#test-channel' },
@@ -168,33 +148,11 @@ describe('message listeners', function () {
 
   test('auto-reply',
     {
-      db: {
-        replies: {
-          '#test-channel': [
-            {
-              flags: '',
-              name: 'every-day',
-              regex: 'everyday',
-              reply: 'EVERYDAY',
-            }
-          ]
-        }
-      },
+      db: everyDayDb,
       from: 'test-user', channel: '#test-channel', message: 'everyday'
     },
     {
-      db: {
-        replies: {
-          '#test-channel': [
-            {
-              flags: '',
-              name: 'every-day',
-              regex: 'everyday',
-              reply: 'EVERYDAY',
-            }
-          ]
-        }
-      },
+      db: everyDayDb,
       messages: [ { message: 'EVERYDAY', to: '#test-channel' }, ]
     }
   );
