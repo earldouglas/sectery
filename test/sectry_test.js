@@ -96,11 +96,11 @@ describe('message listeners', function () {
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@weather Boulder' },
     { db: {},
       messages: [
-        { message: /^ \u001b/, to: '#test-channel' },
-        { message: /^ \u001b/, to: '#test-channel' },
-        { message: /^ \u001b/, to: '#test-channel' },
-        { message: /^ \u001b/, to: '#test-channel' },
-        { message: /^ \u001b/, to: '#test-channel' },
+        { message: /^ /,          to: '#test-channel' },
+        { message: / \u00b0F *$/, to: '#test-channel' },
+        { message: / mph *$/,     to: '#test-channel' },
+        { message: / mi *$/,      to: '#test-channel' },
+        { message: / in *$/,      to: '#test-channel' },
       ]
     }
   );
