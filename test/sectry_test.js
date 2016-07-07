@@ -3,6 +3,7 @@
 var sectery   = require('../lib/sectery');
 var utilities = require('../lib/utilities');
 var krypto    = require('../lib/krypto-game');
+var utilities = require('../lib/utilities');
 
 var assert   = require('assert');
 
@@ -224,6 +225,30 @@ describe('message listeners', function () {
 
   testIO('http-title', 'http://earldouglas.com/', 'James Earl Douglas');
 
+  test('tell',
+    {
+      db: {},
+      from: 'test-user', channel: '#test-channel', message: '@tell test-user-2 Welcome back!'
+    },
+    {
+      db: {
+        messages: {
+          '#test-channel': {
+            'test-user-2': [
+              {
+                date: utilities.now(),
+                from: 'test-user',
+                message: 'Welcome back!',
+                to: 'test-user-2',
+              }
+            ]
+          }
+        }
+      },
+      messages: [ { message: "I'll pass your message along.", to: '#test-channel' }, ]
+    }
+  );
+
 });
 
 describe('pm listeners', function () {
@@ -254,11 +279,6 @@ describe('pm listeners', function () {
 
 /*
 describe('sectery', function () {
-
-  it('@tell (set)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), "I'll pass your message along.");
-    testUser.message('@tell ' + testUser2.nick() + ' Welcome back!');
-  });
 
   it('@tell (get)', function(done) {
     testUser2.part(function (nick) {
