@@ -42,7 +42,7 @@ describe('part listeners', function () {
       channel: '#test-channel', nick: 'test-user', reason: '', message: ''
     },
     {
-      db: { nicks: { '#test-channel': { } } },
+      db: { nicks: { '#test-channel': {} } },
       messages: undefined
     }
   );
@@ -93,8 +93,8 @@ describe('message listeners', function () {
   testIO('weather', '@weather', '@weather <location>');
 
   testR('weather',
-    { db: { }, from: 'test-user', channel: '#test-channel', message: '@weather Boulder' },
-    { db: { },
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@weather Boulder' },
+    { db: {},
       messages: [
         { message: /^ \u001b/, to: '#test-channel' },
         { message: /^ \u001b/, to: '#test-channel' },
@@ -122,7 +122,7 @@ describe('message listeners', function () {
 
   test('auto-reply',
     {
-      db: { },
+      db: {},
       from: 'test-user', channel: '#test-channel',
       message: '@reply every-day /everyday/ EVERYDAY'
     },
@@ -176,7 +176,7 @@ describe('message listeners', function () {
 
   test('auto-reply',
     {
-      db: { },
+      db: {},
       from: 'test-user', channel: '#test-channel', message: '@reply every-day /everyday/ NOT-EVERYDAY'
     },
     {
@@ -196,21 +196,33 @@ describe('message listeners', function () {
     }
   );
 
+  test('auto-reply',
+    {
+      db: notEveryDayDb(),
+      from: 'test-user', channel: '#test-channel', message: '@reply delete ED'
+    },
+    {
+      db: notEveryDayDb(),
+      messages: [ { message: 'test-user: Sorry - auto-reply "ED" not found.', to: '#test-channel' }, ]
+    }
+  );
+
+  test('auto-reply',
+    {
+      db: notEveryDayDb(),
+      from: 'test-user', channel: '#test-channel', message: '@reply delete every-day'
+    },
+    {
+      db: { replies: { '#test-channel': [] } },
+      messages: [ { message: 'test-user: OK - auto-reply "every-day" removed.', to: '#test-channel' }, ]
+    }
+  );
+
 });
 
 /*
 describe('sectery', function () {
 
-  it('autoreply (remove not found)', function(done) {
-    testUser.expectMessageR(done, secteryUser.nick(),
-      new RegExp(testUser.nick() + ': Sorry - auto-reply "ED" not found.'));
-    testUser.message('@reply delete ED');
-  });
-  it('autoreply (remove)', function(done) {
-    testUser.expectMessageR(done, secteryUser.nick(),
-      new RegExp(testUser.nick() + ': OK - auto-reply "every-day" removed.'));
-    testUser.message('@reply delete every-day');
-  });
   it('html title with numeric http code(s)', function(done) {
     testUser.expectMessage(done, secteryUser.nick(),
       'é HTML Entity code in title tags - Stack Overflow');
