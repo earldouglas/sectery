@@ -226,6 +226,18 @@ describe('message listeners', function () {
 
 });
 
+describe('pm listeners', function () {
+
+  var test = function (name, req, res) {
+    it(name, function () {
+      var listener = require('../lib/listeners/pm/' + name + '.js');
+      assert.deepEqual(listener(req.db, req.from, req.message), res.messages);
+      assert.deepEqual(req.db, res.db);
+    });
+  };
+
+});
+
 /*
 describe('sectery', function () {
 
