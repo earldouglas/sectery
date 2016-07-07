@@ -304,15 +304,21 @@ describe('message listeners', function () {
     }
   );
 
+  test('note',
+    {
+      db: {},
+      from: 'test-user', channel: '#test-channel', message: '@note'
+    },
+    {
+      db: { contactinfo: {} },
+      messages: [ { message: 'Usage: @note <message>', to: '#test-channel' }, ]
+    }
+  );
+
 });
 
 /*
 describe('sectery', function () {
-
-  it('@note (usage)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), 'Usage: @note <message>');
-    testUser.message('@note');
-  });
 
   it('@note (no email)', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), testUser.nick() +
