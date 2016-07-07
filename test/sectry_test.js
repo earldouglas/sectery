@@ -54,7 +54,7 @@ describe('message listeners', function () {
   var test = function (name, req, res) {
     it(name, function () {
       var listener = require('../lib/listeners/message/' + name + '.js');
-      assert.deepEqual(listener(req.db, req.user, req.channel, req.message), res.messages);
+      assert.deepEqual(listener(req.db, req.from, req.channel, req.message), res.messages);
       assert.deepEqual(req.db, res.db);
     });
   };
@@ -105,22 +105,34 @@ describe('message listeners', function () {
     }
   );
 
+  test('auto-reply',
+    {
+      db: { },
+      from: 'test-user', channel: '#test-channel',
+      message: '@reply every-day /everyday/ EVERYDAY'
+    },
+    {
+      db: {
+        replies: {
+          '#test-channel': [
+            {
+              flags: '',
+              name: 'every-day',
+              regex: 'everyday',
+              reply: 'EVERYDAY',
+            }
+          ]
+        }
+      },
+      from: 'test-user', channel: '#test-channel',
+      messages: [ { message: 'test-user: OK - auto-reply "every-day" added.', to: '#test-channel' } ]
+    }
+  );
+
 });
 
 /*
 describe('sectery', function () {
-  this.timeout(60000);
-
-  it('should wait for sectery to join', function (done) {
-    var joinListener = function (channel, nick, message) {
-      if (nick === secteryUser.nick()) {
-        process.env.IRC_USER = nick;
-        secteryUser.client.removeListener('join', joinListener);
-        done();
-      }
-    };
-    secteryUser.client.addListener('join', joinListener);
-  });
 
   it('autoreply (addition)', function(done) {
     testUser.expectMessageR(done, secteryUser.nick(),
