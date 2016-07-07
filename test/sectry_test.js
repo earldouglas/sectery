@@ -9,66 +9,60 @@ var assert   = require('assert');
 describe('join listeners', function () {
 
   var test = function (name, req, res) {
-    var listener = require('../lib/listeners/join/' + name + '.js');
-    assert.deepEqual(listener(req.db, req.channel, req.nick, req.message), res.messages);
-    assert.deepEqual(req.db, res.db);
-  }
+    it(name, function () {
+      var listener = require('../lib/listeners/join/' + name + '.js');
+      assert.deepEqual(listener(req.db, req.channel, req.nick, req.message), res.messages);
+      assert.deepEqual(req.db, res.db);
+    });
+  };
 
-  it('default', function () {
-
-    test('default',
-      { db: {}, channel: '#test-channel', nick: 'test-user', message: '' },
-      {
-        db: { nicks: { '#test-channel': { 'test-user': true } } },
-        messages: [ { message: 'Hey, test-user!', to: '#test-channel' } ]
-      }
-    );
-
-  });
+  test('default',
+    { db: {}, channel: '#test-channel', nick: 'test-user', message: '' },
+    {
+      db: { nicks: { '#test-channel': { 'test-user': true } } },
+      messages: [ { message: 'Hey, test-user!', to: '#test-channel' } ]
+    }
+  );
 
 });
 
 describe('part listeners', function () {
 
   var test = function (name, req, res) {
-    var listener = require('../lib/listeners/part/' + name + '.js');
-    assert.deepEqual(listener(req.db, req.channel, req.nick, req.reason, req.message), res.messages);
-    assert.deepEqual(req.db, res.db);
-  }
+    it(name, function () {
+      var listener = require('../lib/listeners/part/' + name + '.js');
+      assert.deepEqual(listener(req.db, req.channel, req.nick, req.reason, req.message), res.messages);
+      assert.deepEqual(req.db, res.db);
+    });
+  };
 
-  it('default', function () {
-
-    test('default',
-      {
-        db: { nicks: { '#test-channel': { 'test-user': true } } },
-        channel: '#test-channel', nick: 'test-user', reason: '', message: ''
-      },
-      {
-        db: { nicks: { '#test-channel': { } } },
-        messages: undefined
-      }
-    );
-
-  });
+  test('default',
+    {
+      db: { nicks: { '#test-channel': { 'test-user': true } } },
+      channel: '#test-channel', nick: 'test-user', reason: '', message: ''
+    },
+    {
+      db: { nicks: { '#test-channel': { } } },
+      messages: undefined
+    }
+  );
 
 });
 
 describe('message listeners', function () {
 
   var test = function (name, req, res) {
-    var listener = require('../lib/listeners/message/' + name + '.js');
-    assert.deepEqual(listener(req.db, req.user, req.channel, req.message), res.messages);
-    assert.deepEqual(req.db, res.db);
-  }
+    it(name, function () {
+      var listener = require('../lib/listeners/message/' + name + '.js');
+      assert.deepEqual(listener(req.db, req.user, req.channel, req.message), res.messages);
+      assert.deepEqual(req.db, res.db);
+    });
+  };
 
-  it('emoji', function () {
-
-    test('emoji',
-      { db: {}, from: 'test-user', channel: '#test-channel', message: 'foo bar table flip baz' },
-      { db: {}, messages: [ { message: "╯°□°）╯︵ ┻━┻", to: "#test-channel" } ] }
-    );
-
-  });
+  test('emoji',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: 'foo bar table flip baz' },
+    { db: {}, messages: [ { message: "╯°□°）╯︵ ┻━┻", to: "#test-channel" } ] }
+  );
 
 });
 
