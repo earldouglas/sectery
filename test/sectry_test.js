@@ -129,32 +129,80 @@ describe('message listeners', function () {
     }
   );
 
+  test('auto-reply',
+    {
+      db: {
+        replies: {
+          '#test-channel': [
+            {
+              flags: '',
+              name: 'every-day',
+              regex: 'everyday',
+              reply: 'EVERYDAY',
+            }
+          ]
+        }
+      },
+      from: 'test-user', channel: '#test-channel', message: '@reply'
+    },
+    {
+      db: {
+        replies: {
+          '#test-channel': [
+            {
+              flags: '',
+              name: 'every-day',
+              regex: 'everyday',
+              reply: 'EVERYDAY',
+            }
+          ]
+        }
+      },
+      messages: [
+        { message: '@reply <name> /<regex>/[ig] <reply>', to: '#test-channel' },
+        { message: '@reply delete <name>', to: '#test-channel' },
+        { message: 'Replies: every-day', to: '#test-channel' },
+      ]
+    }
+  );
+
+  test('auto-reply',
+    {
+      db: {
+        replies: {
+          '#test-channel': [
+            {
+              flags: '',
+              name: 'every-day',
+              regex: 'everyday',
+              reply: 'EVERYDAY',
+            }
+          ]
+        }
+      },
+      from: 'test-user', channel: '#test-channel', message: 'everyday'
+    },
+    {
+      db: {
+        replies: {
+          '#test-channel': [
+            {
+              flags: '',
+              name: 'every-day',
+              regex: 'everyday',
+              reply: 'EVERYDAY',
+            }
+          ]
+        }
+      },
+      messages: [ { message: 'EVERYDAY', to: '#test-channel' }, ]
+    }
+  );
+
 });
 
 /*
 describe('sectery', function () {
-
-  it('autoreply (addition)', function(done) {
-    testUser.expectMessageR(done, secteryUser.nick(),
-      new RegExp(testUser.nick() + ': OK - auto-reply "every-day" added.'));
-    testUser.message('@reply every-day /everyday/ EVERYDAY');
-  });
-  it('autoreply (usage 1)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), '@reply <name> /<regex>/[ig] <reply>');
-    testUser.message('@reply');
-  });
-  it('autoreply (usage 2)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), '@reply delete <name>');
-    testUser.message('@reply');
-  });
-  it('autoreply (usage 3)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), 'Replies: every-day');
-    testUser.message('@reply');
-  });
-  it('autoreply (test)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),'EVERYDAY');
-    testUser.message('everyday');
-  });
 
   it('autoreply (replace)', function(done) {
     testUser.expectMessageR(done, secteryUser.nick(),
