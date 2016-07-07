@@ -7,6 +7,8 @@ var utilities = require('../lib/utilities');
 
 var assert   = require('assert');
 
+process.env.IRC_USER = 'sectery-test';
+
 describe('pm listeners', function () {
 
   var test = function (name, req, res) {
@@ -315,17 +317,21 @@ describe('message listeners', function () {
     }
   );
 
+  test('note',
+    {
+      db: {},
+      from: 'test-user', channel: '#test-channel', message: '@note Testing is hard.'
+    },
+    {
+      db: { contactinfo: {} },
+      messages: [ { message: 'test-user: PM me your email address with: /msg sectery-test @setup email name@example.com', to: '#test-channel' }, ]
+    }
+  );
+
 });
 
 /*
 describe('sectery', function () {
-
-  it('@note (no email)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), testUser.nick() +
-      ': PM me your email address with: /msg ' +
-      secteryUser.nick() + ' @setup email name@example.com');
-    testUser.message('@note Testing is hard.');
-  });
 
   it.skip('@ascii art', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), '[ascii art]');
