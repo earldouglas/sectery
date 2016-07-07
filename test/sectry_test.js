@@ -79,8 +79,6 @@ describe('message listeners', function () {
     );
   };
 
-  testIO('emoji', 'foo bar table flip baz', '╯°□°）╯︵ ┻━┻');
-
   test('all',
     {
       db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } } },
