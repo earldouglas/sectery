@@ -218,22 +218,16 @@ describe('message listeners', function () {
     }
   );
 
+  testIO('http-title',
+    'http://stackoverflow.com/questions/11037123/%C3%A9-html-entity-code-in-title-tags',
+    'é HTML Entity code in title tags - Stack Overflow');
+
+  testIO('http-title', 'http://earldouglas.com/', 'James Earl Douglas');
+
 });
 
 /*
 describe('sectery', function () {
-
-  it('html title with numeric http code(s)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),
-      'é HTML Entity code in title tags - Stack Overflow');
-    testUser.message('http://stackoverflow.com/questions/11037123/' +
-      '%C3%A9-html-entity-code-in-title-tags');
-  });
-
-  it('html title', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), 'James Earl Douglas');
-    testUser.message('http://earldouglas.com/');
-  });
 
   it('[pm] @echo', function(done) {
     testUser.expectPM(done, secteryUser.nick(), 'ping');
