@@ -328,6 +328,11 @@ describe('message listeners', function () {
     }
   );
 
+  testR('simpsons',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@simpsons' },
+    { db: {}, messages: [ { message: /^\(S\d+E\d+\): /, to: '#test-channel' }, ]
+    }
+  );
 });
 
 /*
@@ -336,12 +341,6 @@ describe('sectery', function () {
   it.skip('@ascii art', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), '[ascii art]');
     testUser.message('@ascii http://example.com/test.png');
-  });
-
-
-  it('@simpsons', function(done) {
-    testUser.expectMessageR(done, secteryUser.nick(), /^\(S\d+E\d+\): /);
-    testUser.message('@simpsons');
   });
 
   it('@cards', function (done) {
