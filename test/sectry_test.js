@@ -66,10 +66,7 @@ describe('message listeners', function () {
     );
   };
 
-  test('emoji',
-    { db: {}, from: 'test-user', channel: '#test-channel', message: 'foo bar table flip baz' },
-    { db: {}, messages: [ { message: '╯°□°）╯︵ ┻━┻', to: '#test-channel' } ] }
-  );
+  testIO('emoji', 'foo bar table flip baz', '╯°□°）╯︵ ┻━┻');
 
   test('all',
     {
@@ -82,10 +79,7 @@ describe('message listeners', function () {
     }
   );
 
-  test('weather',
-    { db: {}, from: 'test-user', channel: '#test-channel', message: '@weather' },
-    { db: {}, messages: [ { message: '@weather <location>', to: '#test-channel' } ] }
-  );
+  testIO('weather', '@weather', '@weather <location>');
 
 });
 
