@@ -59,6 +59,13 @@ describe('message listeners', function () {
     });
   };
 
+  var testIO = function (name, input, output) {
+    test(name,
+      { db: {}, from: 'test-user', channel: '#test-channel', message: input },
+      { db: {}, messages: [ { message: output, to: '#test-channel' } ] }
+    );
+  };
+
   test('emoji',
     { db: {}, from: 'test-user', channel: '#test-channel', message: 'foo bar table flip baz' },
     { db: {}, messages: [ { message: '╯°□°）╯︵ ┻━┻', to: '#test-channel' } ] }
