@@ -7,6 +7,32 @@ var utilities = require('../lib/utilities');
 
 var assert   = require('assert');
 
+describe('pm listeners', function () {
+
+  var test = function (name, req, res) {
+    it(name, function () {
+      var listener = require('../lib/listeners/pm/' + name + '.js');
+      assert.deepEqual(listener(req.db, req.from, req.message), res.messages);
+      assert.deepEqual(req.db, res.db);
+    });
+  };
+
+  test('echo',
+    { db: {}, channel: '#test-channel', from: 'test-user', message: '@echo ping' },
+    {
+      db: {}, messages: [ { message: 'ping', to: 'test-user' } ]
+    }
+  );
+
+  test('setup',
+    { db: {}, channel: '#test-channel', from: 'test-user', message: '@setup' },
+    {
+      db: {}, messages: [ { message: 'Usage: @setup <email|sms> <email@example.com|phone|code>', to: 'test-user' } ]
+    }
+  );
+
+});
+
 describe('join listeners', function () {
 
   var test = function (name, req, res) {
@@ -280,45 +306,8 @@ describe('message listeners', function () {
 
 });
 
-describe('pm listeners', function () {
-
-  var test = function (name, req, res) {
-    it(name, function () {
-      var listener = require('../lib/listeners/pm/' + name + '.js');
-      assert.deepEqual(listener(req.db, req.from, req.message), res.messages);
-      assert.deepEqual(req.db, res.db);
-    });
-  };
-
-  test('echo',
-    { db: {}, channel: '#test-channel', from: 'test-user', message: '@echo ping' },
-    {
-      db: {}, messages: [ { message: 'ping', to: 'test-user' } ]
-    }
-  );
-
-  test('setup',
-    { db: {}, channel: '#test-channel', from: 'test-user', message: '@setup' },
-    {
-      db: {}, messages: [ { message: 'Usage: @setup <email|sms> <email@example.com|phone|code>', to: 'test-user' } ]
-    }
-  );
-
-});
-
 /*
 describe('sectery', function () {
-
-  it('@tell (get)', function(done) {
-    testUser2.part(function (nick) {
-      testUser2.join(function (nick) {
-        testUser2.expectMessageR(done, secteryUser.nick(),
-          new RegExp(testUser2.nick() + ': ' + testUser.nick() +
-            ' said "Welcome back!"'));
-        testUser2.message('Hey, everyone!');
-      });
-    });
-  });
 
   it('@note (usage)', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), 'Usage: @note <message>');
