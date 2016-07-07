@@ -61,7 +61,18 @@ describe('message listeners', function () {
 
   test('emoji',
     { db: {}, from: 'test-user', channel: '#test-channel', message: 'foo bar table flip baz' },
-    { db: {}, messages: [ { message: "╯°□°）╯︵ ┻━┻", to: "#test-channel" } ] }
+    { db: {}, messages: [ { message: '╯°□°）╯︵ ┻━┻', to: '#test-channel' } ] }
+  );
+
+  test('all',
+    {
+      db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } } },
+      from: 'test-user', channel: '#test-channel', message: '@all'
+    },
+    {
+      db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } } },
+      messages: [ { message: 'test-user, test-user-2', to: '#test-channel' } ]
+    }
   );
 
 });
@@ -157,14 +168,6 @@ describe('sectery', function () {
       }
     };
     secteryUser.client.addListener('join', joinListener);
-  });
-
-  it('@all', function (done) {
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var substr = testUser.nick();
-      return x.indexOf(substr >= 0);
-    });
-    testUser.message('@all');
   });
 
   it('weather (usage) ', function(done) {
