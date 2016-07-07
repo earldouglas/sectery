@@ -59,6 +59,19 @@ describe('message listeners', function () {
     });
   };
 
+  var testR = function (name, req, res) {
+    it(name, function () {
+      var listener = require('../lib/listeners/message/' + name + '.js');
+      var messages = listener(req.db, req.user, req.channel, req.message);
+      assert.equal(messages.length, res.messages.length);
+      for (var i = 0; i < res.messages.length; i++) {
+        assert.equal(messages[i].to, res.messages[i].to);
+        assert.equal(res.messages[i].message.test(messages[i].message), true);
+      }
+      assert.deepEqual(req.db, res.db);
+    });
+  };
+
   var testIO = function (name, input, output) {
     test(name,
       { db: {}, from: 'test-user', channel: '#test-channel', message: input },
@@ -80,6 +93,21 @@ describe('message listeners', function () {
   );
 
   testIO('weather', '@weather', '@weather <location>');
+
+  testR('weather',
+    { db: { }, from: 'test-user', channel: '#test-channel', message: '@weather Boulder' },
+    { db: { },
+      messages: [
+        { message: /^ \u001b/, to: '#test-channel' },
+        { message: /^ \u001b/, to: '#test-channel' },
+        { message: /^ \u001b/, to: '#test-channel' },
+        { message: /^ \u001b/, to: '#test-channel' },
+        { message: /^ \u001b/, to: '#test-channel' },
+      ]
+    }
+  );
+
+  // testIO('weather', '@weather Boulder', '@weather <location>');
 
 });
 
@@ -174,15 +202,6 @@ describe('sectery', function () {
       }
     };
     secteryUser.client.addListener('join', joinListener);
-  });
-
-  it('weather (usage) ', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),'@weather <location>')
-    testUser.message('@weather');
-  });
-  it('weather (usage) ', function(done) {
-    testUser.message('@weather Boulder');
-    done();
   });
 
   it('autoreply (addition)', function(done) {
