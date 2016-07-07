@@ -82,6 +82,7 @@ describe('message listeners', function () {
 
   var test = function (name, req, res) {
     it(name, function () {
+      this.timeout(10000);
       var listener = require('../lib/listeners/message/' + name + '.js');
       assert.deepEqual(listener(req.db, req.from, req.channel, req.message), res.messages);
       assert.deepEqual(req.db, res.db);
