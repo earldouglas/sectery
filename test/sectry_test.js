@@ -249,6 +249,35 @@ describe('message listeners', function () {
     }
   );
 
+  test('tell',
+    {
+      db: {
+        messages: {
+          '#test-channel': {
+            'test-user-2': [
+              {
+                date: utilities.now(),
+                from: 'test-user',
+                message: 'Welcome back!',
+                to: 'test-user-2',
+              }
+            ]
+          }
+        }
+      },
+      from: 'test-user-2', channel: '#test-channel', message: 'Howdy.'
+    },
+    {
+      db: {
+        messages: {
+          '#test-channel': {
+          }
+        }
+      },
+      messages: [ { message: 'test-user-2: test-user said "Welcome back!" at ' + utilities.now(), to: '#test-channel' }, ]
+    }
+  );
+
 });
 
 describe('pm listeners', function () {
