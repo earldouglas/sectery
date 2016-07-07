@@ -75,6 +75,11 @@ describe('message listeners', function () {
     }
   );
 
+  test('weather',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@weather' },
+    { db: {}, messages: [ { message: '@weather <location>', to: '#test-channel' } ] }
+  );
+
 });
 
 /*
