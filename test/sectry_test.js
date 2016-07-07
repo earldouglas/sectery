@@ -236,15 +236,17 @@ describe('pm listeners', function () {
     });
   };
 
+  test('echo',
+    { db: {}, channel: '#test-channel', from: 'test-user', message: '@echo ping' },
+    {
+      db: {}, messages: [ { message: 'ping', to: 'test-user' } ]
+    }
+  );
+
 });
 
 /*
 describe('sectery', function () {
-
-  it('[pm] @echo', function(done) {
-    testUser.expectPM(done, secteryUser.nick(), 'ping');
-    testUser.privateMessage('@echo ping');
-  });
 
   it('[pm] @setup - usage', function(done) {
     var message = "Usage: @setup <email|sms> <email@example.com|phone|code>";
