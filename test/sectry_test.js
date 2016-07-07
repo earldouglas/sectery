@@ -107,89 +107,9 @@ describe('message listeners', function () {
     }
   );
 
-  // testIO('weather', '@weather Boulder', '@weather <location>');
-
 });
 
 /*
-function log(x,regex) {
-  console.log('-------------------');
-  console.log(x);
-  console.log(regex);
-  console.log(regex.test(x));
-  console.log('-------------------');
-}
-function user() {
-
-  var client = new irc.Client(
-    'irc.freenode.net',
-    'sectery|test',
-    {
-      password: process.env.IRC_PASS,
-      channels: ['#sectery'],
-    }
-  );
-
-  client.addListener('error', function (message) {
-    console.log(client.nick, 'error', messsage);
-  });
-
-  var expectM = function (done, expectedFrom, messagePredicate) {
-    var listener =
-      function (from, to, message) {
-        if (expectedFrom === from && messagePredicate(message)) {
-          client.removeListener('message', listener);
-          done();
-        }
-      };
-    client.addListener('message', listener);
-  };
-
-  return {
-    nick: function () { return client.nick; },
-    expectM: expectM,
-    expectMessage: function (done, expectedFrom, expectedMessage) {
-      return expectM(done, expectedFrom, function (x) {
-        return x === expectedMessage;
-      });
-    },
-    expectMessageR: function (done, expectedFrom, expectedMessageR) {
-      return expectM(done, expectedFrom, function (x) {
-        return expectedMessageR.test(x);
-      });
-    },
-    expectPM: function (done, expectedFrom, expectedMessage) {
-      var listener = function (from, message) {
-          if (expectedFrom === from && expectedMessage === message) {
-            client.removeListener('pm', listener);
-            done();
-          }
-        };
-      client.addListener('pm', listener);
-    },
-    client: client,
-    message: function (x) {
-      client.say('#sectery', x);
-    },
-    privateMessage: function (x) {
-      client.say(secteryUser.nick(), x);
-    },
-    part: function (k) {
-      client.part('#sectery', k);
-    },
-    join: function (k) {
-      client.join('#sectery', k);
-    },
-  };
-
-}
-
-var secteryUser = user();
-var testUser = user();
-var testUser2 = user();
-
-sectery(secteryUser.client);
-
 describe('sectery', function () {
   this.timeout(60000);
 
