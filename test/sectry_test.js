@@ -243,16 +243,17 @@ describe('pm listeners', function () {
     }
   );
 
+  test('setup',
+    { db: {}, channel: '#test-channel', from: 'test-user', message: '@setup' },
+    {
+      db: {}, messages: [ { message: 'Usage: @setup <email|sms> <email@example.com|phone|code>', to: 'test-user' } ]
+    }
+  );
+
 });
 
 /*
 describe('sectery', function () {
-
-  it('[pm] @setup - usage', function(done) {
-    var message = "Usage: @setup <email|sms> <email@example.com|phone|code>";
-    testUser.expectPM(done, secteryUser.nick(), message);
-    testUser.privateMessage('@setup');
-  });
 
   it('@tell (set)', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), "I'll pass your message along.");
