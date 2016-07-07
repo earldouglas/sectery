@@ -1,8 +1,4 @@
-# Sectery
-
-[![Build Status](https://travis-ci.org/earldouglas/sectery.svg?branch=master)](https://travis-ci.org/earldouglas/sectery)
-
-[![Coverage Status](https://coveralls.io/repos/github/earldouglas/sectery/badge.svg?branch=master)](https://coveralls.io/github/earldouglas/sectery?branch=master)
+# Sectery [![Build Status](https://travis-ci.org/earldouglas/sectery.svg?branch=master)](https://travis-ci.org/earldouglas/sectery) [![Coverage Status](https://coveralls.io/repos/github/earldouglas/sectery/badge.svg?branch=master)](https://coveralls.io/github/earldouglas/sectery?branch=master)
 
 ## Usage
 
