@@ -336,63 +336,6 @@ describe('message listeners', function () {
     }
   );
 
-  testR('krypto',
-    {
-      db: {
-        krypto: {
-	  '#test-channel': {
-	    guesser: null,
-	    hand: [
-	      [ 8 ], [ 13 ], [ 14 ], [ 15 ], [ 12 ], [ 1 ]
-	    ]
-	  }
-	}
-      },
-      from: 'test-user', channel: '#test-channel', message: '@cards' },
-    {
-      db: {
-        krypto: {
-          '#test-channel': {
-            guesser: null,
-	    hand: [
-	      [ 8 ], [ 13 ], [ 14 ], [ 15 ], [ 12 ], [ 1 ]
-	    ]
-          }
-        }
-      },
-      messages: [ { message: /^(\d+,?\s+){5}Objective\s+Card:\s+\d+$/, to: '#test-channel' }, ]
-    }
-  );
-
-  test('krypto',
-    {
-      db: {
-        krypto: {
-          '#test-channel': {
-            guesser: null,
-	    hand: [
-	      [ 8 ], [ 13 ], [ 14 ], [ 15 ], [ 12 ], [ 1 ]
-	    ]
-          }
-        }
-      },
-      from: 'test-user', channel: '#test-channel', message: '@guess 0'
-    },
-    {
-      db: {
-        krypto: {
-          '#test-channel': {
-            guesser: null,
-	    hand: [
-	      [ 8 ], [ 13 ], [ 14 ], [ 15 ], [ 12 ], [ 1 ]
-	    ]
-          }
-        }
-      },
-      messages: [ { message: 'test-user: please say "@krypto" first!', to: '#test-channel' } ]
-    }
-  );
-
   var kryptoDb = function (channel, options) {
     var kryptoGame = new krypto.Krypto();
     for (var k in options) {
@@ -404,6 +347,27 @@ describe('message listeners', function () {
     db.krypto[channel] = kryptoGame;
     return db;
   };
+
+  testR('krypto',
+    {
+      db: kryptoDb('#test-channel', { hand: [[8], [13], [14], [15], [12], [1]] }),
+      from: 'test-user', channel: '#test-channel', message: '@cards' },
+    {
+      db: kryptoDb('#test-channel', { hand: [[8], [13], [14], [15], [12], [1]] }),
+      messages: [ { message: /^(\d+,?\s+){5}Objective\s+Card:\s+\d+$/, to: '#test-channel' }, ]
+    }
+  );
+
+  test('krypto',
+    {
+      db: kryptoDb('#test-channel', { hand: [[8], [13], [14], [15], [12], [1]] }),
+      from: 'test-user', channel: '#test-channel', message: '@guess 0'
+    },
+    {
+      db: kryptoDb('#test-channel', { hand: [[8], [13], [14], [15], [12], [1]] }),
+      messages: [ { message: 'test-user: please say "@krypto" first!', to: '#test-channel' } ]
+    }
+  );
 
   test('krypto',
     {
