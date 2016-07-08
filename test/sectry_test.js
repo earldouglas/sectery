@@ -91,6 +91,7 @@ describe('message listeners', function () {
 
   var testR = function (name, req, res) {
     it(name, function () {
+      this.timeout(10000);
       var listener = require('../lib/listeners/message/' + name + '.js');
       var messages = listener(req.db, req.user, req.channel, req.message);
       assert.equal(messages.length, res.messages.length);
@@ -334,6 +335,7 @@ describe('message listeners', function () {
     { db: {}, messages: [ { message: /^\(S\d+E\d+\): /, to: '#test-channel' }, ]
     }
   );
+
 });
 
 /*
