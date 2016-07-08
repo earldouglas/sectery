@@ -393,6 +393,29 @@ describe('message listeners', function () {
     }
   );
 
+  var kryptoDb = function (channel, options) {
+    var kryptoGame = new krypto.Krypto();
+    for (var k in options) {
+      if (options.hasOwnProperty(k)) {
+        kryptoGame[k] = options[k];
+      }
+    }
+    var db = { krypto: {} };
+    db.krypto[channel] = kryptoGame;
+    return db;
+  };
+
+  test('krypto',
+    {
+      db: kryptoDb('#test-channel', { hand: [[8], [13], [14], [15], [12], [1]] }),
+      from: 'test-user', channel: '#test-channel', message: '@krypto'
+    },
+    {
+      db: kryptoDb('#test-channel', { guesser: 'test-user', hand: [[8], [13], [14], [15], [12], [1]] }),
+      messages: [ { message: 'test-user: OK - take a guess.', to: '#test-channel' } ]
+    }
+  );
+
 });
 
 /*
@@ -401,12 +424,6 @@ describe('sectery', function () {
   it.skip('@ascii art', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), '[ascii art]');
     testUser.message('@ascii http://example.com/test.png');
-  });
-
-  it('@krypto', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),
-      testUser.nick() + ': OK - take a guess.');
-    testUser.message('@krypto');
   });
 
   it('@krypto (wrong user)', function(done) {
