@@ -364,6 +364,35 @@ describe('message listeners', function () {
     }
   );
 
+  test('krypto',
+    {
+      db: {
+        krypto: {
+          '#test-channel': {
+            guesser: null,
+	    hand: [
+	      [ 8 ], [ 13 ], [ 14 ], [ 15 ], [ 12 ], [ 1 ]
+	    ]
+          }
+        }
+      },
+      from: 'test-user', channel: '#test-channel', message: '@guess 0'
+    },
+    {
+      db: {
+        krypto: {
+          '#test-channel': {
+            guesser: null,
+	    hand: [
+	      [ 8 ], [ 13 ], [ 14 ], [ 15 ], [ 12 ], [ 1 ]
+	    ]
+          }
+        }
+      },
+      messages: [ { message: 'test-user: please say "@krypto" first!', to: '#test-channel' } ]
+    }
+  );
+
 });
 
 /*
@@ -372,12 +401,6 @@ describe('sectery', function () {
   it.skip('@ascii art', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), '[ascii art]');
     testUser.message('@ascii http://example.com/test.png');
-  });
-
-  it('@krypto (premature @guess)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),
-      testUser.nick() + ': please say "@krypto" first!');
-    testUser.message('@guess 0');
   });
 
   it('@krypto', function(done) {
