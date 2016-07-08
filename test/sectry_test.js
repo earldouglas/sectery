@@ -380,6 +380,17 @@ describe('message listeners', function () {
     }
   );
 
+  test('krypto',
+    {
+      db: kryptoDb('#test-channel', { guesser: 'test-user', hand: [[8], [13], [14], [15], [12], [1]] }),
+      from: 'test-user-2', channel: '#test-channel', message: '@guess 0'
+    },
+    {
+      db: kryptoDb('#test-channel', { guesser: 'test-user', hand: [[8], [13], [14], [15], [12], [1]] }),
+      messages: [ { message: "test-user-2: sorry, but it's test-user's turn.", to: '#test-channel' } ]
+    }
+  );
+
 });
 
 /*
@@ -388,12 +399,6 @@ describe('sectery', function () {
   it.skip('@ascii art', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), '[ascii art]');
     testUser.message('@ascii http://example.com/test.png');
-  });
-
-  it('@krypto (wrong user)', function(done) {
-    testUser2.expectMessage(done, secteryUser.nick(),
-      testUser2.nick() + ": sorry, but it's " + testUser.nick() + "'s turn.");
-    testUser2.message('@guess 0');
   });
 
   var cronJob = null;
