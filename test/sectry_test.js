@@ -336,6 +336,34 @@ describe('message listeners', function () {
     }
   );
 
+  testR('krypto',
+    {
+      db: {
+        krypto: {
+	  '#test-channel': {
+	    guesser: null,
+	    hand: [
+	      [ 8 ], [ 13 ], [ 14 ], [ 15 ], [ 12 ], [ 1 ]
+	    ]
+	  }
+	}
+      },
+      from: 'test-user', channel: '#test-channel', message: '@cards' },
+    {
+      db: {
+        krypto: {
+          '#test-channel': {
+            guesser: null,
+	    hand: [
+	      [ 8 ], [ 13 ], [ 14 ], [ 15 ], [ 12 ], [ 1 ]
+	    ]
+          }
+        }
+      },
+      messages: [ { message: /^(\d+,?\s+){5}Objective\s+Card:\s+\d+$/, to: '#test-channel' }, ]
+    }
+  );
+
 });
 
 /*
@@ -344,12 +372,6 @@ describe('sectery', function () {
   it.skip('@ascii art', function(done) {
     testUser.expectMessage(done, secteryUser.nick(), '[ascii art]');
     testUser.message('@ascii http://example.com/test.png');
-  });
-
-  it('@cards', function (done) {
-    testUser.expectMessageR(done, secteryUser.nick(),
-      /^(\d+,?\s+){5}Objective\s+Card:\s+\d+$/);
-    testUser.message('@cards');
   });
 
   it('@krypto (premature @guess)', function(done) {
