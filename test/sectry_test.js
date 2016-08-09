@@ -249,10 +249,6 @@ describe('message listeners', function () {
     }
   );
 
-  testIO('http-title',
-    'http://stackoverflow.com/questions/11037123/%C3%A9-html-entity-code-in-title-tags',
-    'é HTML Entity code in title tags - Stack Overflow');
-
   testIO('http-title', 'http://earldouglas.com/', 'James Earl Douglas');
 
   test('tell',
