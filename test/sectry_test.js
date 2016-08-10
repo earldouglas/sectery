@@ -251,6 +251,13 @@ describe('message listeners', function () {
 
   testIO('http-title', 'http://earldouglas.com/', 'James Earl Douglas');
 
+  testR('stock',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: 'Hello @stock GOOG world' },
+    { db: {}, messages: [ { message: /^Alphabet Inc. \(GOOG\): \$\d+\.\d+$/,
+                            to: '#test-channel' }, ]
+    }
+  );
+
   test('tell',
     {
       db: {},
