@@ -394,6 +394,8 @@ describe('message listeners', function () {
     }
   );
 
+  testIO('eval', '@ 6 * 7', '42');
+
 });
 
 /*
