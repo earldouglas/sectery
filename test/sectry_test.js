@@ -136,11 +136,12 @@ describe('message listeners', function () {
     }
   );
 
-  var everyDayDb = function () {
+  var everyDayDb = function (n) {
     return {
       replies: {
 	'#test-channel': [
 	  {
+	    count: n,
 	    flags: '',
 	    name: 'every-day',
 	    regex: 'everyday',
@@ -158,7 +159,7 @@ describe('message listeners', function () {
       message: '@reply every-day /everyday/ EVERYDAY'
     },
     {
-      db: everyDayDb(),
+      db: everyDayDb(10),
       from: 'test-user', channel: '#test-channel',
       messages: [ { message: 'test-user: OK - auto-reply "every-day" added.', to: '#test-channel' } ]
     }
@@ -166,11 +167,11 @@ describe('message listeners', function () {
 
   test('auto-reply',
     {
-      db: everyDayDb(),
+      db: everyDayDb(10),
       from: 'test-user', channel: '#test-channel', message: '@reply'
     },
     {
-      db: everyDayDb(),
+      db: everyDayDb(10),
       messages: [
         { message: '@reply <name> /<regex>/[ig] <reply>', to: '#test-channel' },
         { message: '@reply delete <name>', to: '#test-channel' },
@@ -181,20 +182,32 @@ describe('message listeners', function () {
 
   test('auto-reply',
     {
-      db: everyDayDb(),
+      db: everyDayDb(10),
       from: 'test-user', channel: '#test-channel', message: 'everyday'
     },
     {
-      db: everyDayDb(),
+      db: everyDayDb(9),
       messages: [ { message: 'EVERYDAY', to: '#test-channel' }, ]
     }
   );
 
-  var notEveryDayDb = function () {
+  test('auto-reply',
+    {
+      db: everyDayDb(1),
+      from: 'test-user', channel: '#test-channel', message: 'everyday'
+    },
+    {
+      db: { replies: { '#test-channel': [] } },
+      messages: [ { message: 'EVERYDAY', to: '#test-channel' }, ]
+    }
+  );
+
+  var notEveryDayDb = function (n) {
     return {
       replies: {
 	'#test-channel': [
 	  {
+            count: n,
 	    flags: '',
 	    name: 'every-day',
 	    regex: 'everyday',
@@ -211,36 +224,36 @@ describe('message listeners', function () {
       from: 'test-user', channel: '#test-channel', message: '@reply every-day /everyday/ NOT-EVERYDAY'
     },
     {
-      db: notEveryDayDb(),
+      db: notEveryDayDb(10),
       messages: [ { message: 'test-user: OK - auto-reply "every-day" added.', to: '#test-channel' }, ]
     }
   );
 
   test('auto-reply',
     {
-      db: notEveryDayDb(),
+      db: notEveryDayDb(10),
       from: 'test-user', channel: '#test-channel', message: 'everyday'
     },
     {
-      db: notEveryDayDb(),
+      db: notEveryDayDb(9),
       messages: [ { message: 'NOT-EVERYDAY', to: '#test-channel' }, ]
     }
   );
 
   test('auto-reply',
     {
-      db: notEveryDayDb(),
+      db: notEveryDayDb(10),
       from: 'test-user', channel: '#test-channel', message: '@reply delete ED'
     },
     {
-      db: notEveryDayDb(),
+      db: notEveryDayDb(10),
       messages: [ { message: 'test-user: Sorry - auto-reply "ED" not found.', to: '#test-channel' }, ]
     }
   );
 
   test('auto-reply',
     {
-      db: notEveryDayDb(),
+      db: notEveryDayDb(10),
       from: 'test-user', channel: '#test-channel', message: '@reply delete every-day'
     },
     {
