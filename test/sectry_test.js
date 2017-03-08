@@ -346,12 +346,6 @@ describe('message listeners', function () {
     }
   );
 
-  testR('simpsons',
-    { db: {}, from: 'test-user', channel: '#test-channel', message: '@simpsons' },
-    { db: {}, messages: [ { message: /^\(S\d+E\d+\): /, to: '#test-channel' }, ]
-    }
-  );
-
   var kryptoDb = function (channel, options) {
     var kryptoGame = new krypto.Krypto();
     for (var k in options) {
