@@ -403,6 +403,31 @@ describe('message listeners', function () {
 
   testIO('eval', '@eval 6 * 7', '42');
 
+  test('points',
+    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
+          }
+    , from: 'test-user', channel: '#test-channel', message: 'foo bar test-user-2++'
+    }
+  , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
+          , points: { '#test-channel': { 'test-user-2': 1 } }
+          }
+    , messages: [ { message: 'test-user-2 has 1 point', to: '#test-channel' } ]
+    }
+  );
+
+  test('points',
+    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
+          , points: { '#test-channel': { 'test-user-2': 1 } }
+          }
+    , from: 'test-user', channel: '#test-channel', message: 'foo bar test-user-2--'
+    }
+  , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
+          , points: { '#test-channel': { 'test-user-2': 0 } }
+          }
+    , messages: [ { message: 'test-user-2 has no points', to: '#test-channel' } ]
+    }
+  );
+
 });
 
 /*
