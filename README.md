@@ -27,16 +27,17 @@ Observe that they all pass.
 
 ### Add a new test
 
-For the feature you'd like to develop, write a new test for it in *test/sectery_test.js*:
+For the feature you'd like to develop, write a new test for it in
+*test/sectery_test.js*:
 
 ```javascript
-'emoji': function(test) {
-  test.expect(2);
-  client._message('testuser', '#test-channel', 'foo bar table flip baz');
-  test.equal(client._lastSaid().to, '#test-channel');
-  test.equal(client._lastSaid().message, '╯°□°）╯︵ ┻━┻');
-  test.done();
-},
+describe('message listeners', function () {
+
+  // ...
+
+  testIO('emoji', 'table flip', '╯°□°）╯︵ ┻━┻');
+
+});
 ```
 
 ### Run the tests again
