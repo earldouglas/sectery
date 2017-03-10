@@ -1,4 +1,7 @@
-# Sectery [![Build Status](https://travis-ci.org/earldouglas/sectery.svg?branch=master)](https://travis-ci.org/earldouglas/sectery) [![Coverage Status](https://coveralls.io/repos/github/earldouglas/sectery/badge.svg?branch=master)](https://coveralls.io/github/earldouglas/sectery?branch=master)
+# Sectery
+
+[![Build status][travis-ci-badge]][travis-ci]
+[![Coverage status][coveralls-badge]][coveralls]
 
 ## Usage
 
@@ -63,3 +66,8 @@ function messageListener(db, from, channel, message) {
 
 module.exports = messageListener;
 ```
+
+[coveralls-badge]: https://coveralls.io/repos/github/earldouglas/sectery/badge.svg?branch=master
+[coveralls]: https://coveralls.io/github/earldouglas/sectery?branch=master
+[travis-ci-badge]: https://travis-ci.org/earldouglas/sectery.svg?branch=master
+[travis-ci]: https://travis-ci.org/earldouglas/sectery
