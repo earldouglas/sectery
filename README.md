@@ -1,4 +1,7 @@
-# Sectery [![Build Status](https://travis-ci.org/earldouglas/sectery.svg?branch=master)](https://travis-ci.org/earldouglas/sectery) [![Coverage Status](https://coveralls.io/repos/github/earldouglas/sectery/badge.svg?branch=master)](https://coveralls.io/github/earldouglas/sectery?branch=master)
+# Sectery
+
+[![Build status][travis-ci-badge]][travis-ci]
+[![Coverage status][coveralls-badge]][coveralls]
 
 ## Usage
 
@@ -27,16 +30,17 @@ Observe that they all pass.
 
 ### Add a new test
 
-For the feature you'd like to develop, write a new test for it in *test/sectery_test.js*:
+For the feature you'd like to develop, write a new test for it in
+*test/sectery_test.js*:
 
 ```javascript
-'emoji': function(test) {
-  test.expect(2);
-  client._message('testuser', '#test-channel', 'foo bar table flip baz');
-  test.equal(client._lastSaid().to, '#test-channel');
-  test.equal(client._lastSaid().message, '╯°□°）╯︵ ┻━┻');
-  test.done();
-},
+describe('message listeners', function () {
+
+  // ...
+
+  testIO('emoji', 'table flip', '╯°□°）╯︵ ┻━┻');
+
+});
 ```
 
 ### Run the tests again
@@ -62,3 +66,8 @@ function messageListener(db, from, channel, message) {
 
 module.exports = messageListener;
 ```
+
+[coveralls-badge]: https://coveralls.io/repos/github/earldouglas/sectery/badge.svg?branch=master
+[coveralls]: https://coveralls.io/github/earldouglas/sectery?branch=master
+[travis-ci-badge]: https://travis-ci.org/earldouglas/sectery.svg?branch=master
+[travis-ci]: https://travis-ci.org/earldouglas/sectery
