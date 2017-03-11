@@ -3,8 +3,6 @@
 var sectery   = require('../lib/sectery');
 var utilities = require('../lib/utilities');
 var krypto    = require('../lib/krypto-game');
-var utilities = require('../lib/utilities');
-
 var assert   = require('assert');
 
 process.env.IRC_USER = 'sectery-test';
@@ -428,6 +426,69 @@ describe('message listeners', function () {
     }
   );
 
+});
+
+
+describe('message listeners with time', function () {
+
+  
+  var tk = require('timekeeper');
+  var time = require('../lib/time');
+
+  var test = function (name, req, res, date) {
+    it(name, function () {
+
+      tk.freeze(date);
+      this.timeout(10000);
+      var listener = require('../lib/listeners/message/' + name + '.js');
+      assert.deepEqual(listener(req.db, req.from, req.channel, req.message), res.messages);
+      assert.deepEqual(req.db, res.db);
+      tk.reset();
+    });
+  };
+
+  tk.freeze(new Date(2017,2,6,17,1));
+  var now = utilities.now();
+  var afterHours = 'test-user: ' +  now + ', why are you still here? Go home.';
+  test('time',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
+    { db: {}, messages: [ { message: afterHours,
+                            to: '#test-channel' }, ]
+
+    },
+    new Date()
+  );
+  tk.reset();
+
+  tk.freeze(new Date(2017,2,6,16,1));
+  now = utilities.now();
+  var then =  new Date();
+  then.setHours(17,0);
+
+  var delta = time.time_delta(new Date(),then);
+  var workHours  = 'test-user: ' +  utilities.now() + ', ' + delta + ' until you get to go home. Hang in there.';
+  test('time',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
+    { db: {}, messages: [ { message: workHours,
+                            to: '#test-channel' }, ]
+
+    },
+    new Date()
+  );
+  tk.reset();
+
+  tk.freeze(new Date(2017,2,11,16,1));
+  now = utilities.now();
+  var weekend    = 'test-user: ' +  now + ', enjoy your day of not-work.';
+  test('time',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
+    { db: {}, messages: [ { message: weekend,
+                            to: '#test-channel' }, ]
+
+    },
+    new Date()
+  );
+  tk.reset();
 });
 
 /*
