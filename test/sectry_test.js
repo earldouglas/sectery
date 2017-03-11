@@ -409,7 +409,7 @@ describe('message listeners', function () {
   , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
           , points: { '#test-channel': { 'test-user-2': 1 } }
           }
-    , messages: [ { message: 'test-user-2 has 1 point', to: '#test-channel' } ]
+    , messages: [ { message: 'test-user-2 has 1 point.', to: '#test-channel' } ]
     }
   );
 
@@ -422,12 +422,25 @@ describe('message listeners', function () {
   , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
           , points: { '#test-channel': { 'test-user-2': 0 } }
           }
-    , messages: [ { message: 'test-user-2 has no points', to: '#test-channel' } ]
+    , messages: [ { message: 'test-user-2 has no points.', to: '#test-channel' } ]
     }
   );
 
+  test('points',
+    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
+          , points: { '#test-channel': { 'test-user': 1 } }
+          }
+    , from: 'test-user', channel: '#test-channel', message: 'foo bar test-user++'
+    }
+  , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
+          , points: { '#test-channel': { 'test-user': 1 } }
+          }
+    , messages: [ { to: '#test-channel'
+                  , message: 'test-user: You can\'t change your own points.'
+                  } ]
+    }
+  );
 });
-
 
 describe('message listeners with time', function () {
 
@@ -490,317 +503,3 @@ describe('message listeners with time', function () {
   );
   tk.reset();
 });
-
-/*
-describe('sectery', function () {
-
-  it.skip('@ascii art', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(), '[ascii art]');
-    testUser.message('@ascii http://example.com/test.png');
-  });
-
-  var cronJob = null;
-
-  it('@cron (add)', function(done) {
-    testUser2.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser2.nick().replace(/[|]/g, '\\|') +
-        ': OK - cron job (\\d+) scheduled');
-      var match = regex.exec(x);
-      cronJob = match[1];
-      return match;
-    });
-    testUser2.message('@cron add "* * * * * *" This is cool.');
-  });
-
-  it('@cron (ls)', function(done) {
-    testUser2.expectMessageR(done, secteryUser.nick(),
-      new RegExp(cronJob + ': "\\* \\* \\* \\* \\* \\*" "This is cool."'));
-    testUser2.message('@cron ls');
-  });
-
-  it('@cron (remove)', function(done) {
-    testUser2.expectMessageR(done, secteryUser.nick(),
-      new RegExp(testUser2.nick() + ': OK - cron job ' + cronJob + ' stopped!'));
-    testUser2.message('@cron remove ' + cronJob);
-  });
-
-  it('@time', function(done) {
-    testUser2.expectMessageR(done, secteryUser.nick(),
-      /until end of next workday./);
-    testUser2.message('@time');
-  });
-
-  it('regex', function(done) {
-    testUser2.expectMessage(done, secteryUser.nick(),
-      '<' + testUser2.nick() + '>: bar');
-    testUser2.message('qux');
-    testUser2.message('s/qux/bar/');
-  });
-
-  it('@grab', function(done) {
-    testUser2.expectMessage(done, secteryUser.nick(),
-      testUser2.nick() + ': OK - message grabbed.');
-    testUser.message('bananas');
-    testUser2.message('@grab ' + testUser.nick());
-  });
-
-  it('@quote', function(done) {
-    testUser2.expectMessageR(done, secteryUser.nick(),
-      new RegExp('<' + testUser.nick() + '>: bananas'));
-    testUser2.message('@quote ' + testUser.nick());
-  });
-
-
-  it('@poll (ls)', function(done) {
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp('Usage: @poll <start|close> <message>');
-      log(x,regex);
-      return regex.test(x);
-    });
-    var command = '@poll';
-    testUser.message(command);
-  });
-
-  it('@poll (add)', function(done) {
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Poll \\d+ started!');
-      log(x,regex);
-      return regex.test(x);
-    });
-    var command = '@poll start Is this a poll?';
-    testUser.message(command);
-  });
-
-
-  it('@poll (close) - wrong user', function(done) {
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser2.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll \\d+ can only be closed by "' +  testUser.nick().replace(/[|]/g, '\\|') + '"!');
-      log(x,regex);
-      return regex.test(x);
-    });
-    var command = '@poll close 0';
-    testUser2.message(command);
-  });
-
-  it('@poll (close) - wrong id', function(done) {
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll \\d+ was not found.');
-      log(x,regex);
-      return regex.test(x);
-    });
-    var command = '@poll close 2';
-    testUser.message(command);
-  });
-  it('@poll (close)', function(done) {
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Poll \\d+ closed!');
-      log(x,regex);
-      return regex.test(x);
-    });
-    var command = '@poll close 0';
-    testUser.message(command);
-  });
-
-  it('@poll (closed)', function(done) {
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll \\d+ is already closed!');
-      log(x,regex);
-      return regex.test(x);
-    });
-    var command = '@poll close 0';
-    testUser.message(command);
-  });
-  it('@poll (ls)', function(done) {
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp('Usage: @poll <start\|close> <message>');
-      log(x,regex);
-      return regex.test(x);
-    });
-    var command = '@poll';
-    testUser.message(command);
-  });
-
-  it('@poll (usage)', function(done) {
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp('Usage: @poll <start\|close> <message>');
-      log(x,regex);
-      return regex.test(x);
-    });
-    var command = '@poll';
-    testUser.message(command);
-  });
-
-  it('@vote (usage)', function(done) {
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp('Usage: @vote <poll Id> yea\|nay');
-      log(x,regex);
-      return regex.test(x);
-    });
-    var command = '@vote';
-    testUser.message(command);
-  });
-
-  it('@vote (yea)', function(done) {
-     
-    var vote = 'yea';
-    var id = 1;
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: Yeas:1 Nays:0');
-      log(x,regex);
-      return regex.test(x);
-    });
-
-    var command = '@poll start Am I Awesome?';
-    testUser.message(command);
-    command = '@vote ' + id + ' ' + vote;
-    testUser.message(command);
-  });
-
-  it('@vote (yea 2)', function(done) {
-     
-    var vote = 'yea';
-    var id = 1;
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: Yeas:2 Nays:0');
-      log(x,regex);
-      return regex.test(x);
-    });
-
-    var command = '@vote ' + id + ' ' + vote;
-    testUser.message(command);
-  });
-
-  it('@vote (no)', function(done) {
-     
-    var vote = 'nay';
-    var id = 1;
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Voted ' + vote+' on Poll ' + id +'! Current votes: Yeas:2 Nays:1');
-      log(x,regex);
-      return regex.test(x);
-    });
-
-    var command = '@vote ' + id + ' ' + vote;
-    testUser.message(command);
-  });
-
-  it('@vote (closed)', function(done) {
-     
-    var vote = 'nay';
-    var id = 0;
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll ' + id +' is already closed!');
-      log(x,regex);
-      return regex.test(x);
-    });
-
-    var command = '@vote ' + id + ' ' + vote;
-    testUser.message(command);
-  });
-
-  it('@vote (non-existant)', function(done) {
-     
-    var vote = 'nay';
-    var id = 100;
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll ' + id +' was not found.');
-      log(x,regex);
-      return regex.test(x);
-    });
-
-    var command = '@vote ' + id + ' ' + vote;
-    testUser.message(command);
-  });
-  it('@poll (delete)', function(done) {
-     
-    var command = 'delete';
-    var id = 0;
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': OK - Poll ' + id +' deleted!');
-      log(x,regex);
-      return regex.test(x);
-    });
-
-    var command = '@poll ' + command + ' '  + id;
-    testUser.message(command);
-  });
-
-  it('@poll (delete open)', function(done) {
-     
-    var command = 'delete';
-    var id = 1;
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll ' + id +' is still open!');
-      log(x,regex);
-      return regex.test(x);
-    });
-
-    var command = '@poll ' + command + ' '  + id;
-    testUser.message(command);
-  });
-  it('@poll (delete not found)', function(done) {
-     
-    var command = 'delete';
-    var id = 4;
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp(testUser.nick().replace(/[|]/g, '\\|') + ': Sorry - Poll ' + id +' was not found.');
-      log(x,regex);
-      return regex.test(x);
-    });
-
-    var command = '@poll ' + command + ' '  + id;
-    testUser.message(command);
-  });
-  
-  it('@help', function(done) {
-     
-    var command = '@help';
-
-    testUser.expectM(done, secteryUser.nick(), function (x) {
-      var regex = new RegExp('Available commands: .*');
-      log(x,regex);
-      return regex.test(x);
-    });
-    testUser.message(command);
-  });
-
-  it('list (add) ', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': OK - "Band of Brothers by Stephen Ambrose" was added to books.');
-    testUser.message('@list books add Band of Brothers by Stephen Ambrose');
-  });
-  it('list (remove)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': OK - "Band of Brothers by Stephen Ambrose" was deleted from books.');
-    testUser.message('@list books delete Band of Brothers by Stephen Ambrose');
-  });
-  it('list (remove list not found)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': Sorry - "not-found" was not found.');
-    testUser.message('@list not-found delete item');
-  });
-  it('list (remove not found)', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': Sorry - "Not Found" was not found in books.');
-    testUser.message('@list books delete Not Found');
-  });
-  it('list (list) ', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),'Book1, Book2');
-    testUser.message('@list books add Book1');
-    testUser.message('@list books add Book2');
-    testUser.message('@list books list');
-  });
-  it('list (cleanup) ', function(done) {
-    testUser.expectMessage(done, secteryUser.nick(),testUser.nick() + ': OK - "Book2" was deleted from books.');
-    testUser.message('@list books delete Book1');
-    testUser.message('@list books delete Book2');
-  });
-});
-*/
