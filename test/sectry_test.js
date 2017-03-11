@@ -428,4 +428,19 @@ describe('message listeners', function () {
     }
   );
 
+  test('points',
+    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
+          , points: { '#test-channel': { 'test-user': 1 } }
+          }
+    , from: 'test-user', channel: '#test-channel', message: 'foo bar test-user++'
+    }
+  , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
+          , points: { '#test-channel': { 'test-user': 1 } }
+          }
+    , messages: [ { to: '#test-channel'
+                  , message: 'test-user: You can\'t change your own points.'
+                  } ]
+    }
+  );
+
 });
