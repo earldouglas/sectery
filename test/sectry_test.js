@@ -411,7 +411,7 @@ describe('message listeners', function () {
   , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
           , points: { '#test-channel': { 'test-user-2': 1 } }
           }
-    , messages: [ { message: 'test-user-2 has 1 point', to: '#test-channel' } ]
+    , messages: [ { message: 'test-user-2 has 1 point.', to: '#test-channel' } ]
     }
   );
 
@@ -424,7 +424,7 @@ describe('message listeners', function () {
   , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
           , points: { '#test-channel': { 'test-user-2': 0 } }
           }
-    , messages: [ { message: 'test-user-2 has no points', to: '#test-channel' } ]
+    , messages: [ { message: 'test-user-2 has no points.', to: '#test-channel' } ]
     }
   );
 
