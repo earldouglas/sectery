@@ -3,7 +3,7 @@
 var sectery   = require('../lib/sectery');
 var utilities = require('../lib/utilities');
 var krypto    = require('../lib/krypto-game');
-var assert   = require('assert');
+var assert    = require('assert');
 
 process.env.IRC_USER = 'sectery-test';
 
@@ -462,8 +462,9 @@ describe('message listeners', function () {
 describe('message listeners with time', function () {
 
   
-  var tk = require('timekeeper');
-  var time = require('../lib/time');
+  var tk        = require('timekeeper');
+  var moment    = require('moment-timezone'); 
+  var time      = require('../lib/time');
 
   var test = function (name, req, res, date) {
     it(name, function () {
@@ -477,7 +478,8 @@ describe('message listeners with time', function () {
     });
   };
 
-  tk.freeze(new Date(2017,2,6,17,1));
+  var m = moment.parseZone("2017-03-06T17:01:00.000-07:00");
+  tk.freeze(m.toDate());
   var now = utilities.now();
   var afterHours = 'test-user: ' +  now + ', why are you still here? Go home.';
   test('time',
@@ -486,16 +488,17 @@ describe('message listeners with time', function () {
                             to: '#test-channel' }, ]
 
     },
-    new Date()
+    m.toDate()
   );
   tk.reset();
 
-  tk.freeze(new Date(2017,2,6,16,1));
+  m = moment.parseZone("2017-03-06T16:01:00.000-07:00");
+  tk.freeze(m.toDate());
   now = utilities.now();
-  var then =  new Date();
+  var then = m.toDate();
   then.setHours(17,0);
 
-  var delta = time.time_delta(new Date(),then);
+  var delta = time.time_delta(m.toDate(),then);
   var workHours  = 'test-user: ' +  utilities.now() + ', ' + delta + ' until you get to go home. Hang in there.';
   test('time',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
@@ -503,11 +506,12 @@ describe('message listeners with time', function () {
                             to: '#test-channel' }, ]
 
     },
-    new Date()
+    m.toDate()
   );
   tk.reset();
 
-  tk.freeze(new Date(2017,2,11,16,1));
+  m = moment.parseZone("2017-03-11T16:01:00.000-07:00");
+  tk.freeze(m.toDate());
   now = utilities.now();
   var weekend    = 'test-user: ' +  now + ', enjoy your day of not-work.';
   test('time',
@@ -516,24 +520,26 @@ describe('message listeners with time', function () {
                             to: '#test-channel' }, ]
 
     },
-    new Date()
+    m.toDate()
   );
   tk.reset();
 
   // 4 pm on the server (America/Phoenix) but the user is in Denver (hour later), expect it an hour later
-  tk.freeze(new Date(2017,2,13,16,1));
+
+  m = moment.parseZone("2017-03-13T16:01:00.000-07:00");
+  tk.freeze(m.toDate());
   afterHours = 'test-user: 5:01 PM MDT on Mon, Mar 13th, why are you still here? Go home.';
   test('time',
-    { db: { "settings": { "test-user": { "tz": "America/Denver" } } } , 
+    { db: { 'settings': { 'test-user': { 'tz': 'America/Denver' } } } , 
       from: 'test-user',
       channel: '#test-channel', message: '@time' },
 
-    { db: { "settings": { "test-user": { "tz": "America/Denver" } } } , 
+    { db: { 'settings': { 'test-user': { 'tz': 'America/Denver' } } } , 
       messages: [ { message: afterHours,
                             to: '#test-channel' }, ]
 
     },
-    new Date()
+    m.toDate()
   );
   tk.reset();
 });
