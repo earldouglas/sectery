@@ -27,9 +27,26 @@ describe('pm listeners', function () {
   test('setup',
     { db: {}, channel: '#test-channel', from: 'test-user', message: '@setup' },
     {
-      db: {}, messages: [ { message: 'Usage: @setup <email|sms> <email@example.com|phone|code>', to: 'test-user' } ]
+      db: {}, messages: [ { message: 'Usage: @setup <email|sms|tz> <email@example.com|phone|code|olson-timezone>', to: 'test-user' } ]
     }
   );
+
+  test('setup',
+    { db: {}, channel: '#test-channel', from: 'test-user', message: '@setup tz MST' },
+    {
+      db: {} , 
+      messages: [ { message: 'test-user: please provide a valid Olson timezone. e.g. America/Phoenix', to: 'test-user' } ]
+    }
+  );
+
+  test('setup',
+    { db: {}, channel: '#test-channel', from: 'test-user', message: '@setup tz America/Phoenix' },
+    {
+      db: { "settings": { "test-user": { "tz": "America/Phoenix" } } } , 
+      messages: [ { message: 'test-user: timezone updated.', to: 'test-user' } ]
+    }
+  );
+
 
 });
 
