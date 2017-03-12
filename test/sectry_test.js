@@ -519,4 +519,21 @@ describe('message listeners with time', function () {
     new Date()
   );
   tk.reset();
+
+  // 4 pm on the server (America/Phoenix) but the user is in Denver (hour later), expect it an hour later
+  tk.freeze(new Date(2017,2,13,16,1));
+  afterHours = 'test-user: 5:01 PM MDT on Mon, Mar 13th, why are you still here? Go home.';
+  test('time',
+    { db: { "settings": { "test-user": { "tz": "America/Denver" } } } , 
+      from: 'test-user',
+      channel: '#test-channel', message: '@time' },
+
+    { db: { "settings": { "test-user": { "tz": "America/Denver" } } } , 
+      messages: [ { message: afterHours,
+                            to: '#test-channel' }, ]
+
+    },
+    new Date()
+  );
+  tk.reset();
 });
