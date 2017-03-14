@@ -480,8 +480,7 @@ describe('message listeners with time', function () {
 
   var m = moment.parseZone("2017-03-06T17:01:00.000-07:00");
   tk.freeze(m.toDate());
-  var now = utilities.now();
-  var afterHours = 'test-user: ' +  now + ', why are you still here? Go home.';
+  var afterHours = 'test-user: 5:01 PM MST on Mon, Mar 6th, why are you still here? Go home.';
   test('time',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
     { db: {}, messages: [ { message: afterHours,
@@ -493,13 +492,11 @@ describe('message listeners with time', function () {
   tk.reset();
 
   m = moment.parseZone("2017-03-06T16:01:00.000-07:00");
+  var then = m.clone().add(1, 'hour').subtract(1,'minute');
   tk.freeze(m.toDate());
-  now = utilities.now();
-  var then = m.toDate();
-  then.setHours(17,0);
 
   var delta = time.time_delta(m.toDate(),then);
-  var workHours  = 'test-user: ' +  utilities.now() + ', ' + delta + ' until you get to go home. Hang in there.';
+  var workHours  = 'test-user: 4:01 PM MST on Mon, Mar 6th, ' + delta + ' until you get to go home. Hang in there.';
   test('time',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
     { db: {}, messages: [ { message: workHours,
@@ -512,8 +509,7 @@ describe('message listeners with time', function () {
 
   m = moment.parseZone("2017-03-11T16:01:00.000-07:00");
   tk.freeze(m.toDate());
-  now = utilities.now();
-  var weekend    = 'test-user: ' +  now + ', enjoy your day of not-work.';
+  var weekend    = 'test-user: 4:01 PM MST on Sat, Mar 11th, enjoy your day of not-work.';
   test('time',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
     { db: {}, messages: [ { message: weekend,
@@ -527,7 +523,9 @@ describe('message listeners with time', function () {
   // 4 pm on the server (America/Phoenix) but the user is in Denver (hour later), expect it an hour later
 
   m = moment.parseZone("2017-03-13T16:01:00.000-07:00");
-  tk.freeze(m.toDate());
+  
+  var d = new Date(m.tz('America/Phoenix').format());
+  tk.freeze(d);
   afterHours = 'test-user: 5:01 PM MDT on Mon, Mar 13th, why are you still here? Go home.';
   test('time',
     { db: { 'settings': { 'test-user': { 'tz': 'America/Denver' } } } , 
@@ -539,7 +537,7 @@ describe('message listeners with time', function () {
                             to: '#test-channel' }, ]
 
     },
-    m.toDate()
+    d
   );
   tk.reset();
 });
