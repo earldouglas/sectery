@@ -3,7 +3,7 @@
 var sectery   = require('../lib/sectery');
 var utilities = require('../lib/utilities');
 var krypto    = require('../lib/krypto-game');
-var assert   = require('assert');
+var assert    = require('assert');
 
 process.env.IRC_USER = 'sectery-test';
 
@@ -27,9 +27,26 @@ describe('pm listeners', function () {
   test('setup',
     { db: {}, channel: '#test-channel', from: 'test-user', message: '@setup' },
     {
-      db: {}, messages: [ { message: 'Usage: @setup <email|sms> <email@example.com|phone|code>', to: 'test-user' } ]
+      db: {}, messages: [ { message: 'Usage: @setup <email|sms|tz> <email@example.com|phone|code|olson-timezone>', to: 'test-user' } ]
     }
   );
+
+  test('setup',
+    { db: {}, channel: '#test-channel', from: 'test-user', message: '@setup tz MST' },
+    {
+      db: {} , 
+      messages: [ { message: 'test-user: please provide a valid Olson timezone. e.g. America/Phoenix', to: 'test-user' } ]
+    }
+  );
+
+  test('setup',
+    { db: {}, channel: '#test-channel', from: 'test-user', message: '@setup tz America/Phoenix' },
+    {
+      db: { "settings": { "test-user": { "tz": "America/Phoenix" } } } , 
+      messages: [ { message: 'test-user: timezone updated.', to: 'test-user' } ]
+    }
+  );
+
 
 });
 
@@ -445,8 +462,9 @@ describe('message listeners', function () {
 describe('message listeners with time', function () {
 
   
-  var tk = require('timekeeper');
-  var time = require('../lib/time');
+  var tk        = require('timekeeper');
+  var moment    = require('moment-timezone'); 
+  var time      = require('../lib/time');
 
   var test = function (name, req, res, date) {
     it(name, function () {
@@ -460,46 +478,66 @@ describe('message listeners with time', function () {
     });
   };
 
-  tk.freeze(new Date(2017,2,6,17,1));
-  var now = utilities.now();
-  var afterHours = 'test-user: ' +  now + ', why are you still here? Go home.';
+  var m = moment.parseZone("2017-03-06T17:01:00.000-07:00");
+  tk.freeze(m.toDate());
+  var afterHours = 'test-user: 5:01 PM MST on Mon, Mar 6th, why are you still here? Go home.';
   test('time',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
     { db: {}, messages: [ { message: afterHours,
                             to: '#test-channel' }, ]
 
     },
-    new Date()
+    m.toDate()
   );
   tk.reset();
 
-  tk.freeze(new Date(2017,2,6,16,1));
-  now = utilities.now();
-  var then =  new Date();
-  then.setHours(17,0);
+  m = moment.parseZone("2017-03-06T16:01:00.000-07:00");
+  var then = m.clone().add(1, 'hour').subtract(1,'minute');
+  tk.freeze(m.toDate());
 
-  var delta = time.time_delta(new Date(),then);
-  var workHours  = 'test-user: ' +  utilities.now() + ', ' + delta + ' until you get to go home. Hang in there.';
+  var delta = time.time_delta(m.toDate(),then);
+  var workHours  = 'test-user: 4:01 PM MST on Mon, Mar 6th, ' + delta + ' until you get to go home. Hang in there.';
   test('time',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
     { db: {}, messages: [ { message: workHours,
                             to: '#test-channel' }, ]
 
     },
-    new Date()
+    m.toDate()
   );
   tk.reset();
 
-  tk.freeze(new Date(2017,2,11,16,1));
-  now = utilities.now();
-  var weekend    = 'test-user: ' +  now + ', enjoy your day of not-work.';
+  m = moment.parseZone("2017-03-11T16:01:00.000-07:00");
+  tk.freeze(m.toDate());
+  var weekend    = 'test-user: 4:01 PM MST on Sat, Mar 11th, enjoy your day of not-work.';
   test('time',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@time' },
     { db: {}, messages: [ { message: weekend,
                             to: '#test-channel' }, ]
 
     },
-    new Date()
+    m.toDate()
+  );
+  tk.reset();
+
+  // 4 pm on the server (America/Phoenix) but the user is in Denver (hour later), expect it an hour later
+
+  m = moment.parseZone("2017-03-13T16:01:00.000-07:00");
+  
+  var d = new Date(m.tz('America/Phoenix').format());
+  tk.freeze(d);
+  afterHours = 'test-user: 5:01 PM MDT on Mon, Mar 13th, why are you still here? Go home.';
+  test('time',
+    { db: { 'settings': { 'test-user': { 'tz': 'America/Denver' } } } , 
+      from: 'test-user',
+      channel: '#test-channel', message: '@time' },
+
+    { db: { 'settings': { 'test-user': { 'tz': 'America/Denver' } } } , 
+      messages: [ { message: afterHours,
+                            to: '#test-channel' }, ]
+
+    },
+    d
   );
   tk.reset();
 });
