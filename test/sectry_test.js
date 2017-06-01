@@ -443,40 +443,40 @@ describe('message listeners', function () {
 
   test('points',
     { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
-          }
-    , from: 'test-user', channel: '#test-channel', message: 'foo bar test-user-2++'
-    }
-  , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
-          , points: { '#test-channel': { 'test-user-2': 1 } }
-          }
-    , messages: [ { message: 'test-user-2 has 1 point.', to: '#test-channel' } ]
-    }
-  );
-
-  test('points',
-    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
-          , points: { '#test-channel': { 'test-user-2': 1 } }
-          }
-    , from: 'test-user', channel: '#test-channel', message: 'foo bar test-user-2--'
-    }
-  , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
-          , points: { '#test-channel': { 'test-user-2': 0 } }
-          }
-    , messages: [ { message: 'test-user-2 has no points.', to: '#test-channel' } ]
+          },
+      from: 'test-user', channel: '#test-channel', message: 'foo bar test-user-2++'
+    },
+    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } },
+            points: { '#test-channel': { 'test-user-2': 1 } }
+          },
+      messages: [ { message: 'test-user-2 has 1 point.', to: '#test-channel' } ]
     }
   );
 
   test('points',
-    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
-          , points: { '#test-channel': { 'test-user': 1 } }
-          }
-    , from: 'test-user', channel: '#test-channel', message: 'foo bar test-user++'
+    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } },
+            points: { '#test-channel': { 'test-user-2': 1 } }
+          },
+      from: 'test-user', channel: '#test-channel', message: 'foo bar test-user-2--'
+    },
+    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } },
+            points: { '#test-channel': { 'test-user-2': 0 } }
+          },
+      messages: [ { message: 'test-user-2 has no points.', to: '#test-channel' } ]
     }
-  , { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
-          , points: { '#test-channel': { 'test-user': 1 } }
-          }
-    , messages: [ { to: '#test-channel'
-                  , message: 'test-user: You can\'t change your own points.'
+  );
+
+  test('points',
+    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } },
+            points: { '#test-channel': { 'test-user': 1 } }
+          },
+      from: 'test-user', channel: '#test-channel', message: 'foo bar test-user++'
+    },
+    { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } },
+            points: { '#test-channel': { 'test-user': 1 } }
+          },
+      messages: [ { to: '#test-channel',
+                    message: 'test-user: You can\'t change your own points.'
                   } ]
     }
   );

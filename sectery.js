@@ -1,5 +1,3 @@
-'use strict';
-
 var sectery = require('./lib/sectery');
 var client = require('./lib/client');
 
