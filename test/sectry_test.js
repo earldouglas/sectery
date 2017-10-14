@@ -10,15 +10,17 @@ process.env.IRC_USER = 'sectery-test';
 describe('pm listeners', function () {
 
   var test = function (name, req, res) {
-    it(name, function () {
+    it(name, function (done) {
       var listener = require('../lib/listeners/pm/' + name + '.js');
       var replies = [];
       var reply = function (x) { replies.push(x); };
       listener(req.db, req.from, req.message, reply);
+      this.timeout(3000);
       setTimeout(function () {
         assert.deepEqual(replies, res.messages);
         assert.deepEqual(req.db, res.db);
-      });
+        done();
+      }, 2000);
     });
   };
 
@@ -58,15 +60,17 @@ describe('pm listeners', function () {
 describe('join listeners', function () {
 
   var test = function (name, req, res) {
-    it(name, function () {
+    it(name, function (done) {
       var listener = require('../lib/listeners/join/' + name + '.js');
       var replies = [];
       var reply = function (x) { replies.push(x); };
       listener(req.db, req.channel, req.nick, req.message, reply);
+      this.timeout(3000);
       setTimeout(function () {
         assert.deepEqual(replies, res.messages);
         assert.deepEqual(req.db, res.db);
-      });
+        done();
+      }, 2000);
     });
   };
 
@@ -83,15 +87,17 @@ describe('join listeners', function () {
 describe('part listeners', function () {
 
   var test = function (name, req, res) {
-    it(name, function () {
+    it(name, function (done) {
       var listener = require('../lib/listeners/part/' + name + '.js');
       var replies = [];
       var reply = function (x) { replies.push(x); };
       listener(req.db, req.channel, req.nick, req.reason, req.message, reply);
+      this.timeout(3000);
       setTimeout(function () {
         assert.deepEqual(replies, res.messages);
         assert.deepEqual(req.db, res.db);
-      });
+        done();
+      }, 2000);
     });
   };
 
@@ -111,25 +117,27 @@ describe('part listeners', function () {
 describe('message listeners', function () {
 
   var test = function (name, req, res) {
-    it(name, function () {
-      this.timeout(10000);
+    it(name, function (done) {
       var listener = require('../lib/listeners/message/' + name + '.js');
       var replies = [];
       var reply = function (x) { replies.push(x); };
       listener(req.db, req.from, req.channel, req.message, reply);
+      this.timeout(3000);
       setTimeout(function () {
         assert.deepEqual(replies, res.messages);
         assert.deepEqual(req.db, res.db);
-      });
+        done();
+      }, 2000);
     });
   };
 
   var testR = function (name, req, res) {
-    it(name, function () {
+    it(name, function (done) {
       var listener = require('../lib/listeners/message/' + name + '.js');
       var replies = [];
       var reply = function (x) { replies.push(x); };
       listener(req.db, req.user, req.channel, req.message, reply);
+      this.timeout(3000);
       setTimeout(function () {
         assert.equal(replies.length, res.messages.length);
         for (var i = 0; i < res.messages.length; i++) {
@@ -137,14 +145,19 @@ describe('message listeners', function () {
           assert.equal(res.messages[i].message.test(replies[i].message), true);
         }
         assert.deepEqual(req.db, res.db);
+        done();
       }, 2000);
     });
   };
 
-  var testIO = function (name, input, output) {
+  var testIO = function (name, input, outputs) {
+    var messages = [];
+    for (var i = 0; i < outputs.length; i++) {
+      messages.push({ message: outputs[i], to: '#test-channel' });
+    }
     test(name,
       { db: {}, from: 'test-user', channel: '#test-channel', message: input },
-      { db: {}, messages: [ { message: output, to: '#test-channel' } ] }
+      { db: {}, messages: messages }
     );
   };
 
@@ -159,7 +172,7 @@ describe('message listeners', function () {
     }
   );
 
-  testIO('weather', '@weather', '@weather <location>');
+  testIO('weather', '@weather', [ '@weather <location>' ]);
 
   testR('weather',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@weather Boulder' },
@@ -300,7 +313,9 @@ describe('message listeners', function () {
     }
   );
 
-  testIO('http-title', 'http://earldouglas.com/', 'James Earl Douglas');
+  testIO('http-title', 'https://earldouglas.com/', [ 'James Earl Douglas' ]);
+
+  testIO('http-title', 'https://frinkiac.com/meme/S10E17/991272/m/Q09NRSBPTiBPVVQsIEJPWSEKSVQnUyBXSU5EWSE=', [ 'COME ON OUT, BOY!', "IT'S WINDY!" ]);
 
   testR('stock',
     { db: {}, from: 'test-user', channel: '#test-channel', message: 'Hello @stock GOOG world' },
@@ -439,7 +454,7 @@ describe('message listeners', function () {
     }
   );
 
-  testIO('eval', '@eval 6 * 7', '42');
+  testIO('eval', '@eval 6 * 7', [ '42' ]);
 
   test('points',
     { db: { nicks: { '#test-channel': { 'test-user': true, 'test-user-2': true } }
@@ -490,19 +505,20 @@ describe('message listeners with time', function () {
   var time      = require('../lib/time');
 
   var test = function (name, req, res, date) {
-    it(name, function () {
+    it(name, function (done) {
 
       tk.freeze(date);
-      this.timeout(10000);
       var listener = require('../lib/listeners/message/' + name + '.js');
       var replies = [];
       var reply = function (x) { replies.push(x); };
       listener(req.db, req.from, req.channel, req.message, reply);
+      this.timeout(3000);
       setTimeout(function () {
         assert.deepEqual(replies, res.messages);
         assert.deepEqual(req.db, res.db);
         tk.reset();
-      });
+        done();
+      }, 2000);
     });
   };
 

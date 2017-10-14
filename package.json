@@ -31,6 +31,7 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "dependencies": {
+    "cheerio": "1.0.0-rc.2",
     "csv-parse": "1.1.7",
     "dateformat": "1.0.11",
     "figlet": "1.1.1",
@@ -63,12 +64,12 @@
   "jshintConfig": {
     "node": true,
     "globals": {
-      "describe"   : false,
-      "it"         : false,
-      "before"     : false,
-      "beforeEach" : false,
-      "after"      : false,
-      "afterEach"  : false
+      "describe": false,
+      "it": false,
+      "before": false,
+      "beforeEach": false,
+      "after": false,
+      "afterEach": false
     }
   }
 }
