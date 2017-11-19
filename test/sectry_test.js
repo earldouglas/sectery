@@ -131,6 +131,23 @@ describe('message listeners', function () {
     });
   };
 
+  var testL = function (name, reqL, resL) {
+    it(name, function (done) {
+      var req = reqL();
+      var res = resL();
+      var listener = require('../lib/listeners/message/' + name + '.js');
+      var replies = [];
+      var reply = function (x) { replies.push(x); };
+      listener(req.db, req.from, req.channel, req.message, reply);
+      this.timeout(3000);
+      setTimeout(function () {
+        assert.deepEqual(replies, res.messages);
+        assert.deepEqual(req.db, res.db);
+        done();
+      }, 2000);
+    });
+  };
+
   var testR = function (name, req, res) {
     it(name, function (done) {
       var listener = require('../lib/listeners/message/' + name + '.js');
@@ -317,63 +334,64 @@ describe('message listeners', function () {
 
   testIO('http-title', 'https://frinkiac.com/meme/S10E17/991272/m/Q09NRSBPTiBPVVQsIEJPWSEKSVQnUyBXSU5EWSE=', [ 'COME ON OUT, BOY!', "IT'S WINDY!" ]);
 
-  testR('stock',
-    { db: {}, from: 'test-user', channel: '#test-channel', message: 'Hello @stock GOOG world' },
-    { db: {}, messages: [ { message: /^Alphabet Inc. \(GOOG\): \$\d+\.\d+$/,
-                            to: '#test-channel' }, ]
+  testL('tell',
+    function () {
+      return {
+               db: {},
+               from: 'test-user', channel: '#test-channel', message: '@tell test-user-2 Welcome back!'
+             };
+    },
+    function () {
+      return {
+               db: {
+                 messages: {
+                   '#test-channel': {
+                     'test-user-2': [
+                       {
+                         date: utilities.now(),
+                         from: 'test-user',
+                         message: 'Welcome back!',
+                         to: 'test-user-2',
+                       }
+                     ]
+                   }
+                 }
+               },
+               messages: [ { message: "I'll pass your message along.", to: '#test-channel' }, ]
+             };
     }
   );
 
-  test('tell',
-    {
-      db: {},
-      from: 'test-user', channel: '#test-channel', message: '@tell test-user-2 Welcome back!'
+  testL('tell',
+    function () {
+      return {
+               db: {
+                 messages: {
+                   '#test-channel': {
+                     'test-user-2': [
+                       {
+                         date: utilities.now(),
+                         from: 'test-user',
+                         message: 'Welcome back!',
+                         to: 'test-user-2',
+                       }
+                     ]
+                   }
+                 }
+               },
+               from: 'test-user-2', channel: '#test-channel', message: 'Howdy.'
+             };
     },
-    {
-      db: {
-        messages: {
-          '#test-channel': {
-            'test-user-2': [
-              {
-                date: utilities.now(),
-                from: 'test-user',
-                message: 'Welcome back!',
-                to: 'test-user-2',
-              }
-            ]
-          }
-        }
-      },
-      messages: [ { message: "I'll pass your message along.", to: '#test-channel' }, ]
-    }
-  );
-
-  test('tell',
-    {
-      db: {
-        messages: {
-          '#test-channel': {
-            'test-user-2': [
-              {
-                date: utilities.now(),
-                from: 'test-user',
-                message: 'Welcome back!',
-                to: 'test-user-2',
-              }
-            ]
-          }
-        }
-      },
-      from: 'test-user-2', channel: '#test-channel', message: 'Howdy.'
-    },
-    {
-      db: {
-        messages: {
-          '#test-channel': {
-          }
-        }
-      },
-      messages: [ { message: 'test-user-2: test-user said "Welcome back!" at ' + utilities.now(), to: '#test-channel' }, ]
+    function () {
+      return {
+               db: {
+                 messages: {
+                   '#test-channel': {
+                   }
+                 }
+               },
+               messages: [ { message: 'test-user-2: test-user said "Welcome back!" at ' + utilities.now(), to: '#test-channel' }, ]
+             };
     }
   );
 
@@ -495,6 +513,16 @@ describe('message listeners', function () {
                   } ]
     }
   );
+
+  testR('bands',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@bands' },
+    { db: {},
+      messages: [
+        { message: /^40m BQI: \d\d*/, to: '#test-channel' },
+      ]
+    }
+  );
+
 });
 
 describe('message listeners with time', function () {
