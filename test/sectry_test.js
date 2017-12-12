@@ -523,6 +523,27 @@ describe('message listeners', function () {
     }
   );
 
+  test('spacex',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@spacex' },
+    { db: {},
+      messages: [
+        { message: '@spacex <next>', to: '#test-channel' },
+      ]
+    }
+  );
+
+  testR('spacex',
+    { db: { 'settings': { 'test-user': { 'tz': 'America/Denver' } } },
+      from: 'test-user', channel: '#test-channel', message: '@spacex next' },
+    { db: { 'settings': { 'test-user': { 'tz': 'America/Denver' } } },
+      messages: [
+        { message: /^Flight \d+ scheduled for \d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2} [A-Z]{3}\./, to: '#test-channel' },
+        { message: /^(Previously flown|New) (.*) carrying (.*) to (.*) launching from (.*)\.$/, to: '#test-channel' },
+        { message: /^(Attempting landing on (.*)|Expendable)/, to: '#test-channel' },
+      ]
+    }
+  );
+
 });
 
 describe('message listeners with time', function () {
