@@ -518,7 +518,11 @@ describe('message listeners', function () {
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@bands' },
     { db: {},
       messages: [
-        { message: /^40m BQI: \d\d*/, to: '#test-channel' },
+        { message: /^Bands as of .*/, to: '#test-channel' },
+        { message: /^| 12m-10m |.*/, to: '#test-channel' },
+        { message: /^| 17m-15m |.*/, to: '#test-channel' },
+        { message: /^| 30m-20m |.*/, to: '#test-channel' },
+        { message: /^| 80m-40m |.*/, to: '#test-channel' }
       ]
     }
   );
