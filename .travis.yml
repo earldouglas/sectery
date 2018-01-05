@@ -1,7 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-- '0.10'
+- '6'
 before_script:
 - export IRC_ENV=integration
 script:
