@@ -332,7 +332,13 @@ describe('message listeners', function () {
 
   testIO('http-title', 'https://earldouglas.com/', [ 'James Earl Douglas' ]);
 
-  testIO('http-title', 'https://frinkiac.com/meme/S10E17/991272/m/Q09NRSBPTiBPVVQsIEJPWSEKSVQnUyBXSU5EWSE=', [ "COME ON OUT, BOY! IT'S WINDY!" ]);
+  testIO('http-title',
+         'https://frinkiac.com/meme/S10E17/991272/m/Q09NRSBPTiBPVVQsIEJPWSEKSVQnUyBXSU5EWSE=',
+         [
+           "Frinkiac - Simpsons Meme & GIF Generator",
+           "COME ON OUT, BOY! IT'S WINDY!",
+         ]
+  );
 
   testL('tell',
     function () {
@@ -529,11 +535,7 @@ describe('message listeners', function () {
 
   testR('btc',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@btc' },
-    { db: {},
-      messages: [
-        { message: /^Bands as of .*/, to: '#test-channel' }
-      ]
-    }
+    { db: {}, messages: [ { message: /^[$][\d,]*\.\d\d$/, to: '#test-channel' } ] }
   );
 
   test('spacex',
