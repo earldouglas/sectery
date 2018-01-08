@@ -527,6 +527,15 @@ describe('message listeners', function () {
     }
   );
 
+  testR('btc',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@btc' },
+    { db: {},
+      messages: [
+        { message: /^Bands as of .*/, to: '#test-channel' }
+      ]
+    }
+  );
+
   test('spacex',
     { db: {}, from: 'test-user', channel: '#test-channel', message: '@spacex' },
     { db: {},
