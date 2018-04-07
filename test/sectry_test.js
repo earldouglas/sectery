@@ -423,6 +423,32 @@ describe('message listeners', function () {
     }
   );
 
+  testL('grab',
+        function() {
+          return {
+            db: { lastsaid: { '#test-channel': { grabbee: 'the last thing i said' } } },
+            from: 'test-user', channel: '#test-channel', message: '@grab grabbee'
+          };
+        },
+        function() {
+          return {
+            db: { lastsaid: { '#test-channel': { grabbee: 'the last thing i said' } },
+                  quotes: { '#test-channel': { grabbee: [ 'the last thing i said at ' + utilities.now() ] } }
+                },
+            messages: [ { message: 'test-user: OK - message grabbed.', to: '#test-channel' }, ]
+          };
+        }
+      );
+
+  test( 'quote',
+        { db: { quotes: { '#test-channel': { grabbee: [ 'the last thing i said' ] } } },
+          from: 'test-user', channel: '#test-channel', message: '@quote grabbee'
+        },
+        { db: { quotes: { '#test-channel': { grabbee: [ 'the last thing i said' ] } } },
+          messages: [ { message: '<grabbee>: the last thing i said', to: '#test-channel' }, ]
+        }
+      );
+
   var kryptoDb = function (channel, options) {
     var kryptoGame = new krypto.Krypto();
     for (var k in options) {
