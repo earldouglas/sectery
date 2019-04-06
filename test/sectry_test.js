@@ -585,6 +585,36 @@ describe('message listeners', function () {
     }
   );
 
+  test('ascii-text',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@ascii foo' },
+    { db: {},
+      messages: [
+        { message: "                     ", to: '#test-channel' },
+        { message: " ,---.               ", to: '#test-channel' },
+        { message: "/  .-' ,---.  ,---.  ", to: '#test-channel' },
+        { message: "|  `-,| .-. || .-. | ", to: '#test-channel' },
+        { message: "|  .-'' '-' '' '-' ' ", to: '#test-channel' },
+        { message: "`--'   `---'  `---'  ", to: '#test-channel' },
+        { message: "                     ", to: '#test-channel' }
+      ]
+    }
+  );
+
+  test('ascii-text',
+    { db: {}, from: 'test-user', channel: '#test-channel', message: '@ascii blink foo' },
+    { db: {},
+      messages: [
+        { message: "\u0006                     \u0006", to: '#test-channel' },
+        { message: "\u0006 ,---.               \u0006", to: '#test-channel' },
+        { message: "\u0006/  .-' ,---.  ,---.  \u0006", to: '#test-channel' },
+        { message: "\u0006|  `-,| .-. || .-. | \u0006", to: '#test-channel' },
+        { message: "\u0006|  .-'' '-' '' '-' ' \u0006", to: '#test-channel' },
+        { message: "\u0006`--'   `---'  `---'  \u0006", to: '#test-channel' },
+        { message: "\u0006                     \u0006", to: '#test-channel' }
+      ]
+    }
+  );
+
 });
 
 describe('message listeners with time', function () {
