@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "cheerio": "1.0.0-rc.2",
+    "cowsay": "^1.4.0",
     "csv-parse": "1.1.7",
     "dateformat": "1.0.11",
     "figlet": "1.1.1",
