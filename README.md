@@ -1,6 +1,6 @@
 # Sectery
 
-[![Build status][travis-ci-badge]][travis-ci]
+![Build Status](https://github.com/earldouglas/sectery/workflows/build/badge.svg)
 [![Coverage status][coveralls-badge]][coveralls]
 
 ## Usage
