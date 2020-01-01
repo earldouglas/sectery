@@ -3,6 +3,9 @@
 ![Build Status](https://github.com/earldouglas/sectery/workflows/build/badge.svg)
 [![Coverage status][coveralls-badge]][coveralls]
 
+[coveralls-badge]: https://coveralls.io/repos/github/earldouglas/sectery/badge.svg
+[coveralls]: https://coveralls.io/github/earldouglas/sectery
+
 ## Usage
 
 Install the dependencies:
@@ -66,8 +69,3 @@ function messageListener(db, from, channel, message) {
 
 module.exports = messageListener;
 ```
-
-[coveralls-badge]: https://coveralls.io/repos/github/earldouglas/sectery/badge.svg?branch=master
-[coveralls]: https://coveralls.io/github/earldouglas/sectery?branch=master
-[travis-ci-badge]: https://travis-ci.org/earldouglas/sectery.svg?branch=master
-[travis-ci]: https://travis-ci.org/earldouglas/sectery
