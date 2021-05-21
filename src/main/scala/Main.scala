@@ -1,5 +1,8 @@
-@main def hello: Unit = 
-  println("Hello world!")
-  println(msg)
+import java.io.IOException
+import zio._
+import zio.console._
 
-def msg = "I was compiled by Scala 3. :)"
+object HelloWorld {
+  def sayHello: ZIO[Console, IOException, Unit] =
+    console.putStrLn("Hello, World!")
+}
