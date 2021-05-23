@@ -4,6 +4,19 @@
 
 Sectery is an digital assistant IRC bot.
 
+## Producer
+
+Message responses are coded in `Producer.apply` in
+<src/main/scala/sectery/MessageQueues.scala>.
+
+To add support for a new message response, add a `Rx => URIO[Clock,
+Iterable[Tx]]` case to `Producer.apply`:
+
+```scala
+case Rx(c, _, "@foo") =>
+  ZIO.effectTotal(Some(Tx(c, "bar")))
+```
+
 ## References
 
 ### PircBotX
