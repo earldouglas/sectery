@@ -27,15 +27,23 @@ case class Rx(channel: String, nick: String, message: String)
 case class Tx(channel: String, message: String)
 
 /**
- * Read incoming messages, and optionally produce a response.
+ * Read incoming messages, and produce any number of responses.
  */
 object Producer {
-  def apply(m: Rx): Iterable[Tx] =
+  def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
     m match
       case Rx(c, _, "@ping") =>
-        Some(Tx(c, "pong"))
+        ZIO.effectTotal(Some(Tx(c, "pong")))
+      case Rx(c, _, "@time") =>
+        for
+          millis <- zio.clock.currentTime(TimeUnit.MILLISECONDS)
+          date    = new Date(millis)
+          sdf     = new SimpleDateFormat("EEE, d MMM yyyy, kk:mm zzz")
+          _       = sdf.setTimeZone(TimeZone.getTimeZone("America/Phoenix"))
+          pretty  = sdf.format(date)
+        yield Some(Tx(c, pretty))
       case _ =>
-        None
+        ZIO.effectTotal(None)
 }
 
 /**
@@ -51,11 +59,11 @@ trait Sender:
  */
 object MessageQueues:
 
-  private def produce(inbox: Queue[Rx], outbox: Queue[Tx]): UIO[Unit] =
+  private def produce(inbox: Queue[Rx], outbox: Queue[Tx]): URIO[Clock, Unit] =
     for
       size    <- inbox.size
       message <- inbox.take
-      txs      = Producer(message)
+      txs     <- Producer(message)
       _       <- ZIO.collectAll(txs.map(outbox.offer))
     yield ()
 
