@@ -8,6 +8,7 @@ lazy val root = project
   .settings(
     name := "sectery",
     scalaVersion := scala3Version,
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3",
     libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.2",
     libraryDependencies += "dev.zio" %% "zio" % zioVersion,
     libraryDependencies += "dev.zio" %% "zio" % zioVersion,
