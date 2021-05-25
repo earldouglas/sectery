@@ -1,5 +1,4 @@
 [![Build Status][build-badge]][build-link]
-[![Release Artifacts][release-badge]][release-link]
 
 # Sectery
 
@@ -31,6 +30,3 @@ implementation, and add it to the list of producers in
 
 [build-badge]: https://github.com/earldouglas/sectery/workflows/build/badge.svg "Build Status"
 [build-link]: https://github.com/earldouglas/sectery/actions "GitHub Actions"
-
-[release-link]: https://oss.sonatype.org/content/repositories/releases/com/earldouglas/linear-scala/ "Sonatype Releases"
-[release-badge]: https://img.shields.io/nexus/r/https/oss.sonatype.org/com.earldouglas/linear-scala "Sonatype Releases"
