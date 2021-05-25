@@ -1,5 +1,6 @@
 package sectery
 
+import org.pircbotx.cap.SASLCapHandler
 import javax.net.ssl.SSLSocketFactory
 import org.pircbotx.Configuration
 import org.pircbotx.hooks.events.MessageEvent
@@ -17,6 +18,7 @@ object Bot extends Sender:
   private val config: Configuration =
     new Configuration.Builder()
       .setSocketFactory(SSLSocketFactory.getDefault())
+      .addCapHandler(new SASLCapHandler(sys.env("IRC_USER"), sys.env("IRC_PASS")))
       .setName(sys.env("IRC_USER"))
       .setRealName(sys.env("IRC_USER"))
       .setLogin(sys.env("IRC_USER"))
