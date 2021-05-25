@@ -6,15 +6,15 @@ Sectery is an digital assistant IRC bot.
 
 ## Producer
 
-Message responses are coded in the [`Producer`][1] implementations in
-the [`sectery.producers` package][2].
+Message responses are coded in the [`Producer`][Producer.scala]
+implementations in the [`sectery.producers` package][sectery.producers].
 
 To add support for a new message response, write a new `Producer`
 implementation, and add it to the list of producers in
-[`Producer.producers`][1].
+[`Producer.producers`][Producer.scala].
 
-[1]: src/main/scala/sectery/Producer.scala
-[2]: src/main/scala/sectery/producers/
+[Producer.scala]: src/main/scala/sectery/Producer.scala
+[sectery.producers]: src/main/scala/sectery/producers/
 
 ## References
 
