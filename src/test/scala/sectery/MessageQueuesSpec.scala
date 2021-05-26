@@ -46,7 +46,10 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
     testM("@eval produces result") {
       for
         sent   <- ZQueue.unbounded[Tx]
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).provideLayer(Clock.any ++ TestHttp(200, Map.empty, "42"))
+        http    = sys.env.get("TEST_HTTP_LIVE") match
+                    case Some("true") => Http.live
+                    case _ => TestHttp(200, Map.empty, "42")
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).provideLayer(Clock.any ++ http)
         _      <- inbox.offer(Rx("#foo", "bar", "@eval 6 * 7"))
         _      <- TestClock.adjust(1.seconds)
         m      <- sent.take
