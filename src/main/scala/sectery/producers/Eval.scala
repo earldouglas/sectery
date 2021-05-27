@@ -29,6 +29,8 @@ object Eval extends Producer:
             Some(Tx(c, body))
           case r =>
             None
-        }
+        }.catchAll { e =>
+            ZIO.effectTotal(None)
+        }.map(_.toIterable)
       case _ =>
         ZIO.effectTotal(None)
