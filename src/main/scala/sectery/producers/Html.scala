@@ -1,6 +1,9 @@
 package sectery.producers
 
-import java.net.URLEncoder
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+import scala.collection.JavaConverters._
 import sectery.Http
 import sectery.Producer
 import sectery.Response
@@ -15,18 +18,6 @@ object Html extends Producer:
 
   val url = """.*(http[^\s]+).*""".r
 
-  val desc = """.*<\s*meta\s+name="description"\s+content="([^"]+)"\s*>.*""".r
-  val ogDesc1 = """.*<\s*meta\s+property="og:description"\s+content="([^"]+)"\s*>.*""".r
-  val ogDesc2 = """.*<\s*meta\s+name="og:description"\s+content="([^"]+)"\s*>.*""".r
-  val twitDesc1 = """.*<\s*meta\s+property="twitter:description"\s+content="([^"]+)"\s*>.*""".r
-  val twitDesc2 = """.*<\s*meta\s+name="twitter:description"\s+content="([^"]+)"\s*>.*""".r
-
-  val title = """.*<\s*title>\s*(.+)\s*<\/title>.*""".r
-  val ogTitle1 = """.*<\s*meta\s+property="og:title"\s+content="([^"]+)"\s*>.*""".r
-  val ogTitle2 = """.*<\s*meta\s+name="og:title"\s+content="([^"]+)"\s*>.*""".r
-  val twitTitle1 = """.*<\s*meta\s+property="twitter:title"\s+content="([^"]+)"\s*>.*""".r
-  val twitTitle2 = """.*<\s*meta\s+name="twitter:title"\s+content="([^"]+)"\s*>.*""".r
-
   def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, url(url)) =>
@@ -37,20 +28,7 @@ object Html extends Producer:
           body = None
         ).map {
           case Response(200, _, body) =>
-            body
-              .replaceAll("[\\r\\n]", " ")
-              .replaceAll("\\s+", " ") match
-              case desc(d) => Some(Tx(c, d))
-              case ogDesc1(d) => Some(Tx(c, d))
-              case ogDesc2(d) => Some(Tx(c, d))
-              case twitDesc1(d) => Some(Tx(c, d))
-              case twitDesc2(d) => Some(Tx(c, d))
-              case title(t) => Some(Tx(c, t))
-              case ogTitle1(t) => Some(Tx(c, t))
-              case ogTitle2(t) => Some(Tx(c, t))
-              case twitTitle1(t) => Some(Tx(c, t))
-              case twitTitle2(t) => Some(Tx(c, t))
-              case _ => None
+            getDescription(body).map(d => Tx(c, d))
           case r =>
             None
         }.catchAll { e =>
@@ -58,3 +36,27 @@ object Html extends Producer:
         }.map(_.toIterable)
       case _ =>
         ZIO.effectTotal(None)
+
+  def getDescription(body: String): Option[String] =
+
+    def nonEmpty(x: String): Option[String] =
+      Option(x).map(_.trim).filter(_.length > 0)
+
+    val doc: Document = Jsoup.parse(body)
+
+    val elements: List[Element] =
+      doc.select("head").asScala.toList ++
+      doc.select("meta[name=description]").asScala.toList ++
+      doc.select("meta[property=description]").asScala.toList ++
+      doc.select("meta[name=og:description]").asScala.toList ++
+      doc.select("meta[property=og:description]").asScala.toList ++
+      doc.select("meta[name=twitter:description]").asScala.toList ++
+      doc.select("meta[property=twitter:description]").asScala.toList
+
+    val descriptions: List[String] =
+      elements.map(_.attr("content"))
+
+    (descriptions :+ doc.title())
+      .flatMap(nonEmpty)
+      .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
+      .headOption
