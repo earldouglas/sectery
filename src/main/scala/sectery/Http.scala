@@ -5,9 +5,9 @@ import java.net.URL
 import scala.collection.JavaConverters._
 import scala.io.Source
 import zio.Has
-import zio.UIO
+import zio.RIO
+import zio.Task
 import zio.ULayer
-import zio.URIO
 import zio.ZIO
 import zio.ZLayer
 
@@ -27,7 +27,7 @@ object Http:
       url: String,
       headers: Map[String, String],
       body: Option[String]
-    ): UIO[Response]
+    ): Task[Response]
 
   val live: ULayer[Has[Service]] =
     ZLayer.succeed {
@@ -37,9 +37,9 @@ object Http:
           url: String,
           headers: Map[String, String],
           body: Option[String]
-        ): UIO[Response] =
+        ): Task[Response] =
 
-          ZIO.effectTotal {
+          ZIO.effect {
             val c =
               new URL(url)
                 .openConnection()
@@ -92,5 +92,5 @@ object Http:
     url: String,
     headers: Map[String, String],
     body: Option[String]
-  ): URIO[Http, Response] =
+  ): RIO[Http, Response] =
     ZIO.accessM(_.get.request(method, url, headers, body))
