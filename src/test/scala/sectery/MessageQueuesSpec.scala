@@ -1,6 +1,5 @@
 package sectery
 
-import java.io.IOException
 import zio._
 import zio.clock._
 import zio.duration._
@@ -8,8 +7,6 @@ import zio.test._
 import zio.test.Assertion.equalTo
 import zio.test.environment.TestClock
 import zio.test.TestAspect._
-import zio.ULayer
-import zio.ZLayer
 
 /**
  * A [[Sender]] implementation for testing.  Saves "sent" messages to a
@@ -56,34 +53,3 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
       yield assert(m)(equalTo(Tx("#foo", "42")))
     } @@ timeout(2.seconds)
   )
-
-object TestHttp:
-
-  def apply(): ULayer[Has[Http.Service]] =
-    apply(
-      resStatus = 200,
-      resHeaders = Map.empty,
-      resBody = ""
-    )
-
-  def apply(
-    resStatus: Int,
-    resHeaders: Map[String, String],
-    resBody: String
-  ): ULayer[Has[Http.Service]] =
-    ZLayer.succeed {
-      new Http.Service:
-        def request(
-          method: String,
-          url: String,
-          headers: Map[String, String],
-          body: Option[String]
-        ): UIO[Response] =
-          ZIO.effectTotal {
-            Response(
-              status = resStatus,
-              headers = resHeaders,
-              body = resBody
-            )
-          }
-    }
