@@ -1,7 +1,6 @@
 package sectery
 
 import zio._
-import zio.clock._
 import zio.duration._
 import zio.test._
 import zio.test.Assertion.equalTo
@@ -20,11 +19,18 @@ class MessageLogger(queue: Queue[Tx]) extends Sender:
  * Tests the management of the receive and send message queues.
  */
 object MessageQueuesSpec extends DefaultRunnableSpec:
+
+  implicit class Inject[R0, R1, E, A](z: ZIO[Has[R0] with Has[R1], E, A])(implicit t: Tag[Has[R1]]):
+    def inject(r0: ULayer[Has[R0]]): ZIO[Has[R1], E, A] =
+      ZIO.fromFunctionM { r1 =>
+        z.provideLayer(r0 ++ ZLayer.succeedMany(r1))
+      }
+
   def spec = suite("MessageQueuesSpec")(
     testM("@ping produces pong") {
       for
         sent   <- ZQueue.unbounded[Tx]
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).provideLayer(Clock.any ++ TestHttp())
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestHttp())
         _      <- inbox.offer(Rx("#foo", "bar", "@ping"))
         _      <- TestClock.adjust(1.seconds)
         m      <- sent.take
@@ -33,7 +39,7 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
     testM("@time produces time") {
       for
         sent   <- ZQueue.unbounded[Tx]
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).provideLayer(Clock.any ++ TestHttp())
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestHttp())
         _      <- TestClock.setTime(1234567890.millis)
         _      <- inbox.offer(Rx("#foo", "bar", "@time"))
         _      <- TestClock.adjust(1.seconds)
@@ -46,7 +52,7 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
         http    = sys.env.get("TEST_HTTP_LIVE") match
                     case Some("true") => Http.live
                     case _ => TestHttp(200, Map.empty, "42")
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).provideLayer(Clock.any ++ http)
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(http)
         _      <- inbox.offer(Rx("#foo", "bar", "@eval 6 * 7"))
         _      <- TestClock.adjust(1.seconds)
         m      <- sent.take
