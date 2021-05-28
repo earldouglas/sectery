@@ -20,7 +20,7 @@ object Sectery extends App:
    */
   def run(args: List[String]): URIO[ZEnv, ExitCode] =
     for
-      inbox <- sectery.MessageQueues.loop(Bot).provideLayer(ZEnv.live ++ Http.live)
+      inbox <- sectery.MessageQueues.loop(Bot).provideLayer(ZEnv.any ++ Http.live)
       _      = Bot.receive = (m: Rx) => unsafeRunAsync_(inbox.offer(m))
       _      = Bot.start()
     yield ExitCode.failure // should never exit

@@ -33,7 +33,7 @@ trait Sender:
  */
 object MessageQueues:
 
-  private def produce(inbox: Queue[Rx], outbox: Queue[Tx]): URIO[Clock with Http.Http, Unit] =
+  private def produce(inbox: Queue[Rx], outbox: Queue[Tx]): URIO[Http.Http with Clock, Unit] =
     for
       size    <- inbox.size
       message <- inbox.take
@@ -47,7 +47,7 @@ object MessageQueues:
       _       <- sender.send(message)
     yield ()
 
-  def loop(sender: Sender): URIO[Clock with Http.Http, Queue[Rx]] =
+  def loop(sender: Sender): URIO[Http.Http with Clock, Queue[Rx]] =
     for
       inbox  <- ZQueue.unbounded[Rx]
       outbox <- ZQueue.unbounded[Tx]
