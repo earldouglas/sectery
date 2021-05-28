@@ -33,7 +33,7 @@ object Html extends Producer:
         Http.request(
           method = "GET",
           url = url,
-          headers = Map.empty,
+          headers = Map("User-Agent" -> "bot"),
           body = None
         ).map {
           case Response(200, _, body) =>
