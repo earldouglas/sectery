@@ -18,7 +18,8 @@ object Producer:
       Ping,
       Time,
       Eval,
-      Html
+      Html,
+      Substitute
     )
 
   def apply(m: Rx): URIO[Http.Http with Clock, Iterable[Tx]] =
