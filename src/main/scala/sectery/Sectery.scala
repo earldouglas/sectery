@@ -3,13 +3,10 @@ package sectery
 import zio.App
 import zio.clock.Clock
 import zio.ExitCode
-import zio.Has
-import zio.UIO
-import zio.ULayer
+import zio.RIO
 import zio.URIO
 import zio.ZEnv
 import zio.ZIO
-import zio.ZLayer
 
 object Sectery extends App:
 
@@ -19,8 +16,17 @@ object Sectery extends App:
    * 3. Connect to IRC
    */
   def run(args: List[String]): URIO[ZEnv, ExitCode] =
-    for
-      inbox <- sectery.MessageQueues.loop(Bot).provideLayer(ZEnv.any ++ Http.live)
-      _      = Bot.receive = (m: Rx) => unsafeRunAsync_(inbox.offer(m))
-      _      = Bot.start()
-    yield ExitCode.failure // should never exit
+    val go: RIO[Db.Db with Http.Http with Clock, Unit] =
+      for
+        inbox <- MessageQueues
+                   .loop(Bot)
+        _      = Bot.receive = (m: Rx) => unsafeRunAsync_(inbox.offer(m))
+        _      = Bot.start()
+      yield ()  
+    go
+      .provideLayer(ZEnv.any ++ Db.live ++ Http.live)
+      .catchAll { e =>
+        ZIO.effectTotal(())
+      }.map { _ =>
+        ExitCode.failure // should never exit
+      }

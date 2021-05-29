@@ -8,6 +8,7 @@ lazy val root = project
   .settings(
     name := "sectery",
     scalaVersion := scala3Version,
+    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.34.0",
     libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3",
     libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.2",

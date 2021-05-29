@@ -20,17 +20,23 @@ class MessageLogger(queue: Queue[Tx]) extends Sender:
  */
 object MessageQueuesSpec extends DefaultRunnableSpec:
 
-  implicit class Inject[R0, R1, E, A](z: ZIO[Has[R0] with Has[R1], E, A])(implicit t: Tag[Has[R1]]):
+  implicit class Inject2[R0, R1, E, A](z: ZIO[Has[R0] with Has[R1], E, A])(implicit t: Tag[Has[R1]]):
     def inject(r0: ULayer[Has[R0]]): ZIO[Has[R1], E, A] =
-      ZIO.fromFunctionM { r1 =>
-        z.provideLayer(r0 ++ ZLayer.succeedMany(r1))
+      ZIO.fromFunctionM { r =>
+        z.provideLayer(r0 ++ ZLayer.succeedMany(r))
+      }
+
+  implicit class Inject3[R0, R1, R2, E, A](z: ZIO[Has[R0] with Has[R1] with Has[R2], E, A])(implicit t1: Tag[Has[R1]], t2: Tag[Has[R2]]):
+    def inject(r0: ULayer[Has[R0]], r1: ULayer[Has[R1]]): ZIO[Has[R2], E, A] =
+      ZIO.fromFunctionM { r =>
+        z.provideLayer(r0 ++ r1 ++ ZLayer.succeedMany(r))
       }
 
   def spec = suite("MessageQueuesSpec")(
     testM("@ping produces pong") {
       for
         sent   <- ZQueue.unbounded[Tx]
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestHttp())
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestDb(), TestHttp())
         _      <- inbox.offer(Rx("#foo", "bar", "@ping"))
         _      <- TestClock.adjust(1.seconds)
         m      <- sent.take
@@ -39,7 +45,7 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
     testM("@time produces time") {
       for
         sent   <- ZQueue.unbounded[Tx]
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestHttp())
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestDb(), TestHttp())
         _      <- TestClock.setTime(1234567890.millis)
         _      <- inbox.offer(Rx("#foo", "bar", "@time"))
         _      <- TestClock.adjust(1.seconds)
@@ -52,7 +58,7 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
         http    = sys.env.get("TEST_HTTP_LIVE") match
                     case Some("true") => Http.live
                     case _ => TestHttp(200, Map.empty, "42")
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(http)
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestDb(), http)
         _      <- inbox.offer(Rx("#foo", "bar", "@eval 6 * 7"))
         _      <- TestClock.adjust(1.seconds)
         m      <- sent.take
@@ -98,7 +104,7 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
                                   }
                         }
                       http
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(http)
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestDb(), http)
         _      <- inbox.offer(Rx("#foo", "bar", "foo bar https://earldouglas.com/posts/scala.html baz"))
         _      <- TestClock.adjust(1.seconds)
         m      <- sent.take
@@ -107,7 +113,7 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
     testM("s/bar/baz/ replaces bar with baz") {
       for
         sent   <- ZQueue.unbounded[Tx]
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestHttp())
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestDb(), TestHttp())
         _      <- inbox.offer(Rx("#foo", "foo", "1: foo"))
         _      <- inbox.offer(Rx("#foo", "bar", "2: bar"))
         _      <- inbox.offer(Rx("#foo", "baz", "3: baz"))
@@ -116,5 +122,17 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
         _      <- TestClock.adjust(1.seconds)
         m      <- sent.take
       yield assert(m)(equalTo(Tx("#foo", "<bar> 2: baz")))
+    } @@ timeout(2.seconds),
+    testM("@count produces count") {
+      for
+        sent   <- ZQueue.unbounded[Tx]
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestDb(), TestHttp())
+        _      <- inbox.offer(Rx("#foo", "bar", "@count"))
+        _      <- inbox.offer(Rx("#foo", "bar", "@count"))
+        _      <- inbox.offer(Rx("#foo", "bar", "@count"))
+        _      <- TestClock.adjust(1.seconds)
+        ms     <- sent.takeAll
+      yield
+        assert(ms)(equalTo(List(Tx("#foo", "1"), Tx("#foo", "2"), Tx("#foo", "3"))))
     } @@ timeout(2.seconds)
   )

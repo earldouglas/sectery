@@ -16,9 +16,9 @@ import zio.ZIO
 
 object Html extends Producer:
 
-  val url = """.*(http[^\s]+).*""".r
+  private val url = """.*(http[^\s]+).*""".r
 
-  def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
+  override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, url(url)) =>
         Http.request(

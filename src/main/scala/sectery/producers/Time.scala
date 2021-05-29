@@ -12,7 +12,7 @@ import zio.URIO
 import zio.ZIO
 
 object Time extends Producer:
-  def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
+  override def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
     m match
       case Rx(c, _, "@time") =>
         for
