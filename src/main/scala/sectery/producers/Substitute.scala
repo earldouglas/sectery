@@ -1,6 +1,7 @@
 package sectery.producers
 
 import scala.collection.concurrent.{TrieMap => Map}
+import scala.util.matching.Regex
 import sectery.Producer
 import sectery.Response
 import sectery.Rx
@@ -20,10 +21,22 @@ object Substitute extends Producer:
   def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
     m match
       case Rx(channel, nick, sub(toReplace, withReplace)) =>
-        val msgs = mMap.get(channel).toList.flatMap(_.values)
-        val replaced = msgs.headOption.map(_.replaceAll(toReplace, withReplace))
-        val tx = replaced.map(m => Tx(channel, m))
-        ZIO.effectTotal(tx)
+        val matcher: Regex = new Regex(s".*${toReplace}.*")
+        val msgs: Option[(Nick, Msg)] =
+          mMap
+            .get(channel)
+            .flatMap {
+              _.find { case (nick, msg) =>
+                matcher.matches(msg)
+              }
+            }
+        val txs: Option[Tx] =
+          msgs.map { case (nick, msg) =>
+            val replacedMsg: Msg =
+              msg.replaceAll(toReplace, withReplace)
+            Tx(channel, s"<${nick}> ${replacedMsg}")
+          }
+        ZIO.effectTotal(txs)
       case Rx(channel, nick, msg) =>
         val msgs = mMap.getOrElse(channel, Map[Nick, Msg]())
         msgs.update(nick, msg)
