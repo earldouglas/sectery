@@ -1,20 +1,13 @@
 package sectery.producers
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
-import scala.collection.JavaConverters._
 import scala.collection.concurrent.{TrieMap => Map}
-import sectery.Http
 import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
 import zio.clock.Clock
-import zio.Has
 import zio.URIO
 import zio.ZIO
-import zio.Ref
 
 object Substitute extends Producer:
 
