@@ -103,5 +103,15 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
         _      <- TestClock.adjust(1.seconds)
         m      <- sent.take
       yield assert(m)(equalTo(Tx("#foo", "Some notes on the Scala language, libraries, and ecosystem.")))
+    } @@ timeout(2.seconds),
+    testM("s/bar/baz/ replaces bar with baz") {
+      for
+        sent   <- ZQueue.unbounded[Tx]
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestHttp())
+        _      <- inbox.offer(Rx("#foo", "bar", "foobar"))
+        _      <- inbox.offer(Rx("#foo", "baz", "s/bar/baz/"))
+        _      <- TestClock.adjust(1.seconds)
+        m      <- sent.take
+      yield assert(m)(equalTo(Tx("#foo", "foobaz")))
     } @@ timeout(2.seconds)
   )
