@@ -121,7 +121,7 @@ object MessageQueuesSpec extends DefaultRunnableSpec:
         _      <- inbox.offer(Rx("#substitute", "qux", "s/bar/baz/"))
         _      <- TestClock.adjust(1.seconds)
         m      <- sent.take
-      yield assert(m)(equalTo(Tx("#foo", "<bar> 2: baz")))
+      yield assert(m)(equalTo(Tx("#substitute", "<bar> 2: baz")))
     } @@ timeout(2.seconds),
     testM("@count produces count") {
       for
