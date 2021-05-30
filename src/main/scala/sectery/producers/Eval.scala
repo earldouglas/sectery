@@ -12,10 +12,8 @@ import zio.URIO
 import zio.ZIO
 
 object Eval extends Producer:
-
-  val eval = """^@eval\s+(.+)\s*$""".r
-
-  def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
+  private val eval = """^@eval\s+(.+)\s*$""".r
+  override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, eval(expr)) =>
         val encExpr = URLEncoder.encode(expr, "UTF-8")

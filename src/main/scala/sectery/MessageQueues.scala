@@ -4,6 +4,7 @@ import zio.clock.Clock
 import zio.duration._
 import zio.Has
 import zio.Queue
+import zio.RIO
 import zio.Schedule
 import zio.UIO
 import zio.URIO
@@ -33,7 +34,7 @@ trait Sender:
  */
 object MessageQueues:
 
-  private def produce(inbox: Queue[Rx], outbox: Queue[Tx]): URIO[Http.Http with Clock, Unit] =
+  private def produce(inbox: Queue[Rx], outbox: Queue[Tx]): URIO[Db.Db with Http.Http with Clock, Unit] =
     for
       size    <- inbox.size
       message <- inbox.take
@@ -47,8 +48,9 @@ object MessageQueues:
       _       <- sender.send(message)
     yield ()
 
-  def loop(sender: Sender): URIO[Http.Http with Clock, Queue[Rx]] =
+  def loop(sender: Sender): RIO[Db.Db with Http.Http with Clock, Queue[Rx]] =
     for
+      _      <- Producer.init()
       inbox  <- ZQueue.unbounded[Rx]
       outbox <- ZQueue.unbounded[Tx]
       _      <- produce(inbox, outbox)

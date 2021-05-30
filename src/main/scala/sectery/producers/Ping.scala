@@ -8,7 +8,7 @@ import zio.URIO
 import zio.ZIO
 
 object Ping extends Producer:
-  def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
+  override def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
     m match
       case Rx(c, _, "@ping") =>
         ZIO.effectTotal(Some(Tx(c, "pong")))
