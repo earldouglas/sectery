@@ -15,7 +15,7 @@ object CountSpec extends DefaultRunnableSpec:
     testM("@count produces count") {
       for
         sent   <- ZQueue.unbounded[Tx]
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestDb(), TestHttp())
+        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestFinnhub(), TestDb(), TestHttp())
         _      <- inbox.offer(Rx("#foo", "bar", "@count"))
         _      <- inbox.offer(Rx("#foo", "bar", "@count"))
         _      <- inbox.offer(Rx("#foo", "bar", "@count"))

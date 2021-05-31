@@ -15,7 +15,7 @@ object TimeSpec extends DefaultRunnableSpec:
       testM("@time produces time") {
         for
           sent   <- ZQueue.unbounded[Tx]
-          inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestDb(), TestHttp())
+          inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestFinnhub(), TestDb(), TestHttp())
           _      <- TestClock.setTime(1234567890.millis)
           _      <- inbox.offer(Rx("#foo", "bar", "@time"))
           _      <- TestClock.adjust(1.seconds)

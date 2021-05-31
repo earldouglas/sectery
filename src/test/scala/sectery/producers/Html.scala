@@ -52,7 +52,7 @@ object HtmlSpec extends DefaultRunnableSpec:
                                     }
                           }
                         http
-          inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestDb(), http)
+          inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestFinnhub(), TestDb(), http)
           _      <- inbox.offer(Rx("#foo", "bar", "foo bar https://earldouglas.com/posts/scala.html baz"))
           _      <- TestClock.adjust(1.seconds)
           m      <- sent.take

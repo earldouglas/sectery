@@ -16,15 +16,14 @@ object Sectery extends App:
    * 3. Connect to IRC
    */
   def run(args: List[String]): URIO[ZEnv, ExitCode] =
-    val go: RIO[Db.Db with Http.Http with Clock, Unit] =
+    val go: RIO[Producer.Env, Unit] =
       for
-        inbox <- MessageQueues
-                   .loop(Bot)
+        inbox <- MessageQueues.loop(Bot)
         _      = Bot.receive = (m: Rx) => unsafeRunAsync_(inbox.offer(m))
         _      = Bot.start()
       yield ()  
     go
-      .provideLayer(ZEnv.any ++ Db.live ++ Http.live)
+      .provideLayer(ZEnv.any ++ Finnhub.live ++ Db.live ++ Http.live)
       .catchAll { e =>
         ZIO.effectTotal(())
       }.map { _ =>
