@@ -11,15 +11,17 @@ trait Producer:
   /**
    * Run any initialization (e.g. run DDL) needed.
    */
-  def init(): RIO[Db.Db with Http.Http with Clock, Unit] =
+  def init(): RIO[Producer.Env, Unit] =
     ZIO.effectTotal(())
 
   /**
    * Reads an incoming message, and produces any number of responses.
    */
-  def apply(m: Rx): URIO[Db.Db with Http.Http with Clock, Iterable[Tx]]
+  def apply(m: Rx): URIO[Producer.Env, Iterable[Tx]]
 
 object Producer:
+
+  type Env = Finnhub.Finnhub with Db.Db with Http.Http with Clock
 
   private val producers: List[Producer] =
     List(
@@ -28,13 +30,14 @@ object Producer:
       Eval,
       Html,
       Substitute,
-      Count
+      Count,
+      Stock
     )
 
-  def init(): RIO[Db.Db with Http.Http with Clock, Iterable[Unit]] =
+  def init(): RIO[Env, Iterable[Unit]] =
     ZIO.foreach(producers)(_.init())
 
-  def apply(m: Rx): URIO[Db.Db with Http.Http with Clock, Iterable[Tx]] =
+  def apply(m: Rx): URIO[Env, Iterable[Tx]] =
     ZIO.foldLeft(producers)(List.empty) {
       (txs, p) => p.apply(m).map(_.toList).map(_ ++ txs)
     }
