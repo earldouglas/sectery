@@ -1,12 +1,13 @@
 package sectery.producers
 
-import scala.collection.concurrent.{TrieMap => Map}
+import org.slf4j.LoggerFactory
 import scala.util.matching.Regex
+import sectery.Db
 import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
-import zio.clock.Clock
+import zio.RIO
 import zio.URIO
 import zio.ZIO
 
@@ -15,30 +16,87 @@ object Substitute extends Producer:
   type Channel = String
   type Nick = String
   type Msg = String
-  val sub = """s\/(.*)\/(.*)\/""".r
-  val mMap: Map[Channel, Map[Nick, Msg]]= Map()
 
-  def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
+  private val sub = """s\/(.*)\/(.*)\/""".r
+
+  override def init(): RIO[Db.Db, Unit] =
+    for
+      _ <- Db.query { conn =>
+        val s =
+          """|CREATE TABLE IF NOT EXISTS
+             |LAST_MESSAGE(
+             |  CHANNEL VARCHAR(256) NOT NULL,
+             |  NICK VARCHAR(256) NOT NULL,
+             |  MESSAGE TEXT NOT NULL,
+             |  MILLIS DATETIME NOT NULL DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
+             |  PRIMARY KEY (CHANNEL, NICK)
+             |)
+             |""".stripMargin
+        val stmt = conn.createStatement
+        stmt.executeUpdate(s)
+        stmt.close
+      }
+    yield ()
+
+  override def apply(m: Rx): URIO[Db.Db, Iterable[Tx]] =
     m match
       case Rx(channel, nick, sub(toReplace, withReplace)) =>
         val matcher: Regex = new Regex(s".*${toReplace}.*")
-        val msgs: Option[(Nick, Msg)] =
-          mMap
-            .get(channel)
-            .flatMap {
-              _.find { case (nick, msg) =>
-                matcher.matches(msg)
+        val sub =
+          for
+            m <- Db.query { conn =>
+              val s =
+                """|SELECT NICK, MESSAGE
+                   |FROM LAST_MESSAGE
+                   |WHERE CHANNEL = ?
+                   |ORDER BY MILLIS DESC
+                   |""".stripMargin
+              val stmt = conn.prepareStatement(s)
+              stmt.setString(1, channel)
+              val rs = stmt.executeQuery
+              var m: Option[(Nick, Msg)] = None
+              while (m.isEmpty && rs.next()) {
+                val nick = rs.getString("NICK")
+                val msg = rs.getString("MESSAGE")
+                if (matcher.matches(msg)) {
+                  m = Some((nick, msg))
+                }
               }
+              stmt.close
+              m
             }
-        val txs: Option[Tx] =
-          msgs.map { case (nick, msg) =>
-            val replacedMsg: Msg =
-              msg.replaceAll(toReplace, withReplace)
-            Tx(channel, s"<${nick}> ${replacedMsg}")
-          }
-        ZIO.effectTotal(txs)
+          yield
+            m.map { case (nick, msg) =>
+              val replacedMsg: Msg =
+                msg.replaceAll(toReplace, withReplace)
+              Tx(channel, s"<${nick}> ${replacedMsg}")
+            }
+        sub.catchAll { e =>
+          LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
+          ZIO.effectTotal(None)
+        }.map(_.toIterable)
       case Rx(channel, nick, msg) =>
-        val msgs = mMap.getOrElse(channel, Map[Nick, Msg]())
-        msgs.update(nick, msg)
-        mMap.update(channel, msgs)
-        ZIO.effectTotal(None)
+        val increment =
+          for
+            _ <- Db.query { conn =>
+              val s = "DELETE FROM LAST_MESSAGE WHERE CHANNEL = ? AND NICK = ?"
+              val stmt = conn.prepareStatement(s)
+              stmt.setString(1, channel)
+              stmt.setString(2, nick)
+              stmt.executeUpdate
+              stmt.close
+            }
+            newCount <- Db.query { conn =>
+              val s = "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE) VALUES (?, ?, ?)"
+              val stmt = conn.prepareStatement(s)
+              stmt.setString(1, channel)
+              stmt.setString(2, nick)
+              stmt.setString(3, msg)
+              stmt.executeUpdate
+              stmt.close
+            }
+          yield None
+        increment.catchAll { e =>
+          LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
+          ZIO.effectTotal(None)
+        }.map(_.toIterable)
