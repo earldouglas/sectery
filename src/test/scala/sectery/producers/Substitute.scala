@@ -16,13 +16,17 @@ object SubstituteSpec extends DefaultRunnableSpec:
         for
           sent   <- ZQueue.unbounded[Tx]
           inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestFinnhub(), TestDb(), TestHttp())
-          _      <- inbox.offer(Rx("#substitute", "foo", "1: foo"))
-          _      <- inbox.offer(Rx("#substitute", "bar", "2: bar"))
-          _      <- inbox.offer(Rx("#substitute", "baz", "3: baz"))
-          _      <- inbox.offer(Rx("#substitute", "raz", "4: raz"))
+          _      <- inbox.offer(Rx("#substitute", "foo", "I said bar first."))
+          _      <- TestClock.adjust(1.millis) // timestamps in db need to differ by at least a millisecond
+          _      <- inbox.offer(Rx("#substitute", "bar", "I said bar second."))
+          _      <- TestClock.adjust(1.millis) // timestamps in db need to differ by at least a millisecond
+          _      <- inbox.offer(Rx("#substitute", "baz", "I said bar third."))
+          _      <- TestClock.adjust(1.millis) // timestamps in db need to differ by at least a millisecond
+          _      <- inbox.offer(Rx("#substitute", "raz", "I didn't say it at all."))
+          _      <- TestClock.adjust(1.millis) // timestamps in db need to differ by at least a millisecond
           _      <- inbox.offer(Rx("#substitute", "qux", "s/bar/baz/"))
           _      <- TestClock.adjust(1.seconds)
           m      <- sent.take
-        yield assert(m)(equalTo(Tx("#substitute", "<bar> 2: baz")))
+        yield assert(m)(equalTo(Tx("#substitute", "<baz> I said baz third.")))
       } @@ timeout(2.seconds)
     )
