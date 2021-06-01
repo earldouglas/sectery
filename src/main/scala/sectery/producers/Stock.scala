@@ -1,5 +1,6 @@
 package sectery.producers
 
+import org.slf4j.LoggerFactory
 import sectery.Finnhub
 import sectery.Producer
 import sectery.Response
@@ -28,6 +29,7 @@ object Stock extends Producer:
             case None =>
               Some(Tx(c, s"${symbol}: stonk not found"))
           }.catchAll { _ =>
+            LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
             ZIO.effectTotal(None)
           }.map(_.toIterable)
       case _ =>

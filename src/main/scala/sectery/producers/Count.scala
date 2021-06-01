@@ -1,5 +1,6 @@
 package sectery.producers
 
+import org.slf4j.LoggerFactory
 import sectery.Db
 import sectery.Producer
 import sectery.Rx
@@ -55,6 +56,7 @@ object Count extends Producer:
             }
           yield Some(Tx(channel, s"${newCount}"))
         increment.catchAll { e =>
+          LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
           ZIO.effectTotal(None)
         }.map(_.toIterable)
       case _ =>

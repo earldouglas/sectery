@@ -1,5 +1,6 @@
 package sectery.producers
 
+import org.slf4j.LoggerFactory
 import java.net.URLEncoder
 import sectery.Http
 import sectery.Producer
@@ -28,7 +29,8 @@ object Eval extends Producer:
           case r =>
             None
         }.catchAll { e =>
-            ZIO.effectTotal(None)
+          LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
+          ZIO.effectTotal(None)
         }.map(_.toIterable)
       case _ =>
         ZIO.effectTotal(None)
