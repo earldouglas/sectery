@@ -19,7 +19,7 @@ object Stock extends Producer:
     m match
       case Rx(c, _, stock(symbol)) =>
         Finnhub
-          .quote(symbol)
+          .quote(symbol.toUpperCase())
           .map {
             case Some(q) =>
               val current = q.current
