@@ -1,5 +1,5 @@
 val scala3Version = "3.0.0"
-val zioVersion = "1.0.8"
+val zioVersion = "1.0.9"
 
 resolvers += "jitpack" at "https://jitpack.io/"
 
