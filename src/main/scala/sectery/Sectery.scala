@@ -1,5 +1,6 @@
 package sectery
 
+import org.slf4j.LoggerFactory
 import zio.App
 import zio.clock.Clock
 import zio.ExitCode
@@ -25,6 +26,7 @@ object Sectery extends App:
     go
       .provideLayer(ZEnv.any ++ Finnhub.live ++ Db.live ++ Http.live)
       .catchAll { e =>
+        LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
         ZIO.effectTotal(())
       }.map { _ =>
         ExitCode.failure // should never exit
