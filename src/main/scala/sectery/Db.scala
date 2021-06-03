@@ -14,7 +14,7 @@ object Db:
     ZLayer.succeed {
       new Service:
         Class.forName("org.sqlite.JDBC");
-        val dbPath = sys.env("SECTERY_DB")
+        lazy val dbPath = sys.env("SECTERY_DB")
         lazy val conn: Connection =
           DriverManager.getConnection("""jdbc:sqlite:${dbPath}""")
         override def query[A](k: Connection => A): Task[A] =
