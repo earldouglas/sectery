@@ -16,7 +16,7 @@ object Db:
         Class.forName("org.sqlite.JDBC");
         lazy val dbPath = sys.env("SECTERY_DB")
         lazy val conn: Connection =
-          DriverManager.getConnection("""jdbc:sqlite:${dbPath}""")
+          DriverManager.getConnection(s"jdbc:sqlite:${dbPath}")
         override def query[A](k: Connection => A): Task[A] =
           ZIO.effect(k(conn))
     }
