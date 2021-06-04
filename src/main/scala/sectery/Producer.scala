@@ -31,7 +31,8 @@ object Producer:
       Html,
       Substitute,
       Count,
-      Stock
+      Stock,
+      Weather(sys.env("DARK_SKY_API_KEY"))
     )
 
   def init(): RIO[Env, Iterable[Unit]] =
