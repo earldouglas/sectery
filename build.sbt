@@ -8,6 +8,7 @@ lazy val root = project
   .settings(
     name := "sectery",
     scalaVersion := scala3Version,
+    libraryDependencies += "org.json4s" %% "json4s-native-core" % "4.0.0",
     libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.34.0",
     libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3",
@@ -23,6 +24,12 @@ lazy val root = project
         "IRC_USER" -> sys.env("IRC_USER"),
         "IRC_PASS" -> sys.env("IRC_PASS"),
         "IRC_HOST" -> sys.env("IRC_HOST"),
-        "IRC_CHANNELS" -> sys.env("IRC_CHANNELS")
+        "IRC_CHANNELS" -> sys.env("IRC_CHANNELS"),
+        "DARK_SKY_API_KEY" -> sys.env("DARK_SKY_API_KEY")
+      ),
+    Test / fork := true,
+    Test / envVars :=
+      Map(
+        "DARK_SKY_API_KEY" -> "alligator3"
       )
   )
