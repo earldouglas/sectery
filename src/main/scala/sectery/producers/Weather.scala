@@ -96,6 +96,10 @@ class Weather(darkSkyApiKey: String) extends Producer:
     }
 
   private val wx = """^@wx\s+(.+)\s*$""".r
+
+  override def help(): Iterable[String] =
+    Some("@wx")
+
   override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, wx(q)) =>

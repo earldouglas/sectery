@@ -14,7 +14,12 @@ import zio.Task
 import zio.ZIO
 
 object Stock extends Producer:
+
   private val stock = """^@stock\s+([^\s]+)\s*$""".r
+
+  override def help(): Iterable[String] =
+    Some("@stock")
+
   override def apply(m: Rx): URIO[Finnhub.Finnhub, Iterable[Tx]] =
     m match
       case Rx(c, _, stock(symbol)) =>

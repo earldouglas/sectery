@@ -19,6 +19,9 @@ object Substitute extends Producer:
 
   private val sub = """s\/(.*)\/(.*)\/""".r
 
+  override def help(): Iterable[String] =
+    None
+
   override def init(): RIO[Db.Db, Unit] =
     for
       _ <- Db.query { conn =>
