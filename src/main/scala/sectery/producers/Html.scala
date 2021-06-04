@@ -19,6 +19,9 @@ object Html extends Producer:
 
   private val url = """.*(http[^\s]+).*""".r
 
+  override def help(): Iterable[String] =
+    None
+
   override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, url(url)) =>

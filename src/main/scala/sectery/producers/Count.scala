@@ -11,6 +11,10 @@ import zio.URIO
 import zio.ZIO
 
 object Count extends Producer:
+
+  override def help(): Iterable[String] =
+    Some("@count")
+
   override def init(): RIO[Db.Db, Unit] =
     for
       _ <- Db.query { conn =>

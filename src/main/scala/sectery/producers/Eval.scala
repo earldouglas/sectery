@@ -13,7 +13,12 @@ import zio.URIO
 import zio.ZIO
 
 object Eval extends Producer:
+
   private val eval = """^@eval\s+(.+)\s*$""".r
+
+  override def help(): Iterable[String] =
+    Some("@eval")
+
   override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, eval(expr)) =>
