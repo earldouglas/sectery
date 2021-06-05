@@ -11,6 +11,7 @@ import org.jsoup.nodes.Element
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import sectery.Http
+import sectery.Info
 import sectery.Producer
 import sectery.Response
 import sectery.Rx
@@ -97,8 +98,8 @@ class Weather(darkSkyApiKey: String) extends Producer:
 
   private val wx = """^@wx\s+(.+)\s*$""".r
 
-  override def help(): Iterable[String] =
-    Some("@wx")
+  override def help(): Iterable[Info] =
+    Some(Info("@wx", "@wx <location>, e.g. @wx san francisco"))
 
   override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match

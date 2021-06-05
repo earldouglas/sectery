@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import scala.collection.JavaConverters._
 import sectery.Http
+import sectery.Info
 import sectery.Producer
 import sectery.Response
 import sectery.Rx
@@ -19,7 +20,7 @@ object Html extends Producer:
 
   private val url = """.*(http[^\s]+).*""".r
 
-  override def help(): Iterable[String] =
+  override def help(): Iterable[Info] =
     None
 
   override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =

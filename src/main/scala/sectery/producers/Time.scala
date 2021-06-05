@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
 import java.util.Date
 import java.util.TimeZone
+import sectery.Info
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
@@ -13,8 +14,8 @@ import zio.ZIO
 
 object Time extends Producer:
 
-  override def help(): Iterable[String] =
-    Some("@time")
+  override def help(): Iterable[Info] =
+    Some(Info("@time", "@time"))
 
   override def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
     m match

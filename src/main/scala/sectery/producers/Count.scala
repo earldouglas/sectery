@@ -2,6 +2,7 @@ package sectery.producers
 
 import org.slf4j.LoggerFactory
 import sectery.Db
+import sectery.Info
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
@@ -12,8 +13,8 @@ import zio.ZIO
 
 object Count extends Producer:
 
-  override def help(): Iterable[String] =
-    Some("@count")
+  override def help(): Iterable[Info] =
+    Some(Info("@count", "@count"))
 
   override def init(): RIO[Db.Db, Unit] =
     for

@@ -1,5 +1,6 @@
 package sectery.producers
 
+import sectery.Info
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
@@ -9,8 +10,8 @@ import zio.ZIO
 
 object Ping extends Producer:
 
-  override def help(): Iterable[String] =
-    Some("@ping")
+  override def help(): Iterable[Info] =
+    Some(Info("@ping", "@ping"))
 
   override def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
     m match
