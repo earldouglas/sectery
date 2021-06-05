@@ -24,7 +24,7 @@ object HelpSpec extends DefaultRunnableSpec:
         ms     <- sent.takeAll
       yield
         assert(ms)(equalTo(List(
-          Tx("#foo", "@count, @eval, @ping, @stock, @time, @wx, s///"),
+          Tx("#foo", "@btc, @count, @eval, @ping, @stock, @time, @wx, s///"),
           Tx("#foo", "Usage: @wx <location>, e.g. @wx san francisco"),
           Tx("#foo", "Usage: @count"),
           Tx("#foo", "I don't know anything about @foo")
