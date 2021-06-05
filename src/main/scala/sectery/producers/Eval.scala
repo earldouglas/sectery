@@ -3,6 +3,7 @@ package sectery.producers
 import org.slf4j.LoggerFactory
 import java.net.URLEncoder
 import sectery.Http
+import sectery.Info
 import sectery.Producer
 import sectery.Response
 import sectery.Rx
@@ -16,8 +17,8 @@ object Eval extends Producer:
 
   private val eval = """^@eval\s+(.+)\s*$""".r
 
-  override def help(): Iterable[String] =
-    Some("@eval")
+  override def help(): Iterable[Info] =
+    Some(Info("@eval", "@eval <expression>, e.g. @eval 6 * 7"))
 
   override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match

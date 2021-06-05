@@ -7,12 +7,14 @@ import zio.UIO
 import zio.URIO
 import zio.ZIO
 
+case class Info(name: String, usage: String)
+
 trait Producer:
 
   /**
-   * List of @commands that this producer responds to.
+   * Information about what this producer responds to and how to use it.
    */
-  def help(): Iterable[String]
+  def help(): Iterable[Info]
 
   /**
    * Run any initialization (e.g. run DDL) needed.
@@ -27,10 +29,15 @@ trait Producer:
 
 class Help(producers: List[Producer]) extends Producer:
 
-  private val helpMessage: String =
-    s"""Available commands: ${producers.flatMap(p => p.help()).sorted.mkString(", ")}"""
+  private val usage = """^@help\s+(.+)\s*$""".r
 
-  override def help(): Iterable[String] =
+  private val helpMessage: String =
+    s"""${producers.flatMap(p => p.help().map(_.name)).sorted.mkString(", ")}"""
+
+  private val usageMap: Map[String, String] =
+    producers.flatMap(_.help().map(i => i.name -> i.usage)).toMap
+
+  override def help(): Iterable[Info] =
     None
 
   override def apply(m: Rx): UIO[Iterable[Tx]] =
@@ -38,16 +45,25 @@ class Help(producers: List[Producer]) extends Producer:
       m match
         case Rx(channel, _, "@help") =>
           Some(Tx(m.channel, helpMessage))
+        case Rx(channel, _, usage(name)) =>
+          usageMap.get(name) match
+            case Some(usage) => Some(Tx(channel, s"Usage: ${usage}"))
+            case None => Some(Tx(channel, s"I don't know anything about ${name}"))
         case _ =>
           None
     }
+
+object Help {
+  def apply(producers: List[Producer]): List[Producer] =
+    new Help(producers) :: producers
+}
 
 object Producer:
 
   type Env = Finnhub.Finnhub with Db.Db with Http.Http with Clock
 
   private val producers: List[Producer] =
-    val _producers =
+    Help(
       List(
         Ping,
         Time,
@@ -58,7 +74,7 @@ object Producer:
         Stock,
         Weather(sys.env("DARK_SKY_API_KEY"))
       )
-    new Help(_producers) :: _producers
+    )
 
   def init(): RIO[Env, Iterable[Unit]] =
     ZIO.foreach(producers)(_.init())

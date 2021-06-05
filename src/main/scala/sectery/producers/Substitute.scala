@@ -3,6 +3,7 @@ package sectery.producers
 import org.slf4j.LoggerFactory
 import scala.util.matching.Regex
 import sectery.Db
+import sectery.Info
 import sectery.Producer
 import sectery.Response
 import sectery.Rx
@@ -19,8 +20,8 @@ object Substitute extends Producer:
 
   private val sub = """s\/(.*)\/(.*)\/""".r
 
-  override def help(): Iterable[String] =
-    None
+  override def help(): Iterable[Info] =
+    Some(Info("s///", "s/find/replace/"))
 
   override def init(): RIO[Db.Db, Unit] =
     for

@@ -2,6 +2,7 @@ package sectery.producers
 
 import org.slf4j.LoggerFactory
 import sectery.Finnhub
+import sectery.Info
 import sectery.Producer
 import sectery.Response
 import sectery.Rx
@@ -17,8 +18,8 @@ object Stock extends Producer:
 
   private val stock = """^@stock\s+([^\s]+)\s*$""".r
 
-  override def help(): Iterable[String] =
-    Some("@stock")
+  override def help(): Iterable[Info] =
+    Some(Info("@stock", "@stock <symbol>, e.g. @stock GME"))
 
   override def apply(m: Rx): URIO[Finnhub.Finnhub, Iterable[Tx]] =
     m match
