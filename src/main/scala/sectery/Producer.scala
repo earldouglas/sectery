@@ -72,7 +72,8 @@ object Producer:
         Substitute,
         Count,
         Stock,
-        Weather(sys.env("DARK_SKY_API_KEY"))
+        Weather(sys.env("DARK_SKY_API_KEY")),
+        Btc
       )
     )
 
