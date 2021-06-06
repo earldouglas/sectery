@@ -8,4 +8,4 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 8
-    - run: sbt test scalafmtCheckAll
+    - run: sbt test scalafmtCheckAll "scalafixAll --check"
