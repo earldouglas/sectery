@@ -2,6 +2,7 @@ package sectery.producers
 
 import java.net.URLEncoder
 import java.text.NumberFormat
+import java.util.Locale
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.MonadicJValue.jvalueToMonadic
@@ -52,7 +53,7 @@ object Btc extends Producer:
       case Rx(c, _, "@btc") =>
         findRate.flatMap {
           case Some(rate) =>
-            ZIO.succeed(Some(Tx(c, s"${NumberFormat.getCurrencyInstance.format(rate)}")))
+            ZIO.succeed(Some(Tx(c, s"${NumberFormat.getCurrencyInstance(Locale.US).format(rate)}")))
           case None =>
             ZIO.effectTotal(None)
         }
