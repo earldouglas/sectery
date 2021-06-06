@@ -12,16 +12,21 @@ import zio.test.TestAspect._
 object CountSpec extends DefaultRunnableSpec:
   override def spec =
     suite(getClass().getName())(
-    testM("@count produces count") {
-      for
-        sent   <- ZQueue.unbounded[Tx]
-        inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(TestFinnhub(), TestDb(), TestHttp())
-        _      <- inbox.offer(Rx("#foo", "bar", "@count"))
-        _      <- inbox.offer(Rx("#foo", "bar", "@count"))
-        _      <- inbox.offer(Rx("#foo", "bar", "@count"))
-        _      <- TestClock.adjust(1.seconds)
-        ms     <- sent.takeAll
-      yield
-        assert(ms)(equalTo(List(Tx("#foo", "1"), Tx("#foo", "2"), Tx("#foo", "3"))))
+      testM("@count produces count") {
+        for
+          sent <- ZQueue.unbounded[Tx]
+          inbox <- MessageQueues
+            .loop(new MessageLogger(sent))
+            .inject(TestFinnhub(), TestDb(), TestHttp())
+          _ <- inbox.offer(Rx("#foo", "bar", "@count"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@count"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@count"))
+          _ <- TestClock.adjust(1.seconds)
+          ms <- sent.takeAll
+        yield assert(ms)(
+          equalTo(
+            List(Tx("#foo", "1"), Tx("#foo", "2"), Tx("#foo", "3"))
+          )
+        )
       } @@ timeout(2.seconds)
     )

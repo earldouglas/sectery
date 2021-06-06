@@ -18,21 +18,27 @@ object Bot extends Sender:
   private val config: Configuration =
     new Configuration.Builder()
       .setSocketFactory(SSLSocketFactory.getDefault())
-      .addCapHandler(new SASLCapHandler(sys.env("IRC_USER"), sys.env("IRC_PASS")))
+      .addCapHandler(
+        new SASLCapHandler(sys.env("IRC_USER"), sys.env("IRC_PASS"))
+      )
       .setName(sys.env("IRC_USER"))
       .setRealName(sys.env("IRC_USER"))
       .setLogin(sys.env("IRC_USER"))
       .setNickservPassword(sys.env("IRC_PASS"))
       .addServer(sys.env("IRC_HOST"), sys.env("IRC_PORT").toInt)
       .addAutoJoinChannels(
-        sys.env("IRC_CHANNELS")
+        sys
+          .env("IRC_CHANNELS")
           .split(",")
           .map(_.trim)
-          .toIterable.asJava
+          .toIterable
+          .asJava
       )
       .addListener(
         new ListenerAdapter {
-          override def onGenericMessage(event: GenericMessageEvent): Unit =
+          override def onGenericMessage(
+              event: GenericMessageEvent
+          ): Unit =
             event match
               case e: MessageEvent =>
                 val m =

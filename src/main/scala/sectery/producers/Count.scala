@@ -60,9 +60,13 @@ object Count extends Producer:
               count
             }
           yield Some(Tx(channel, s"${newCount}"))
-        increment.catchAll { e =>
-          LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
-          ZIO.effectTotal(None)
-        }.map(_.toIterable)
+        increment
+          .catchAll { e =>
+            LoggerFactory
+              .getLogger(this.getClass())
+              .error("caught exception", e)
+            ZIO.effectTotal(None)
+          }
+          .map(_.toIterable)
       case _ =>
         ZIO.effectTotal(None)

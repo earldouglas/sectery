@@ -12,17 +12,17 @@ object TestHttp:
     )
 
   def apply(
-    resStatus: Int,
-    resHeaders: Map[String, String],
-    resBody: String
+      resStatus: Int,
+      resHeaders: Map[String, String],
+      resBody: String
   ): ULayer[Has[Http.Service]] =
     ZLayer.succeed {
       new Http.Service:
         def request(
-          method: String,
-          url: String,
-          headers: Map[String, String],
-          body: Option[String]
+            method: String,
+            url: String,
+            headers: Map[String, String],
+            body: Option[String]
         ): UIO[Response] =
           ZIO.effectTotal {
             Response(
