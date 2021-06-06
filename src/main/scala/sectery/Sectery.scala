@@ -11,23 +11,25 @@ import zio.ZIO
 
 object Sectery extends App:
 
-  /**
-   * 1. Spin up the message queues using [[Bot]] as the [[Sender]]
-   * 2. Asynchronously process received messages through [[Bot.receive]]
-   * 3. Connect to IRC
-   */
+  /**   1. Spin up the message queues using [[Bot]] as the [[Sender]] 2.
+    *      Asynchronously process received messages through
+    *      [[Bot.receive]] 3. Connect to IRC
+    */
   def run(args: List[String]): URIO[ZEnv, ExitCode] =
     val go: RIO[Producer.Env, Unit] =
       for
         inbox <- MessageQueues.loop(Bot)
-        _      = Bot.receive = (m: Rx) => unsafeRunAsync_(inbox.offer(m))
-        _      = Bot.start()
-      yield ()  
+        _ = Bot.receive = (m: Rx) => unsafeRunAsync_(inbox.offer(m))
+        _ = Bot.start()
+      yield ()
     go
       .provideLayer(ZEnv.any ++ Finnhub.live ++ Db.live ++ Http.live)
       .catchAll { e =>
-        LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
+        LoggerFactory
+          .getLogger(this.getClass())
+          .error("caught exception", e)
         ZIO.effectTotal(())
-      }.map { _ =>
+      }
+      .map { _ =>
         ExitCode.failure // should never exit
       }

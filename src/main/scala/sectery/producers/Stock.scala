@@ -31,12 +31,21 @@ object Stock extends Producer:
               val current = q.current
               val change = q.current - q.previousClose
               val changeP = change * 100 / q.previousClose
-              Some(Tx(c, f"""${symbol}: ${current}%.2f ${change}%+.2f (${changeP}%+.2f%%)"""))
+              Some(
+                Tx(
+                  c,
+                  f"""${symbol}: ${current}%.2f ${change}%+.2f (${changeP}%+.2f%%)"""
+                )
+              )
             case None =>
               Some(Tx(c, s"${symbol}: stonk not found"))
-          }.catchAll { e =>
-            LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
+          }
+          .catchAll { e =>
+            LoggerFactory
+              .getLogger(this.getClass())
+              .error("caught exception", e)
             ZIO.effectTotal(None)
-          }.map(_.toIterable)
+          }
+          .map(_.toIterable)
       case _ =>
         ZIO.effectTotal(None)

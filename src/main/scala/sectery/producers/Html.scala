@@ -26,20 +26,26 @@ object Html extends Producer:
   override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, url(url)) =>
-        Http.request(
-          method = "GET",
-          url = url,
-          headers = Map("User-Agent" -> "bot"),
-          body = None
-        ).map {
-          case Response(200, _, body) =>
-            getDescription(body).map(d => Tx(c, d))
-          case r =>
-            None
-        }.catchAll { e =>
-          LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
-          ZIO.effectTotal(None)
-        }.map(_.toIterable)
+        Http
+          .request(
+            method = "GET",
+            url = url,
+            headers = Map("User-Agent" -> "bot"),
+            body = None
+          )
+          .map {
+            case Response(200, _, body) =>
+              getDescription(body).map(d => Tx(c, d))
+            case r =>
+              None
+          }
+          .catchAll { e =>
+            LoggerFactory
+              .getLogger(this.getClass())
+              .error("caught exception", e)
+            ZIO.effectTotal(None)
+          }
+          .map(_.toIterable)
       case _ =>
         ZIO.effectTotal(None)
 
@@ -52,12 +58,12 @@ object Html extends Producer:
 
     val elements: List[Element] =
       doc.select("head").asScala.toList ++
-      doc.select("meta[name=description]").asScala.toList ++
-      doc.select("meta[property=description]").asScala.toList ++
-      doc.select("meta[name=og:description]").asScala.toList ++
-      doc.select("meta[property=og:description]").asScala.toList ++
-      doc.select("meta[name=twitter:description]").asScala.toList ++
-      doc.select("meta[property=twitter:description]").asScala.toList
+        doc.select("meta[name=description]").asScala.toList ++
+        doc.select("meta[property=description]").asScala.toList ++
+        doc.select("meta[name=og:description]").asScala.toList ++
+        doc.select("meta[property=og:description]").asScala.toList ++
+        doc.select("meta[name=twitter:description]").asScala.toList ++
+        doc.select("meta[property=twitter:description]").asScala.toList
 
     val descriptions: List[String] =
       elements.map(_.attr("content"))

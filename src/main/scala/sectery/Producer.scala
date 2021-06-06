@@ -11,20 +11,18 @@ case class Info(name: String, usage: String)
 
 trait Producer:
 
-  /**
-   * Information about what this producer responds to and how to use it.
-   */
+  /** Information about what this producer responds to and how to use
+    * it.
+    */
   def help(): Iterable[Info]
 
-  /**
-   * Run any initialization (e.g. run DDL) needed.
-   */
+  /** Run any initialization (e.g. run DDL) needed.
+    */
   def init(): RIO[Producer.Env, Unit] =
     ZIO.effectTotal(())
 
-  /**
-   * Reads an incoming message, and produces any number of responses.
-   */
+  /** Reads an incoming message, and produces any number of responses.
+    */
   def apply(m: Rx): URIO[Producer.Env, Iterable[Tx]]
 
 class Help(producers: List[Producer]) extends Producer:
@@ -32,7 +30,10 @@ class Help(producers: List[Producer]) extends Producer:
   private val usage = """^@help\s+(.+)\s*$""".r
 
   private val helpMessage: String =
-    s"""${producers.flatMap(p => p.help().map(_.name)).sorted.mkString(", ")}"""
+    s"""${producers
+      .flatMap(p => p.help().map(_.name))
+      .sorted
+      .mkString(", ")}"""
 
   private val usageMap: Map[String, String] =
     producers.flatMap(_.help().map(i => i.name -> i.usage)).toMap
@@ -48,7 +49,8 @@ class Help(producers: List[Producer]) extends Producer:
         case Rx(channel, _, usage(name)) =>
           usageMap.get(name) match
             case Some(usage) => Some(Tx(channel, s"Usage: ${usage}"))
-            case None => Some(Tx(channel, s"I don't know anything about ${name}"))
+            case None =>
+              Some(Tx(channel, s"I don't know anything about ${name}"))
         case _ =>
           None
     }
@@ -81,6 +83,6 @@ object Producer:
     ZIO.foreach(producers)(_.init())
 
   def apply(m: Rx): URIO[Env, Iterable[Tx]] =
-    ZIO.foldLeft(producers)(List.empty) {
-      (txs, p) => p.apply(m).map(_.toList).map(_ ++ txs)
+    ZIO.foldLeft(producers)(List.empty) { (txs, p) =>
+      p.apply(m).map(_.toList).map(_ ++ txs)
     }

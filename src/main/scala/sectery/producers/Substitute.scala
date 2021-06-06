@@ -69,21 +69,25 @@ object Substitute extends Producer:
               stmt.close
               m
             }
-          yield
-            m.map { case (nick, msg) =>
-              val replacedMsg: Msg =
-                msg.replaceAll(toReplace, withReplace)
-              Tx(channel, s"<${nick}> ${replacedMsg}")
-            }
-        sub.catchAll { e =>
-          LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
-          ZIO.effectTotal(None)
-        }.map(_.toIterable)
+          yield m.map { case (nick, msg) =>
+            val replacedMsg: Msg =
+              msg.replaceAll(toReplace, withReplace)
+            Tx(channel, s"<${nick}> ${replacedMsg}")
+          }
+        sub
+          .catchAll { e =>
+            LoggerFactory
+              .getLogger(this.getClass())
+              .error("caught exception", e)
+            ZIO.effectTotal(None)
+          }
+          .map(_.toIterable)
       case Rx(channel, nick, msg) =>
         val increment =
           for
             _ <- Db.query { conn =>
-              val s = "DELETE FROM LAST_MESSAGE WHERE CHANNEL = ? AND NICK = ?"
+              val s =
+                "DELETE FROM LAST_MESSAGE WHERE CHANNEL = ? AND NICK = ?"
               val stmt = conn.prepareStatement(s)
               stmt.setString(1, channel)
               stmt.setString(2, nick)
@@ -91,7 +95,8 @@ object Substitute extends Producer:
               stmt.close
             }
             newCount <- Db.query { conn =>
-              val s = "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE) VALUES (?, ?, ?)"
+              val s =
+                "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE) VALUES (?, ?, ?)"
               val stmt = conn.prepareStatement(s)
               stmt.setString(1, channel)
               stmt.setString(2, nick)
@@ -100,7 +105,11 @@ object Substitute extends Producer:
               stmt.close
             }
           yield None
-        increment.catchAll { e =>
-          LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
-          ZIO.effectTotal(None)
-        }.map(_.toIterable)
+        increment
+          .catchAll { e =>
+            LoggerFactory
+              .getLogger(this.getClass())
+              .error("caught exception", e)
+            ZIO.effectTotal(None)
+          }
+          .map(_.toIterable)

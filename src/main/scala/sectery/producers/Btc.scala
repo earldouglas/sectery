@@ -23,14 +23,14 @@ import zio.ZIO
 object Btc extends Producer:
 
   private val findRate: URIO[Http.Http, Option[Double]] =
-    Http.request(
-      method = "GET",
-      url = "https://api.coindesk.com/v1/bpi/currentprice.json",
-      headers = Map("User-Agent" -> "bot"),
-      body = None
-    )
-    .flatMap {
-      case Response(200, _, body) =>
+    Http
+      .request(
+        method = "GET",
+        url = "https://api.coindesk.com/v1/bpi/currentprice.json",
+        headers = Map("User-Agent" -> "bot"),
+        body = None
+      )
+      .flatMap { case Response(200, _, body) =>
         ZIO.effect {
           val json = parse(body)
           json \ "bpi" \ "USD" \ "rate_float" match
@@ -39,11 +39,13 @@ object Btc extends Producer:
             case _ =>
               None
         }
-    }
-    .catchAll { e =>
-      LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
-      ZIO.effectTotal(None)
-    }
+      }
+      .catchAll { e =>
+        LoggerFactory
+          .getLogger(this.getClass())
+          .error("caught exception", e)
+        ZIO.effectTotal(None)
+      }
 
   override def help(): Iterable[Info] =
     Some(Info("@btc", "@btc"))
@@ -53,7 +55,14 @@ object Btc extends Producer:
       case Rx(c, _, "@btc") =>
         findRate.flatMap {
           case Some(rate) =>
-            ZIO.succeed(Some(Tx(c, s"${NumberFormat.getCurrencyInstance(Locale.US).format(rate)}")))
+            ZIO.succeed(
+              Some(
+                Tx(
+                  c,
+                  s"${NumberFormat.getCurrencyInstance(Locale.US).format(rate)}"
+                )
+              )
+            )
           case None =>
             ZIO.effectTotal(None)
         }

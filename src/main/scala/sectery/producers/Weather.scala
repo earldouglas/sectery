@@ -24,47 +24,69 @@ import zio.ZIO
 class Weather(darkSkyApiKey: String) extends Producer:
 
   case class Place(displayName: String, lat: Double, lon: Double)
-  case class Wx(temperature: Double, humidity: Double, wind: Double, gusts: Double, uvIndex: Int)
+  case class Wx(
+      temperature: Double,
+      humidity: Double,
+      wind: Double,
+      gusts: Double,
+      uvIndex: Int
+  )
 
   private def findPlace(q: String): URIO[Http.Http, Option[Place]] =
-    Http.request(
-      method = "GET",
-      url = s"""https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${URLEncoder.encode(q, "UTF-8")}""",
-      headers = Map("User-Agent" -> "bot", "Accept" -> "application/json"),
-      body = None
-    )
-    .flatMap {
-      case Response(200, _, body) =>
+    Http
+      .request(
+        method = "GET",
+        url =
+          s"""https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${URLEncoder
+            .encode(q, "UTF-8")}""",
+        headers =
+          Map("User-Agent" -> "bot", "Accept" -> "application/json"),
+        body = None
+      )
+      .flatMap { case Response(200, _, body) =>
         ZIO.effect {
           val json = parse(body)
-          ( 
+          (
             json(0) \ "display_name",
             json(0) \ "lat",
             json(0) \ "lon"
           ) match
             case (JString(displayName), JString(lat), JString(lon)) =>
-              Some(Place(displayName = displayName, lat = lat.toDouble, lon = lon.toDouble))
+              Some(
+                Place(
+                  displayName = displayName,
+                  lat = lat.toDouble,
+                  lon = lon.toDouble
+                )
+              )
             case _ =>
               None
         }
-    }
-    .catchAll { e =>
-      LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
-      ZIO.effectTotal(None)
-    }
+      }
+      .catchAll { e =>
+        LoggerFactory
+          .getLogger(this.getClass())
+          .error("caught exception", e)
+        ZIO.effectTotal(None)
+      }
 
-  private def findWx(lat: Double, lon: Double): URIO[Http.Http, Option[Wx]] =
-    Http.request(
-      method = "GET",
-      url = s"""https://api.darksky.net/forecast/${darkSkyApiKey}/${lat},${lon}""",
-      headers = Map("User-Agent" -> "bot", "Accept" -> "application/json"),
-      body = None
-    )
-    .flatMap {
-      case Response(200, _, body) =>
+  private def findWx(
+      lat: Double,
+      lon: Double
+  ): URIO[Http.Http, Option[Wx]] =
+    Http
+      .request(
+        method = "GET",
+        url =
+          s"""https://api.darksky.net/forecast/${darkSkyApiKey}/${lat},${lon}""",
+        headers =
+          Map("User-Agent" -> "bot", "Accept" -> "application/json"),
+        body = None
+      )
+      .flatMap { case Response(200, _, body) =>
         ZIO.effect {
           val json = parse(body)
-          ( 
+          (
             json \ "currently" \ "temperature",
             json \ "currently" \ "humidity",
             json \ "currently" \ "windSpeed",
@@ -72,12 +94,12 @@ class Weather(darkSkyApiKey: String) extends Producer:
             json \ "currently" \ "uvIndex"
           ) match
             case (
-              JDouble(temperature),
-              JDouble(humidity),
-              JDouble(windSpeed),
-              JDouble(windGust),
-              JInt(uvIndex)
-            ) =>
+                  JDouble(temperature),
+                  JDouble(humidity),
+                  JDouble(windSpeed),
+                  JDouble(windGust),
+                  JInt(uvIndex)
+                ) =>
               Some(
                 Wx(
                   temperature = temperature,
@@ -90,11 +112,13 @@ class Weather(darkSkyApiKey: String) extends Producer:
             case _ =>
               None
         }
-    }
-    .catchAll { e =>
-      LoggerFactory.getLogger(this.getClass()).error("caught exception", e)
-      ZIO.effectTotal(None)
-    }
+      }
+      .catchAll { e =>
+        LoggerFactory
+          .getLogger(this.getClass())
+          .error("caught exception", e)
+        ZIO.effectTotal(None)
+      }
 
   private val wx = """^@wx\s+(.+)\s*$""".r
 
@@ -105,12 +129,21 @@ class Weather(darkSkyApiKey: String) extends Producer:
     m match
       case Rx(c, _, wx(q)) =>
         findPlace(q).flatMap {
-          case Some(p@Place(_, lat, lon)) =>
+          case Some(p @ Place(_, lat, lon)) =>
             findWx(lat, lon) flatMap {
               case Some(wx) =>
-                ZIO.succeed(Some(Tx(c, f"${p.displayName}: temperature ${wx.temperature}%.0f°, humidity ${wx.humidity}%.1f%%, wind ${wx.wind}%.1f mph, UV index ${wx.uvIndex}")))
+                ZIO.succeed(
+                  Some(
+                    Tx(
+                      c,
+                      f"${p.displayName}: temperature ${wx.temperature}%.0f°, humidity ${wx.humidity}%.1f%%, wind ${wx.wind}%.1f mph, UV index ${wx.uvIndex}"
+                    )
+                  )
+                )
               case None =>
-                ZIO.succeed(List(Tx(c, s"I can't find the weather for ${q}.")))
+                ZIO.succeed(
+                  List(Tx(c, s"I can't find the weather for ${q}."))
+                )
             }
           case None =>
             ZIO.succeed(List(Tx(c, s"I have no idea where ${q} is.")))

@@ -15,10 +15,10 @@ object WeatherSpec extends DefaultRunnableSpec:
     ZLayer.succeed {
       new Http.Service:
         def request(
-          method: String,
-          url: String,
-          headers: Map[String, String],
-          body: Option[String]
+            method: String,
+            url: String,
+            headers: Map[String, String],
+            body: Option[String]
         ): UIO[Response] =
           url match
             case "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=90210" =>
@@ -106,14 +106,25 @@ object WeatherSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       testM("@wx produces weather") {
         for
-          sent   <- ZQueue.unbounded[Tx]
-          fh      = sys.env.get("TEST_FINNHUB_LIVE") match
-                      case Some("true") => Finnhub.live
-                      case _ => TestFinnhub()
-          inbox  <- MessageQueues.loop(new MessageLogger(sent)).inject(fh, TestDb(), http)
-          _      <- inbox.offer(Rx("#foo", "bar", "@wx 90210"))
-          _      <- TestClock.adjust(1.seconds)
-          ms     <- sent.takeAll
-        yield assert(ms)(equalTo(List(Tx("#foo", "Beverly Hills, California, 90210, United States: temperature 56°, humidity 1.0%, wind 1.9 mph, UV index 0"))))
+          sent <- ZQueue.unbounded[Tx]
+          fh = sys.env.get("TEST_FINNHUB_LIVE") match
+            case Some("true") => Finnhub.live
+            case _            => TestFinnhub()
+          inbox <- MessageQueues
+            .loop(new MessageLogger(sent))
+            .inject(fh, TestDb(), http)
+          _ <- inbox.offer(Rx("#foo", "bar", "@wx 90210"))
+          _ <- TestClock.adjust(1.seconds)
+          ms <- sent.takeAll
+        yield assert(ms)(
+          equalTo(
+            List(
+              Tx(
+                "#foo",
+                "Beverly Hills, California, 90210, United States: temperature 56°, humidity 1.0%, wind 1.9 mph, UV index 0"
+              )
+            )
+          )
+        )
       } @@ timeout(2.seconds)
     )
