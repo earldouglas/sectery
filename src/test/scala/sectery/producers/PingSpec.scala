@@ -1,13 +1,13 @@
 package sectery.producers
 
 import sectery._
+import zio.Inject._
 import zio._
 import zio.duration._
-import zio.Inject._
-import zio.test._
 import zio.test.Assertion.equalTo
-import zio.test.environment.TestClock
 import zio.test.TestAspect._
+import zio.test._
+import zio.test.environment.TestClock
 
 object PingSpec extends DefaultRunnableSpec:
   override def spec =

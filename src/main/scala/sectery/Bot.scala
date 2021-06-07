@@ -1,12 +1,12 @@
 package sectery
 
-import org.pircbotx.cap.SASLCapHandler
 import javax.net.ssl.SSLSocketFactory
 import org.pircbotx.Configuration
-import org.pircbotx.hooks.events.MessageEvent
-import org.pircbotx.hooks.ListenerAdapter
-import org.pircbotx.hooks.types.GenericMessageEvent
 import org.pircbotx.PircBotX
+import org.pircbotx.cap.SASLCapHandler
+import org.pircbotx.hooks.ListenerAdapter
+import org.pircbotx.hooks.events.MessageEvent
+import org.pircbotx.hooks.types.GenericMessageEvent
 import scala.collection.JavaConverters._
 import zio.UIO
 import zio.ZIO
