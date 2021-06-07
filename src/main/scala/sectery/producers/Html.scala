@@ -1,9 +1,9 @@
 package sectery.producers
 
-import org.slf4j.LoggerFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import sectery.Http
 import sectery.Info
@@ -11,10 +11,10 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
-import zio.clock.Clock
 import zio.Has
 import zio.URIO
 import zio.ZIO
+import zio.clock.Clock
 
 object Html extends Producer:
 

@@ -4,9 +4,9 @@ import sectery.Info
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
-import zio.clock.Clock
 import zio.URIO
 import zio.ZIO
+import zio.clock.Clock
 
 object Ping extends Producer:
 

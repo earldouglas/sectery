@@ -1,9 +1,9 @@
 package sectery.producers
 
 import java.net.URLEncoder
-import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.MonadicJValue.jvalueToMonadic
+import org.json4s._
 import org.json4s.native.JsonMethods._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -16,10 +16,10 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
-import zio.clock.Clock
 import zio.Has
 import zio.URIO
 import zio.ZIO
+import zio.clock.Clock
 
 class Weather(darkSkyApiKey: String) extends Producer:
 

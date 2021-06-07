@@ -1,11 +1,11 @@
 package sectery
 
 import sectery.producers._
-import zio.clock.Clock
 import zio.RIO
 import zio.UIO
 import zio.URIO
 import zio.ZIO
+import zio.clock.Clock
 
 case class Info(name: String, usage: String)
 

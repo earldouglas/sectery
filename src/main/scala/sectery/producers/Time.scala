@@ -1,16 +1,16 @@
 package sectery.producers
 
 import java.text.SimpleDateFormat
-import java.util.concurrent.TimeUnit
 import java.util.Date
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 import sectery.Info
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
-import zio.clock.Clock
 import zio.URIO
 import zio.ZIO
+import zio.clock.Clock
 
 object Time extends Producer:
 

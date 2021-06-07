@@ -2,12 +2,12 @@ package sectery
 
 import org.slf4j.LoggerFactory
 import zio.App
-import zio.clock.Clock
 import zio.ExitCode
 import zio.RIO
 import zio.URIO
 import zio.ZEnv
 import zio.ZIO
+import zio.clock.Clock
 
 object Sectery extends App:
 
