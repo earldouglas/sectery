@@ -1,9 +1,7 @@
 val scala3Version = "3.0.0"
 val zioVersion = "1.0.9"
 
-resolvers += "jitpack" at "https://jitpack.io/"
-
-inThisBuild(
+val scalafixSettings =
   List(
     scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0",
     scalaVersion := "3.0.0",
@@ -11,8 +9,10 @@ inThisBuild(
     semanticdbVersion := scalafixSemanticdb.revision,
     scalacOptions += "-Xlint:unused" // unsupported in Scala 3, but required by scalafix
   )
-)
 
+inThisBuild(scalafixSettings)
+
+resolvers += "jitpack" at "https://jitpack.io/"
 
 lazy val root = project
   .in(file("."))
