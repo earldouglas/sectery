@@ -20,7 +20,7 @@ object EvalSpec extends DefaultRunnableSpec:
             case _            => TestHttp(200, Map.empty, "42")
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(TestFinnhub(), TestDb(), http)
+            .inject(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@eval 6 * 7"))
           _ <- TestClock.adjust(1.seconds)
           m <- sent.take

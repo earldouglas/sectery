@@ -57,7 +57,7 @@ object BtcSpec extends DefaultRunnableSpec:
           sent <- ZQueue.unbounded[Tx]
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(TestFinnhub(), TestDb(), http)
+            .inject(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@btc"))
           _ <- TestClock.adjust(1.seconds)
           ms <- sent.takeAll

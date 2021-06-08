@@ -36,11 +36,13 @@ lazy val root = project
         "IRC_PASS" -> sys.env("IRC_PASS"),
         "IRC_HOST" -> sys.env("IRC_HOST"),
         "IRC_CHANNELS" -> sys.env("IRC_CHANNELS"),
-        "DARK_SKY_API_KEY" -> sys.env("DARK_SKY_API_KEY")
+        "DARK_SKY_API_KEY" -> sys.env("DARK_SKY_API_KEY"),
+        "FINNHUB_API_TOKEN" -> sys.env("FINNHUB_API_TOKEN")
       ),
     Test / fork := true,
     Test / envVars :=
       Map(
-        "DARK_SKY_API_KEY" -> "alligator3"
+        "DARK_SKY_API_KEY" -> "alligator3",
+        "FINNHUB_API_TOKEN" -> "alligator3"
       )
   )
