@@ -44,12 +44,6 @@ class Stock(finnhubApiToken: String) extends Producer:
             case None =>
               Some(Tx(c, s"${symbol}: stonk not found"))
           }
-          .catchAll { e =>
-            LoggerFactory
-              .getLogger(this.getClass())
-              .error("caught exception", e)
-            ZIO.effectTotal(None)
-          }
           .map(_.toIterable)
       case _ =>
         ZIO.effectTotal(None)

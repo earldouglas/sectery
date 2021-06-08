@@ -3,9 +3,9 @@ package sectery
 import org.slf4j.LoggerFactory
 import sectery.Http
 import zio.Has
-import zio.RIO
 import zio.Task
 import zio.ULayer
+import zio.URIO
 import zio.ZIO
 import zio.ZLayer
 
@@ -19,7 +19,7 @@ class Finnhub(apiToken: String):
       previousClose: Float
   )
 
-  def quote(symbol: String): RIO[Http.Http, Option[Quote]] =
+  def quote(symbol: String): URIO[Http.Http, Option[Quote]] =
     Http
       .request(
         method = "GET",
@@ -59,9 +59,9 @@ class Finnhub(apiToken: String):
                     )
                   )
             yield q
-          ZIO.effectTotal(quote)
+          ZIO.effect(quote)
         case _ =>
-          ZIO.effectTotal(None)
+          ZIO.effect(None)
       }
       .catchAll { e =>
         LoggerFactory
