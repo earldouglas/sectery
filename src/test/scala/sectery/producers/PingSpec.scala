@@ -17,7 +17,7 @@ object PingSpec extends DefaultRunnableSpec:
           sent <- ZQueue.unbounded[Tx]
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(TestFinnhub(), TestDb(), TestHttp())
+            .inject(TestDb(), TestHttp())
           _ <- inbox.offer(Rx("#foo", "bar", "@ping"))
           _ <- TestClock.adjust(1.seconds)
           m <- sent.take

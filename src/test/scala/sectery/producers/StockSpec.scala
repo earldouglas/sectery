@@ -10,17 +10,59 @@ import zio.test._
 import zio.test.environment.TestClock
 
 object StockSpec extends DefaultRunnableSpec:
+
+  private val http: ULayer[Has[Http.Service]] =
+    ZLayer.succeed {
+      new Http.Service:
+        def request(
+            method: String,
+            url: String,
+            headers: Map[String, String],
+            body: Option[String]
+        ): UIO[Response] =
+          url match
+            case "https://finnhub.io/api/v1/quote?symbol=FOO&token=alligator3" =>
+              ZIO.effectTotal {
+                Response(
+                  status = 200,
+                  headers = Map.empty,
+                  body = """|{
+                            |  "c": 6,
+                            |  "h": 7,
+                            |  "l": 4,
+                            |  "o": 5,
+                            |  "pc": 4,
+                            |  "t": 1623096002
+                            |}
+                            |""".stripMargin
+                )
+              }
+            case _ =>
+              ZIO.effectTotal {
+                Response(
+                  status = 200,
+                  headers = Map.empty,
+                  body = """|{
+                            |  "c": 0,
+                            |  "h": 0,
+                            |  "l": 0,
+                            |  "o": 0,
+                            |  "pc": 0,
+                            |  "t": 1623096002
+                            |}
+                            |""".stripMargin
+                )
+              }
+    }
+
   override def spec =
     suite(getClass().getName())(
       testM("@stock FOO produces quote") {
         for
           sent <- ZQueue.unbounded[Tx]
-          fh = sys.env.get("TEST_FINNHUB_LIVE") match
-            case Some("true") => Finnhub.live
-            case _            => TestFinnhub()
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(fh, TestDb(), TestHttp())
+            .inject(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@stock FOO"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock foo"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock BAR"))

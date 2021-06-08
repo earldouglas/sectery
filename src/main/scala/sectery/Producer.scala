@@ -62,7 +62,7 @@ object Help {
 
 object Producer:
 
-  type Env = Finnhub.Finnhub with Db.Db with Http.Http with Clock
+  type Env = Db.Db with Http.Http with Clock
 
   private val producers: List[Producer] =
     Help(
@@ -73,7 +73,7 @@ object Producer:
         Html,
         Substitute,
         Count,
-        Stock,
+        Stock(sys.env("FINNHUB_API_TOKEN")),
         Weather(sys.env("DARK_SKY_API_KEY")),
         Btc
       )

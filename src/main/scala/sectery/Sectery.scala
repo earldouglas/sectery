@@ -23,7 +23,7 @@ object Sectery extends App:
         _ = Bot.start()
       yield ()
     go
-      .provideLayer(ZEnv.any ++ Finnhub.live ++ Db.live ++ Http.live)
+      .provideLayer(ZEnv.any ++ Db.live ++ Http.live)
       .catchAll { e =>
         LoggerFactory
           .getLogger(this.getClass())

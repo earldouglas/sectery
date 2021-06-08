@@ -107,12 +107,9 @@ object WeatherSpec extends DefaultRunnableSpec:
       testM("@wx produces weather") {
         for
           sent <- ZQueue.unbounded[Tx]
-          fh = sys.env.get("TEST_FINNHUB_LIVE") match
-            case Some("true") => Finnhub.live
-            case _            => TestFinnhub()
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(fh, TestDb(), http)
+            .inject(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@wx 90210"))
           _ <- TestClock.adjust(1.seconds)
           ms <- sent.takeAll

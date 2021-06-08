@@ -2,6 +2,7 @@ package sectery.producers
 
 import org.slf4j.LoggerFactory
 import sectery.Finnhub
+import sectery.Http
 import sectery.Info
 import sectery.Producer
 import sectery.Response
@@ -14,17 +15,20 @@ import zio.URIO
 import zio.ZIO
 import zio.clock.Clock
 
-object Stock extends Producer:
+class Stock(finnhubApiToken: String) extends Producer:
+
+  private val finnhub: Finnhub =
+    new Finnhub(finnhubApiToken)
 
   private val stock = """^@stock\s+([^\s]+)\s*$""".r
 
   override def help(): Iterable[Info] =
     Some(Info("@stock", "@stock <symbol>, e.g. @stock GME"))
 
-  override def apply(m: Rx): URIO[Finnhub.Finnhub, Iterable[Tx]] =
+  override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, stock(symbol)) =>
-        Finnhub
+        finnhub
           .quote(symbol.toUpperCase())
           .map {
             case Some(q) =>
