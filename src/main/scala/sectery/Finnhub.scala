@@ -1,6 +1,11 @@
 package sectery
 
+import org.json4s.JsonDSL._
+import org.json4s.MonadicJValue.jvalueToMonadic
+import org.json4s._
+import org.json4s.native.JsonMethods._
 import org.slf4j.LoggerFactory
+import scala.util.Try
 import sectery.Http
 import zio.Has
 import zio.Task
@@ -19,6 +24,14 @@ class Finnhub(apiToken: String):
       previousClose: Float
   )
 
+  def floatish(v: JValue): Option[Float] =
+    v match
+      case JDouble(x)  => Some(x.toFloat)
+      case JDecimal(x) => Some(x.toFloat)
+      case JInt(x)     => Some(x.toFloat)
+      case JLong(x)    => Some(x.toFloat)
+      case _           => None
+
   def quote(symbol: String): URIO[Http.Http, Option[Quote]] =
     Http
       .request(
@@ -30,38 +43,25 @@ class Finnhub(apiToken: String):
       )
       .flatMap {
         case Response(200, _, body) =>
-          // TODO this is awful, but I can't find a JSON parser that supports Scala 3
-          val fields: Map[String, String] =
-            body
-              .replaceAll("""["{}\s\n\r]""", "")
-              .split(",")
-              .map(_.split(":"))
-              .map(xs => xs(0) -> xs(1))
-              .toMap
           val quote: Option[Quote] =
             for
-              o <- fields.get("o").map(_.toFloat)
-              h <- fields.get("h").map(_.toFloat)
-              l <- fields.get("l").map(_.toFloat)
-              c <- fields.get("c").map(_.toFloat)
-              pc <- fields.get("pc").map(_.toFloat)
-              q <- (o, h, l, c, pc) match
-                case (0, 0, 0, 0, 0) =>
-                  None
-                case _ =>
-                  Some(
-                    Quote(
-                      open = o,
-                      high = h,
-                      low = l,
-                      current = c,
-                      previousClose = pc
-                    )
-                  )
-            yield q
+              json <- Try(parse(body)).toOption
+              c <- floatish(json \ "c")
+              h <- floatish(json \ "h")
+              l <- floatish(json \ "l")
+              o <- floatish(json \ "o")
+              pc <- floatish(json \ "pc")
+              if c != 0 || h != 0 || l != 0 || o != 0 || pc != 0
+            yield Quote(
+              open = o.toFloat,
+              high = h.toFloat,
+              low = l.toFloat,
+              current = c.toFloat,
+              previousClose = pc.toFloat
+            )
           ZIO.effect(quote)
         case _ =>
-          ZIO.effect(None)
+          ZIO.effectTotal(None)
       }
       .catchAll { e =>
         LoggerFactory
