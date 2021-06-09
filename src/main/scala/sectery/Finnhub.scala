@@ -51,6 +51,7 @@ class Finnhub(apiToken: String):
               l <- floatish(json \ "l")
               o <- floatish(json \ "o")
               pc <- floatish(json \ "pc")
+              // If Finnhub can't find a symbol, it returns all zeroes
               if c != 0 || h != 0 || l != 0 || o != 0 || pc != 0
             yield Quote(
               open = o.toFloat,
