@@ -5,6 +5,7 @@ import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
 import org.pircbotx.cap.SASLCapHandler
 import org.pircbotx.hooks.ListenerAdapter
+import org.pircbotx.hooks.events.JoinEvent
 import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.types.GenericMessageEvent
 import scala.collection.JavaConverters._
@@ -48,6 +49,16 @@ object Bot extends Sender:
                     message = e.getMessage()
                   )
                 receive(m)
+          override def onJoin(
+              event: JoinEvent
+          ): Unit =
+            if (event.getUser().getNick() != sys.env("IRC_USER"))
+              val m =
+                Tx(
+                  channel = event.getChannel().getName(),
+                  message = s"Hi, ${event.getUser().getNick()}!"
+                )
+              unsafeSend(m)
         }
       )
       .buildConfiguration()
@@ -56,7 +67,10 @@ object Bot extends Sender:
     new PircBotX(config)
 
   override def send(m: Tx): UIO[Unit] =
-    ZIO.effectTotal(bot.sendIRC.message(m.channel, m.message))
+    ZIO.effectTotal(unsafeSend(m))
+
+  private def unsafeSend(m: Tx): Unit =
+    bot.sendIRC.message(m.channel, m.message)
 
   def start(): Unit =
     bot.startBot()
