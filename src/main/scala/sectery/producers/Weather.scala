@@ -21,24 +21,17 @@ import zio.URIO
 import zio.ZIO
 import zio.clock.Clock
 
-class Weather(darkSkyApiKey: String) extends Producer:
+object OSM:
 
   case class Place(displayName: String, lat: Double, lon: Double)
-  case class Wx(
-      temperature: Double,
-      humidity: Double,
-      wind: Double,
-      gusts: Double,
-      uvIndex: Int
-  )
 
-  private def findPlace(q: String): URIO[Http.Http, Option[Place]] =
+  def findPlace(q: String): URIO[Http.Http, Option[Place]] =
+    val qEnc = URLEncoder.encode(q, "UTF-8")
     Http
       .request(
         method = "GET",
         url =
-          s"""https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${URLEncoder
-            .encode(q, "UTF-8")}""",
+          s"""https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${qEnc}""",
         headers =
           Map("User-Agent" -> "bot", "Accept" -> "application/json"),
         body = None
@@ -70,15 +63,26 @@ class Weather(darkSkyApiKey: String) extends Producer:
         ZIO.effectTotal(None)
       }
 
-  private def findWx(
+object DarkSky:
+
+  case class Forecast(
+      temperature: Double,
+      humidity: Double,
+      wind: Double,
+      gusts: Double,
+      uvIndex: Int
+  )
+
+  def findForecast(
+      apiKey: String,
       lat: Double,
       lon: Double
-  ): URIO[Http.Http, Option[Wx]] =
+  ): URIO[Http.Http, Option[Forecast]] =
     Http
       .request(
         method = "GET",
         url =
-          s"""https://api.darksky.net/forecast/${darkSkyApiKey}/${lat},${lon}""",
+          s"""https://api.darksky.net/forecast/${apiKey}/${lat},${lon}""",
         headers =
           Map("User-Agent" -> "bot", "Accept" -> "application/json"),
         body = None
@@ -101,7 +105,7 @@ class Weather(darkSkyApiKey: String) extends Producer:
                   JInt(uvIndex)
                 ) =>
               Some(
-                Wx(
+                Forecast(
                   temperature = temperature,
                   humidity = humidity,
                   wind = windSpeed,
@@ -120,6 +124,87 @@ class Weather(darkSkyApiKey: String) extends Producer:
         ZIO.effectTotal(None)
       }
 
+object AirNow:
+
+  case class AqiParameter(name: String, value: Int, category: String)
+  case class Aqi(parameters: List[AqiParameter])
+
+  private def parseAqiParameter(v: JValue): Option[AqiParameter] =
+    (
+      v \ "ParameterName",
+      v \ "AQI",
+      v \ "Category" \ "Name"
+    ) match
+      case (JString(name), JInt(value), JString(category)) =>
+        Some(
+          AqiParameter(
+            name = name,
+            value = value.toInt,
+            category = category
+          )
+        )
+      case _ =>
+        None
+
+  private def parseAqi(v: JValue): Option[Aqi] =
+    v match
+      case JArray(xs) =>
+        Some(Aqi(xs.flatMap(parseAqiParameter)))
+      case _ =>
+        None
+
+  def findAqi(
+      apiKey: String,
+      lat: Double,
+      lon: Double
+  ): URIO[Http.Http, Option[Aqi]] =
+    Http
+      .request(
+        method = "GET",
+        url =
+          s"""https://www.airnowapi.org/aq/observation/latLong/current/?format=application/json&latitude=${lat}&longitude=${lon}&distance=50&API_KEY=${apiKey}""",
+        headers =
+          Map("User-Agent" -> "bot", "Accept" -> "application/json"),
+        body = None
+      )
+      .flatMap { case Response(200, _, body) =>
+        ZIO.effect(parseAqi(parse(body)))
+      }
+      .catchAll { e =>
+        LoggerFactory
+          .getLogger(this.getClass())
+          .error("caught exception", e)
+        ZIO.effectTotal(None)
+      }
+
+class Weather(darkSkyApiKey: String, airNowApiKey: String)
+    extends Producer:
+
+  case class Wx(
+      forecast: DarkSky.Forecast,
+      aqi: AirNow.Aqi
+  )
+
+  private def findWx(
+      lat: Double,
+      lon: Double
+  ): URIO[Http.Http, Option[Wx]] =
+    for
+      forecastO <- DarkSky.findForecast(
+        apiKey = darkSkyApiKey,
+        lat = lat,
+        lon = lon
+      )
+      aqiO <- AirNow.findAqi(
+        apiKey = airNowApiKey,
+        lat = lat,
+        lon = lon
+      )
+    yield for
+      forecast <- forecastO
+      aqi <- aqiO
+    yield Wx(forecast = forecast, aqi = aqi)
+
   private val wx = """^@wx\s+(.+)\s*$""".r
 
   override def help(): Iterable[Info] =
@@ -128,15 +213,24 @@ class Weather(darkSkyApiKey: String) extends Producer:
   override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, wx(q)) =>
-        findPlace(q).flatMap {
-          case Some(p @ Place(_, lat, lon)) =>
+        OSM.findPlace(q).flatMap {
+          case Some(p @ OSM.Place(_, lat, lon)) =>
             findWx(lat, lon) flatMap {
               case Some(wx) =>
                 ZIO.succeed(
                   Some(
                     Tx(
                       c,
-                      f"${p.displayName}: temperature ${wx.temperature}%.0f°, humidity ${wx.humidity}%.1f%%, wind ${wx.wind}%.1f mph, UV index ${wx.uvIndex}"
+                      (
+                        List(
+                          f"${p.displayName}: temperature ${wx.forecast.temperature}%.0f°",
+                          f"humidity ${wx.forecast.humidity}%.1f%%",
+                          f"wind ${wx.forecast.wind}%.1f mph",
+                          f"UV index ${wx.forecast.uvIndex}"
+                        ) ++ wx.aqi.parameters.map(p =>
+                          s"${p.name}: ${p.value}/${p.category}"
+                        )
+                      ).mkString(", ")
                     )
                   )
                 )

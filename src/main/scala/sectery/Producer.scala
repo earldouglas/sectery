@@ -74,7 +74,10 @@ object Producer:
         Substitute,
         Count,
         Stock(sys.env("FINNHUB_API_TOKEN")),
-        Weather(sys.env("DARK_SKY_API_KEY")),
+        Weather(
+          darkSkyApiKey = sys.env("DARK_SKY_API_KEY"),
+          airNowApiKey = sys.env("AIRNOW_API_KEY")
+        ),
         Btc
       )
     )
