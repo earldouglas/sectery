@@ -92,6 +92,46 @@ object WeatherSpec extends DefaultRunnableSpec:
                             |""".stripMargin
                 )
               }
+            case "https://www.airnowapi.org/aq/observation/latLong/current/?format=application/json&latitude=34.095082673097856&longitude=-118.39932247264568&distance=50&API_KEY=alligator3" =>
+              ZIO.effectTotal {
+                Response(
+                  status = 200,
+                  headers = Map.empty,
+                  body = """|[
+                            |  {
+                            |    "DateObserved": "2021-06-05 ",
+                            |    "HourObserved": 10,
+                            |    "LocalTimeZone": "PST",
+                            |    "ReportingArea": "SW Coastal LA",
+                            |    "StateCode": "CA",
+                            |    "Latitude": 33.9541,
+                            |    "Longitude": -118.4302,
+                            |    "ParameterName": "O3",
+                            |    "AQI": 22,
+                            |    "Category": {
+                            |      "Number": 1,
+                            |      "Name": "Good"
+                            |    }
+                            |  },
+                            |  {
+                            |    "DateObserved": "2021-06-05 ",
+                            |    "HourObserved": 10,
+                            |    "LocalTimeZone": "PST",
+                            |    "ReportingArea": "SW Coastal LA",
+                            |    "StateCode": "CA",
+                            |    "Latitude": 33.9541,
+                            |    "Longitude": -118.4302,
+                            |    "ParameterName": "PM2.5",
+                            |    "AQI": 32,
+                            |    "Category": {
+                            |      "Number": 1,
+                            |      "Name": "Good"
+                            |    }
+                            |  }
+                            |]
+                            |""".stripMargin
+                )
+              }
             case _ =>
               ZIO.effectTotal {
                 Response(
@@ -118,7 +158,7 @@ object WeatherSpec extends DefaultRunnableSpec:
             List(
               Tx(
                 "#foo",
-                "Beverly Hills, California, 90210, United States: temperature 56°, humidity 1.0%, wind 1.9 mph, UV index 0"
+                "Beverly Hills, California, 90210, United States: temperature 56°, humidity 1.0%, wind 1.9 mph, UV index 0, O3: 22/Good, PM2.5: 32/Good"
               )
             )
           )
