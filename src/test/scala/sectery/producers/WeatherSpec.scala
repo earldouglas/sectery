@@ -132,6 +132,112 @@ object WeatherSpec extends DefaultRunnableSpec:
                             |""".stripMargin
                 )
               }
+            case s"""https://www.airnowapi.org/aq/forecast/latLong/?format=application/json&latitude=34.095082673097856&longitude=-118.39932247264568&distance=50&API_KEY=alligator3""" =>
+              ZIO.effectTotal {
+                Response(
+                  status = 200,
+                  headers = Map.empty,
+                  body = """|[
+                            |  {
+                            |    "DateIssue": "2021-06-11 ",
+                            |    "DateForecast": "2021-06-12 ",
+                            |    "ReportingArea": "SW Coastal LA",
+                            |    "StateCode": "CA",
+                            |    "Latitude": 33.9541,
+                            |    "Longitude": -118.4302,
+                            |    "ParameterName": "O3",
+                            |    "AQI": 22,
+                            |    "Category": {
+                            |      "Number": 1,
+                            |      "Name": "Good"
+                            |    },
+                            |    "ActionDay": false,
+                            |    "Discussion": "..."
+                            |  },
+                            |  {
+                            |    "DateIssue": "2021-06-11 ",
+                            |    "DateForecast": "2021-06-12 ",
+                            |    "ReportingArea": "SW Coastal LA",
+                            |    "StateCode": "CA",
+                            |    "Latitude": 33.9541,
+                            |    "Longitude": -118.4302,
+                            |    "ParameterName": "PM2.5",
+                            |    "AQI": 32,
+                            |    "Category": {
+                            |      "Number": 1,
+                            |      "Name": "Good"
+                            |    },
+                            |    "ActionDay": false,
+                            |    "Discussion": "..."
+                            |  },
+                            |  {
+                            |    "DateIssue": "2021-06-11 ",
+                            |    "DateForecast": "2021-06-12 ",
+                            |    "ReportingArea": "SW Coastal LA",
+                            |    "StateCode": "CA",
+                            |    "Latitude": 33.9541,
+                            |    "Longitude": -118.4302,
+                            |    "ParameterName": "PM10",
+                            |    "AQI": 33,
+                            |    "Category": {
+                            |      "Number": 1,
+                            |      "Name": "Good"
+                            |    },
+                            |    "ActionDay": false,
+                            |    "Discussion": "..."
+                            |  },
+                            |  {
+                            |    "DateIssue": "2021-06-11 ",
+                            |    "DateForecast": "2021-06-13 ",
+                            |    "ReportingArea": "SW Coastal LA",
+                            |    "StateCode": "CA",
+                            |    "Latitude": 33.9541,
+                            |    "Longitude": -118.4302,
+                            |    "ParameterName": "O3",
+                            |    "AQI": 23,
+                            |    "Category": {
+                            |      "Number": 1,
+                            |      "Name": "Good"
+                            |    },
+                            |    "ActionDay": false,
+                            |    "Discussion": "..."
+                            |  },
+                            |  {
+                            |    "DateIssue": "2021-06-11 ",
+                            |    "DateForecast": "2021-06-13 ",
+                            |    "ReportingArea": "SW Coastal LA",
+                            |    "StateCode": "CA",
+                            |    "Latitude": 33.9541,
+                            |    "Longitude": -118.4302,
+                            |    "ParameterName": "PM2.5",
+                            |    "AQI": 33,
+                            |    "Category": {
+                            |      "Number": 1,
+                            |      "Name": "Good"
+                            |    },
+                            |    "ActionDay": false,
+                            |    "Discussion": "..."
+                            |  },
+                            |  {
+                            |    "DateIssue": "2021-06-11 ",
+                            |    "DateForecast": "2021-06-13 ",
+                            |    "ReportingArea": "SW Coastal LA",
+                            |    "StateCode": "CA",
+                            |    "Latitude": 33.9541,
+                            |    "Longitude": -118.4302,
+                            |    "ParameterName": "PM10",
+                            |    "AQI": 34,
+                            |    "Category": {
+                            |      "Number": 1,
+                            |      "Name": "Good"
+                            |    },
+                            |    "ActionDay": false,
+                            |    "Discussion": "..."
+                            |  }
+                            |]
+                            |""".stripMargin
+                )
+              }
             case _ =>
               ZIO.effectTotal {
                 Response(
@@ -158,7 +264,7 @@ object WeatherSpec extends DefaultRunnableSpec:
             List(
               Tx(
                 "#foo",
-                "Beverly Hills, California, 90210, United States: temperature 56°, humidity 1.0%, wind 1.9 mph, UV index 0, O3: 22/Good, PM2.5: 32/Good"
+                "Beverly Hills, California, 90210, United States: temperature 56°, humidity 1.0%, wind 1.9 mph, UV index 0, O3: 22/Good, PM2.5: 32/Good, PM10: 33/Good"
               )
             )
           )
