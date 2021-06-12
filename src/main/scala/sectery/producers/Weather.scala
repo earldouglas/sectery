@@ -124,7 +124,7 @@ object DarkSky:
         ZIO.effectTotal(None)
       }
 
-object AirNow:
+object AirNowObservation:
 
   case class AqiParameter(name: String, value: Int, category: String)
   case class Aqi(parameters: List[AqiParameter])
@@ -177,12 +177,79 @@ object AirNow:
         ZIO.effectTotal(None)
       }
 
+object AirNowForecast:
+
+  case class AqiParameter(
+      name: String,
+      date: String,
+      value: Int,
+      category: String
+  )
+  case class Aqi(parameters: List[AqiParameter])
+
+  private def parseAqiParameter(v: JValue): Option[AqiParameter] =
+    (
+      v \ "DateForecast",
+      v \ "ParameterName",
+      v \ "AQI",
+      v \ "Category" \ "Name"
+    ) match
+      case (
+            JString(date),
+            JString(name),
+            JInt(value),
+            JString(category)
+          ) =>
+        Some(
+          AqiParameter(
+            name = name,
+            date = date,
+            value = value.toInt,
+            category = category
+          )
+        )
+      case _ =>
+        None
+
+  private def parseAqi(v: JValue): Option[Aqi] =
+    v match
+      case JArray(xs) =>
+        Some(Aqi(xs.flatMap(parseAqiParameter)))
+      case _ =>
+        None
+
+  def findAqi(
+      apiKey: String,
+      lat: Double,
+      lon: Double
+  ): URIO[Http.Http, Option[Aqi]] =
+    Http
+      .request(
+        method = "GET",
+        url =
+          s"""https://www.airnowapi.org/aq/forecast/latLong/?format=application/json&latitude=${lat}&longitude=${lon}&distance=50&API_KEY=${apiKey}""",
+        headers =
+          Map("User-Agent" -> "bot", "Accept" -> "application/json"),
+        body = None
+      )
+      .flatMap { case Response(200, _, body) =>
+        ZIO.effect(parseAqi(parse(body)))
+      }
+      .catchAll { e =>
+        LoggerFactory
+          .getLogger(this.getClass())
+          .error("caught exception", e)
+        ZIO.effectTotal(None)
+      }
+
 class Weather(darkSkyApiKey: String, airNowApiKey: String)
     extends Producer:
 
+  case class AqiParameter(name: String, value: Int, category: String)
+
   case class Wx(
       forecast: DarkSky.Forecast,
-      aqi: AirNow.Aqi
+      aqi: List[AqiParameter]
   )
 
   private def findWx(
@@ -195,15 +262,44 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
         lat = lat,
         lon = lon
       )
-      aqiO <- AirNow.findAqi(
+      aqiObservationO <- AirNowObservation.findAqi(
+        apiKey = airNowApiKey,
+        lat = lat,
+        lon = lon
+      )
+      aqiForecastO <- AirNowForecast.findAqi(
         apiKey = airNowApiKey,
         lat = lat,
         lon = lon
       )
     yield for
       forecast <- forecastO
-      aqi <- aqiO
-    yield Wx(forecast = forecast, aqi = aqi)
+      aqiObservation <- aqiObservationO
+      aqiForecast <- aqiForecastO
+    yield
+      var aqiMap: Map[String, AqiParameter] = Map.empty
+      aqiObservation.parameters.foreach { case p =>
+        if (!aqiMap.contains(p.name)) {
+          aqiMap = aqiMap + (p.name -> AqiParameter(
+            name = p.name,
+            value = p.value,
+            category = p.category
+          ))
+        }
+      }
+      aqiForecast.parameters.sortBy(_.date).foreach { case p =>
+        if (!aqiMap.contains(p.name)) {
+          aqiMap = aqiMap + (p.name -> AqiParameter(
+            name = p.name,
+            value = p.value,
+            category = p.category
+          ))
+        }
+      }
+      Wx(
+        forecast = forecast,
+        aqi = aqiMap.values.toList
+      )
 
   private val wx = """^@wx\s+(.+)\s*$""".r
 
@@ -227,7 +323,7 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
                           f"humidity ${wx.forecast.humidity}%.1f%%",
                           f"wind ${wx.forecast.wind}%.1f mph",
                           f"UV index ${wx.forecast.uvIndex}"
-                        ) ++ wx.aqi.parameters.map(p =>
+                        ) ++ wx.aqi.map(p =>
                           s"${p.name}: ${p.value}/${p.category}"
                         )
                       ).mkString(", ")
