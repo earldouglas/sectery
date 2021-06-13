@@ -67,6 +67,8 @@ object DarkSky:
 
   case class Forecast(
       temperature: Double,
+      temperatureHigh: Double,
+      temperatureLow: Double,
       humidity: Double,
       wind: Double,
       gusts: Double,
@@ -92,6 +94,8 @@ object DarkSky:
           val json = parse(body)
           (
             json \ "currently" \ "temperature",
+            (json \ "daily" \ "data")(0) \ "temperatureHigh",
+            (json \ "daily" \ "data")(0) \ "temperatureLow",
             json \ "currently" \ "humidity",
             json \ "currently" \ "windSpeed",
             json \ "currently" \ "windGust",
@@ -99,6 +103,8 @@ object DarkSky:
           ) match
             case (
                   JDouble(temperature),
+                  JDouble(temperatureHigh),
+                  JDouble(temperatureLow),
                   JDouble(humidity),
                   JDouble(windSpeed),
                   JDouble(windGust),
@@ -107,6 +113,8 @@ object DarkSky:
               Some(
                 Forecast(
                   temperature = temperature,
+                  temperatureHigh = temperatureHigh,
+                  temperatureLow = temperatureLow,
                   humidity = humidity,
                   wind = windSpeed,
                   gusts = windGust,
@@ -319,7 +327,7 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
                       c,
                       (
                         List(
-                          f"${p.displayName}: temperature ${wx.forecast.temperature}%.0f°",
+                          f"${p.displayName}: temperature ${wx.forecast.temperature}%.0f° (low ${wx.forecast.temperatureLow}%.0f°, high ${wx.forecast.temperatureHigh}%.0f°)",
                           f"humidity ${wx.forecast.humidity}%.1f%%",
                           f"wind ${wx.forecast.wind}%.1f mph",
                           f"UV index ${wx.forecast.uvIndex}"

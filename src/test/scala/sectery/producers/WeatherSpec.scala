@@ -82,6 +82,49 @@ object WeatherSpec extends DefaultRunnableSpec:
                             |  "hourly": {
                             |  },
                             |  "daily": {
+                            |    "data": [
+                            |      {
+                            |        "time": 1623394800,
+                            |        "summary": "Clear throughout the day.",
+                            |        "icon": "clear-day",
+                            |        "sunriseTime": 1623415440,
+                            |        "sunsetTime": 1623467220,
+                            |        "moonPhase": 0.05,
+                            |        "precipIntensity": 0.0004,
+                            |        "precipIntensityMax": 0.0037,
+                            |        "precipIntensityMaxTime": 1623455760,
+                            |        "precipProbability": 0.02,
+                            |        "precipType": "rain",
+                            |        "temperatureHigh": 69.08,
+                            |        "temperatureHighTime": 1623463020,
+                            |        "temperatureLow": 59.43,
+                            |        "temperatureLowTime": 1623496560,
+                            |        "apparentTemperatureHigh": 68.58,
+                            |        "apparentTemperatureHighTime": 1623463020,
+                            |        "apparentTemperatureLow": 59.92,
+                            |        "apparentTemperatureLowTime": 1623496560,
+                            |        "dewPoint": 53.74,
+                            |        "humidity": 0.69,
+                            |        "pressure": 1013.5,
+                            |        "windSpeed": 5.86,
+                            |        "windGust": 16.46,
+                            |        "windGustTime": 1623458580,
+                            |        "windBearing": 233,
+                            |        "cloudCover": 0.06,
+                            |        "uvIndex": 10,
+                            |        "uvIndexTime": 1623441180,
+                            |        "visibility": 10,
+                            |        "ozone": 305.4,
+                            |        "temperatureMin": 58.25,
+                            |        "temperatureMinTime": 1623414120,
+                            |        "temperatureMax": 69.08,
+                            |        "temperatureMaxTime": 1623463020,
+                            |        "apparentTemperatureMin": 58.74,
+                            |        "apparentTemperatureMinTime": 1623414120,
+                            |        "apparentTemperatureMax": 68.58,
+                            |        "apparentTemperatureMaxTime": 1623463020
+                            |      }
+                            |    ]
                             |  },
                             |  "alerts": [
                             |  ],
@@ -264,7 +307,7 @@ object WeatherSpec extends DefaultRunnableSpec:
             List(
               Tx(
                 "#foo",
-                "Beverly Hills, California, 90210, United States: temperature 56°, humidity 1.0%, wind 1.9 mph, UV index 0, O3: 22/Good, PM2.5: 32/Good, PM10: 33/Good"
+                "Beverly Hills, California, 90210, United States: temperature 56° (low 59°, high 69°), humidity 1.0%, wind 1.9 mph, UV index 0, O3: 22/Good, PM2.5: 32/Good, PM10: 33/Good"
               )
             )
           )
