@@ -12,7 +12,7 @@ val enableScalafix =
 
 inThisBuild(enableScalafix)
 
-resolvers += "jitpack" at "https://jitpack.io/"
+resolvers += "jitpack" at "https://jitpack.io/" // needed for pircbotx
 
 lazy val root = project
   .in(file("."))
