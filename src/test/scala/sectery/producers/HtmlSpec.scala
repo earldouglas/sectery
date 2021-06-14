@@ -33,13 +33,9 @@ object HtmlSpec extends DefaultRunnableSpec:
                             Response(
                               status = 200,
                               headers = Map.empty,
-                              body = """|<html>
-                                                  |  <head>
-                                                  |    <meta   name="description"   content="Some notes on the Scala language, 
-                                                  |libraries, and ecosystem."  >
-                                                  |  </head>
-                                                  |</html>
-                                                  |""".stripMargin
+                              body = Resource.read(
+                                "/com/earldouglas/posts/scala.html"
+                              )
                             )
                           }
                         case _ =>

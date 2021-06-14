@@ -1,0 +1,32 @@
+[
+  {
+    "DateObserved": "2021-06-14 ",
+    "HourObserved": 4,
+    "LocalTimeZone": "PST",
+    "ReportingArea": "San Francisco",
+    "StateCode": "CA",
+    "Latitude": 37.75,
+    "Longitude": -122.43,
+    "ParameterName": "O3",
+    "AQI": 15,
+    "Category": {
+      "Number": 1,
+      "Name": "Good"
+    }
+  },
+  {
+    "DateObserved": "2021-06-14 ",
+    "HourObserved": 4,
+    "LocalTimeZone": "PST",
+    "ReportingArea": "San Francisco",
+    "StateCode": "CA",
+    "Latitude": 37.75,
+    "Longitude": -122.43,
+    "ParameterName": "PM2.5",
+    "AQI": 0,
+    "Category": {
+      "Number": 1,
+      "Name": "Good"
+    }
+  }
+]
