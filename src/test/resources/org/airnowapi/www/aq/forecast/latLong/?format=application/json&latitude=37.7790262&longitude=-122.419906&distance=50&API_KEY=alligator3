@@ -1,0 +1,47 @@
+[
+  {
+    "DateIssue": "2021-06-11 ",
+    "DateForecast": "2021-06-14 ",
+    "ReportingArea": "San Francisco",
+    "StateCode": "CA",
+    "Latitude": 37.75,
+    "Longitude": -122.43,
+    "ParameterName": "PM2.5",
+    "AQI": 57,
+    "Category": {
+      "Number": 2,
+      "Name": "Moderate"
+    },
+    "ActionDay": false
+  },
+  {
+    "DateIssue": "2021-06-11 ",
+    "DateForecast": "2021-06-15 ",
+    "ReportingArea": "San Francisco",
+    "StateCode": "CA",
+    "Latitude": 37.75,
+    "Longitude": -122.43,
+    "ParameterName": "PM2.5",
+    "AQI": -1,
+    "Category": {
+      "Number": 2,
+      "Name": "Moderate"
+    },
+    "ActionDay": false
+  },
+  {
+    "DateIssue": "2021-06-11 ",
+    "DateForecast": "2021-06-16 ",
+    "ReportingArea": "San Francisco",
+    "StateCode": "CA",
+    "Latitude": 37.75,
+    "Longitude": -122.43,
+    "ParameterName": "PM2.5",
+    "AQI": -1,
+    "Category": {
+      "Number": 2,
+      "Name": "Moderate"
+    },
+    "ActionDay": false
+  }
+]
