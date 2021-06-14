@@ -26,26 +26,9 @@ object BtcSpec extends DefaultRunnableSpec:
                 Response(
                   status = 200,
                   headers = Map.empty,
-                  body = """|{
-                            |  "time": {
-                            |  },
-                            |  "disclaimer": "",
-                            |  "chartName": "Bitcoin",
-                            |  "bpi": {
-                            |    "USD": {
-                            |      "code": "USD",
-                            |      "symbol": "&#36;",
-                            |      "rate": "35,929.0133",
-                            |      "description": "United States Dollar",
-                            |      "rate_float": 35929.0133
-                            |    },
-                            |    "GBP": {
-                            |    },
-                            |    "EUR": {
-                            |    }
-                            |  }
-                            |}
-                            |""".stripMargin
+                  body = Resource.read(
+                    "/com/coindesk/api/v1/bpi/currentprice.json"
+                  )
                 )
               }
     }
@@ -61,6 +44,6 @@ object BtcSpec extends DefaultRunnableSpec:
           _ <- inbox.offer(Rx("#foo", "bar", "@btc"))
           _ <- TestClock.adjust(1.seconds)
           ms <- sent.takeAll
-        yield assert(ms)(equalTo(List(Tx("#foo", "$35,929.01"))))
+        yield assert(ms)(equalTo(List(Tx("#foo", "$39,193.03"))))
       } @@ timeout(2.seconds)
     )
