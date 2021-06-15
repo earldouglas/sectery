@@ -23,7 +23,12 @@ import zio.clock.Clock
 
 object OSM:
 
-  case class Place(displayName: String, lat: Double, lon: Double)
+  case class Place(
+      displayName: String,
+      shortName: String,
+      lat: Double,
+      lon: Double
+  )
 
   def findPlace(q: String): URIO[Http.Http, Option[Place]] =
     val qEnc = URLEncoder.encode(q, "UTF-8")
@@ -48,6 +53,8 @@ object OSM:
               Some(
                 Place(
                   displayName = displayName,
+                  shortName =
+                    displayName.split(", ").headOption.getOrElse(q),
                   lat = lat.toDouble,
                   lon = lon.toDouble
                 )
@@ -318,7 +325,7 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
     m match
       case Rx(c, _, wx(q)) =>
         OSM.findPlace(q).flatMap {
-          case Some(p @ OSM.Place(_, lat, lon)) =>
+          case Some(p @ OSM.Place(_, _, lat, lon)) =>
             findWx(lat, lon) flatMap {
               case Some(wx) =>
                 ZIO.succeed(
@@ -327,12 +334,12 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
                       c,
                       (
                         List(
-                          f"${p.displayName}: temperature ${wx.forecast.temperature}%.0f° (low ${wx.forecast.temperatureLow}%.0f°, high ${wx.forecast.temperatureHigh}%.0f°)",
-                          f"humidity ${wx.forecast.humidity}%.1f%%",
-                          f"wind ${wx.forecast.wind}%.1f mph",
-                          f"UV index ${wx.forecast.uvIndex}"
+                          f"${p.shortName}: ${wx.forecast.temperature}%.0f° (low ${wx.forecast.temperatureLow}%.0f°, high ${wx.forecast.temperatureHigh}%.0f°)",
+                          f"humidity ${wx.forecast.humidity}%.0f%%",
+                          f"wind ${wx.forecast.wind}%.0f mph",
+                          f"UV ${wx.forecast.uvIndex}"
                         ) ++ wx.aqi.map(p =>
-                          s"${p.name}: ${p.value}/${p.category}"
+                          s"${p.name} ${p.value} (${p.category})"
                         )
                       ).mkString(", ")
                     )
