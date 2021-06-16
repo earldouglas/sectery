@@ -1,5 +1,7 @@
 package sectery.producers
 
+import java.sql.{Date => SqlDate}
+import java.util.Date
 import org.slf4j.LoggerFactory
 import scala.util.matching.Regex
 import sectery.Db
@@ -32,7 +34,7 @@ object Substitute extends Producer:
              |  CHANNEL VARCHAR(256) NOT NULL,
              |  NICK VARCHAR(256) NOT NULL,
              |  MESSAGE TEXT NOT NULL,
-             |  MILLIS DATETIME NOT NULL DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
+             |  TIMESTAMP TIMESTAMP NOT NULL,
              |  PRIMARY KEY (CHANNEL, NICK)
              |)
              |""".stripMargin
@@ -53,7 +55,7 @@ object Substitute extends Producer:
                 """|SELECT NICK, MESSAGE
                    |FROM LAST_MESSAGE
                    |WHERE CHANNEL = ?
-                   |ORDER BY MILLIS DESC
+                   |ORDER BY TIMESTAMP DESC
                    |""".stripMargin
               val stmt = conn.prepareStatement(s)
               stmt.setString(1, channel)
@@ -96,11 +98,12 @@ object Substitute extends Producer:
             }
             newCount <- Db.query { conn =>
               val s =
-                "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE) VALUES (?, ?, ?)"
+                "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE, TIMESTAMP) VALUES (?, ?, ?, ?)"
               val stmt = conn.prepareStatement(s)
               stmt.setString(1, channel)
               stmt.setString(2, nick)
               stmt.setString(3, msg)
+              stmt.setDate(4, new SqlDate((new Date()).getTime()))
               stmt.executeUpdate
               stmt.close
             }
