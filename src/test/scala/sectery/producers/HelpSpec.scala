@@ -29,7 +29,7 @@ object HelpSpec extends DefaultRunnableSpec:
             List(
               Tx(
                 "#foo",
-                "@btc, @count, @eval, @ping, @stock, @time, @wx, s///"
+                "@btc, @count, @eval, @ping, @stock, @time, @version, @wx, s///"
               ),
               Tx(
                 "#foo",

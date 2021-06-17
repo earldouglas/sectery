@@ -78,7 +78,8 @@ object Producer:
           darkSkyApiKey = sys.env("DARK_SKY_API_KEY"),
           airNowApiKey = sys.env("AIRNOW_API_KEY")
         ),
-        Btc
+        Btc,
+        Version
       )
     )
 

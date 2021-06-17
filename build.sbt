@@ -12,12 +12,13 @@ val enableScalafix =
 
 inThisBuild(enableScalafix)
 
-enablePlugins(JavaAppPackaging)
-
 resolvers += "jitpack" at "https://jitpack.io/" // needed for pircbotx
 
 lazy val root = project
   .in(file("."))
+  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(GitVersioning)
+  .enablePlugins(BuildInfoPlugin)
   .settings(
     name := "sectery",
     scalaVersion := scala3Version,
@@ -39,5 +40,7 @@ lazy val root = project
         "AIRNOW_API_KEY" -> "alligator3",
         "DARK_SKY_API_KEY" -> "alligator3",
         "FINNHUB_API_TOKEN" -> "alligator3"
-      )
+      ),
+    buildInfoKeys := Seq[BuildInfoKey](version),
+    buildInfoPackage := "sectery"
   )
