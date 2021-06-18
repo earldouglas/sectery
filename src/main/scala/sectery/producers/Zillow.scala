@@ -38,7 +38,9 @@ object Zillow extends Producer:
           .request(
             method = "GET",
             url = url,
-            headers = Map("User-Agent" -> "bot"),
+            headers = Map(
+              "User-Agent" -> "Mozilla/5.0 (X11; Linux x86_64)"
+            ),
             body = None
           )
           .map {
