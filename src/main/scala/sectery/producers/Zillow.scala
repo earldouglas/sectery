@@ -53,6 +53,9 @@ object Zillow extends Producer:
                 .map(_.attr("value"))
                 .map(value => Tx(c, s"Zestimate: $$${value}"))
             case r =>
+              LoggerFactory
+                .getLogger(this.getClass())
+                .error("unexpected response", r)
               None
           }
           .catchAll { e =>

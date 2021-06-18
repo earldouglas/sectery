@@ -36,6 +36,9 @@ object Eval extends Producer:
             case Response(200, _, body) =>
               Some(Tx(c, body))
             case r =>
+              LoggerFactory
+                .getLogger(this.getClass())
+                .error("unexpected response", r)
               None
           }
           .catchAll { e =>
