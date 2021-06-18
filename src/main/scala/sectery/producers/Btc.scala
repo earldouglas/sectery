@@ -39,7 +39,7 @@ object Btc extends Producer:
             case r =>
               LoggerFactory
                 .getLogger(this.getClass())
-                .error("unexpected response", r)
+                .error(s"unexpected response: ${r}")
               None
         }
       }
