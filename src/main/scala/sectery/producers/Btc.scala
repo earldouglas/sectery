@@ -37,6 +37,9 @@ object Btc extends Producer:
             case JDouble(rate) =>
               Some(rate)
             case _ =>
+              LoggerFactory
+                .getLogger(this.getClass())
+                .error("unexpected response", r)
               None
         }
       }

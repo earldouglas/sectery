@@ -60,6 +60,9 @@ object OSM:
                 )
               )
             case _ =>
+              LoggerFactory
+                .getLogger(this.getClass())
+                .error("unexpected response", r)
               None
         }
       }

@@ -37,6 +37,9 @@ object Html extends Producer:
             case Response(200, _, body) =>
               getDescription(body).map(d => Tx(c, d))
             case r =>
+              LoggerFactory
+                .getLogger(this.getClass())
+                .error("unexpected response", r)
               None
           }
           .catchAll { e =>
