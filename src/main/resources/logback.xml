@@ -4,7 +4,8 @@
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
-  <root level="warn">
+  <variable name="LOG_LEVEL_ROOT" value="${LOG_LEVEL_ROOT:-WARN}" />
+  <root level="${LOG_LEVEL_ROOT}">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>
