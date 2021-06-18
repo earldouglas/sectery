@@ -36,7 +36,7 @@ object Btc extends Producer:
           json \ "bpi" \ "USD" \ "rate_float" match
             case JDouble(rate) =>
               Some(rate)
-            case _ =>
+            case r =>
               LoggerFactory
                 .getLogger(this.getClass())
                 .error("unexpected response", r)

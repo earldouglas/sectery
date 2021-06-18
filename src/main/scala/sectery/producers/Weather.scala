@@ -59,7 +59,7 @@ object OSM:
                   lon = lon.toDouble
                 )
               )
-            case _ =>
+            case r =>
               LoggerFactory
                 .getLogger(this.getClass())
                 .error("unexpected response", r)
