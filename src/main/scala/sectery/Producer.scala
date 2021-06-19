@@ -79,8 +79,7 @@ object Producer:
           airNowApiKey = sys.env("AIRNOW_API_KEY")
         ),
         Btc,
-        Version,
-        Zillow
+        Version
       )
     )
 
