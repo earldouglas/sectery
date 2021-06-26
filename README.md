@@ -1,5 +1,7 @@
 [![Build Status][build-badge]][build-link]
 
+# Sectery
+
 Sectery is an digital assistant IRC bot.
 
 ## Usage
