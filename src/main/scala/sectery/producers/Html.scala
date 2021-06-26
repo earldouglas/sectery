@@ -35,7 +35,8 @@ object Html extends Producer:
           )
           .map {
             case Response(200, _, body) =>
-              getDescription(body).map(d => Tx(c, d))
+              val doc: Document = Jsoup.parse(body)
+              getTitle(doc).map(d => Tx(c, d))
             case r =>
               LoggerFactory
                 .getLogger(this.getClass())
@@ -52,16 +53,35 @@ object Html extends Producer:
       case _ =>
         ZIO.effectTotal(None)
 
-  def getDescription(body: String): Option[String] =
+  def getTitle(doc: Document): Option[String] =
 
     def nonEmpty(x: String): Option[String] =
       Option(x).map(_.trim).filter(_.length > 0)
 
-    val doc: Document = Jsoup.parse(body)
+    val elements: List[Element] =
+      doc.select("title").asScala.toList ++
+        doc.select("meta[name=title]").asScala.toList ++
+        doc.select("meta[property=title]").asScala.toList ++
+        doc.select("meta[name=og:title]").asScala.toList ++
+        doc.select("meta[property=og:title]").asScala.toList ++
+        doc.select("meta[name=twitter:title]").asScala.toList ++
+        doc.select("meta[property=twitter:title]").asScala.toList
+
+    val descriptions: List[String] =
+      elements.map(_.attr("content"))
+
+    (descriptions :+ doc.title())
+      .flatMap(nonEmpty)
+      .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
+      .headOption
+
+  def getDescription(doc: Document): Option[String] =
+
+    def nonEmpty(x: String): Option[String] =
+      Option(x).map(_.trim).filter(_.length > 0)
 
     val elements: List[Element] =
-      doc.select("head").asScala.toList ++
-        doc.select("meta[name=description]").asScala.toList ++
+      doc.select("meta[name=description]").asScala.toList ++
         doc.select("meta[property=description]").asScala.toList ++
         doc.select("meta[name=og:description]").asScala.toList ++
         doc.select("meta[property=og:description]").asScala.toList ++

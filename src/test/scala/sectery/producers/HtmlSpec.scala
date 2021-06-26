@@ -64,7 +64,7 @@ object HtmlSpec extends DefaultRunnableSpec:
           equalTo(
             Tx(
               "#foo",
-              "Some notes on the Scala language, libraries, and ecosystem."
+              "Notes on Scala"
             )
           )
         )
