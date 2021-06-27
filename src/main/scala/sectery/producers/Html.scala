@@ -53,10 +53,10 @@ object Html extends Producer:
       case _ =>
         ZIO.effectTotal(None)
 
-  def getTitle(doc: Document): Option[String] =
+  private def nonEmpty(x: String): Option[String] =
+    Option(x).map(_.trim).filter(_.length > 0)
 
-    def nonEmpty(x: String): Option[String] =
-      Option(x).map(_.trim).filter(_.length > 0)
+  def getTitle(doc: Document): Option[String] =
 
     val elements: List[Element] =
       doc.select("title").asScala.toList ++
@@ -67,18 +67,15 @@ object Html extends Producer:
         doc.select("meta[name=twitter:title]").asScala.toList ++
         doc.select("meta[property=twitter:title]").asScala.toList
 
-    val descriptions: List[String] =
+    val titles: List[String] =
       elements.map(_.attr("content"))
 
-    (descriptions :+ doc.title())
+    (titles :+ doc.title())
       .flatMap(nonEmpty)
       .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
       .headOption
 
   def getDescription(doc: Document): Option[String] =
-
-    def nonEmpty(x: String): Option[String] =
-      Option(x).map(_.trim).filter(_.length > 0)
 
     val elements: List[Element] =
       doc.select("meta[name=description]").asScala.toList ++
