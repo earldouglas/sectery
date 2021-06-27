@@ -1,32 +1,31 @@
 [![Build Status][build-badge]][build-link]
 
+[build-badge]: https://github.com/earldouglas/sectery/workflows/build/badge.svg "Build Status"
+[build-link]: https://github.com/earldouglas/sectery/actions "GitHub Actions"
+
 # Sectery
 
 Sectery is an digital assistant IRC bot.
 
-## Producer
+## Usage
 
-Message responses are coded in the [`Producer`][Producer.scala]
-implementations in the [`sectery.producers` package][sectery.producers].
+To run Sectery, you'll need API keys for
+[Finnhub](https://finnhub.io/docs/api), [Dark
+Sky](https://darksky.net/dev), and
+[AirNow](https://docs.airnowapi.org/).
 
-To add support for a new message response, write a new `Producer`
-implementation, and add it to the list of producers in
-[`Producer.producers`][Producer.scala].
+To start Sectery, first set a bunch of configuration variables, then run
+the main class with `sbt run`:
 
-[Producer.scala]: src/main/scala/sectery/Producer.scala
-[sectery.producers]: src/main/scala/sectery/producers/
-
-## References
-
-### PircBotX
-
-* https://github.com/pircbotx/pircbotx
-* https://pircbotx.github.io/pircbotx/2.2/apidocs/index.html
-
-### ZIO
-
-* https://zio.dev/docs/overview/overview_index
-* https://javadoc.io/doc/dev.zio/zio_2.12/1.0.8/zio/index.html
-
-[build-badge]: https://github.com/earldouglas/sectery/workflows/build/badge.svg "Build Status"
-[build-link]: https://github.com/earldouglas/sectery/actions "GitHub Actions"
+```
+$ export IRC_HOST=irc.libera.chat
+$ export IRC_PORT=7000
+$ export IRC_USER=my_nick
+$ export IRC_PASS=my_password
+$ export IRC_CHANNELS=#my_channel
+$ export FINNHUB_API_TOKEN=my_finnhub_api_token
+$ export DARK_SKY_API_KEY=my_dark_sky_api_key
+$ export AIRNOW_API_KEY=my_airnow_api_key
+$ export DATABASE_URL=postgress://username:password@host:port/dbname
+$ sbt run
+```
