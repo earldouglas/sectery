@@ -1,5 +1,8 @@
 [![Build Status][build-badge]][build-link]
 
+[build-badge]: https://github.com/earldouglas/sectery/workflows/build/badge.svg "Build Status"
+[build-link]: https://github.com/earldouglas/sectery/actions "GitHub Actions"
+
 # Sectery
 
 Sectery is an digital assistant IRC bot.
