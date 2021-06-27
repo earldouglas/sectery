@@ -15,9 +15,11 @@ implementations in the [`sectery.producers` package][sectery.producers].
 
 To add support for a new message response:
 
-1. Write a new `Producer` implementation, e.g.  [`Count`][Count.scala]
+1. Write a new [`Producer`][Producer.scala] implementation, e.g.
+   [`Count`][Count.scala]
 2. Write a test for it, e.g. [`CountSpec`][CountSpec.scala]
-3. Add it to the list of producers in [`Producer.producers`][Producer.producers]
+3. Add it to the list of producers in
+   [`Producer.producers`][Producer.producers]
 
 [Count.scala]: https://github.com/earldouglas/sectery/blob/d96e9bcb85816d8793fc6c10547feb5117a82ed1/src/main/scala/sectery/producers/Count.scala
 [CountSpec.scala]: https://github.com/earldouglas/sectery/blob/d96e9bcb85816d8793fc6c10547feb5117a82ed1/src/test/scala/sectery/producers/CountSpec.scala
