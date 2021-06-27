@@ -67,7 +67,7 @@ object Http:
         .openConnection()
         .asInstanceOf[HttpURLConnection]
 
-    c.setInstanceFollowRedirects(false)
+    c.setInstanceFollowRedirects(true)
     c.setRequestMethod(method)
     c.setDoInput(true)
     c.setDoOutput(body.isDefined)
