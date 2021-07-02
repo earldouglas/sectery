@@ -125,7 +125,7 @@ object DarkSky:
                   temperature = temperature,
                   temperatureHigh = temperatureHigh,
                   temperatureLow = temperatureLow,
-                  humidity = humidity,
+                  humidity = humidity * 100,
                   wind = windSpeed,
                   gusts = windGust,
                   uvIndex = uvIndex.toInt

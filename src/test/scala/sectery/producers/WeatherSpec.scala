@@ -87,7 +87,7 @@ object WeatherSpec extends DefaultRunnableSpec:
             List(
               Tx(
                 "#foo",
-                "San Francisco: 60° (low 53°, high 63°), humidity 1%, wind 6 mph, UV 0, O3 15 (Good), PM2.5 0 (Good)"
+                "San Francisco: 60° (low 53°, high 63°), humidity 96%, wind 6 mph, UV 0, O3 15 (Good), PM2.5 0 (Good)"
               )
             )
           )
