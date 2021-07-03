@@ -36,7 +36,9 @@ object Html extends Producer:
           .map {
             case Response(200, _, body) =>
               val doc: Document = Jsoup.parse(body)
-              getTitle(doc).map(d => Tx(c, d))
+              (getTitle(doc).toSeq ++ getDescription(doc).toSeq).map(
+                d => Tx(c, d)
+              )
             case r =>
               LoggerFactory
                 .getLogger(this.getClass())
@@ -49,7 +51,7 @@ object Html extends Producer:
               .error("caught exception", e)
             ZIO.effectTotal(None)
           }
-          .map(_.toIterable)
+          .map(_.iterator.to(Iterable))
       case _ =>
         ZIO.effectTotal(None)
 

@@ -59,7 +59,17 @@ object HtmlSpec extends DefaultRunnableSpec:
             )
           )
           _ <- TestClock.adjust(1.seconds)
-          m <- sent.take
-        yield assert(m)(equalTo(Tx("#foo", "Notes on Scala")))
+          ms <- sent.takeAll
+        yield assert(ms)(
+          equalTo(
+            List(
+              Tx("#foo", "Notes on Scala"),
+              Tx(
+                "#foo",
+                "Some notes on the Scala language, libraries, and ecosystem."
+              )
+            )
+          )
+        )
       } @@ timeout(2.seconds)
     )
