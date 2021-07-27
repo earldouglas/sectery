@@ -1,10 +1,10 @@
-val scala3Version = "3.0.0"
+val scala3Version = "3.0.1"
 val zioVersion = "1.0.9"
 
 val enableScalafix =
   List(
     scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0",
-    scalaVersion := "3.0.0",
+    scalaVersion := scala3Version,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     scalacOptions += "-Xlint:unused" // unsupported in Scala 3, but required by scalafix
