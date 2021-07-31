@@ -1,11 +1,12 @@
 package sectery
 
 import sectery.producers._
+import zio.Clock
+import zio.Has
 import zio.RIO
 import zio.UIO
 import zio.URIO
 import zio.ZIO
-import zio.clock.Clock
 
 case class Info(name: String, usage: String)
 
@@ -19,7 +20,7 @@ trait Producer:
   /** Run any initialization (e.g. run DDL) needed.
     */
   def init(): RIO[Producer.Env, Unit] =
-    ZIO.effectTotal(())
+    ZIO.succeed(())
 
   /** Reads an incoming message, and produces any number of responses.
     */
@@ -62,7 +63,7 @@ object Help {
 
 object Producer:
 
-  type Env = Db.Db with Http.Http with Clock
+  type Env = Db.Db with Http.Http with Has[Clock]
 
   private val producers: List[Producer] =
     Help(

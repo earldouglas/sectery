@@ -3,7 +3,6 @@ package sectery.producers
 import sectery._
 import zio.Inject._
 import zio._
-import zio.duration._
 import zio.test.Assertion.equalTo
 import zio.test.TestAspect._
 import zio.test._
@@ -22,7 +21,7 @@ object WeatherSpec extends DefaultRunnableSpec:
         ): UIO[Response] =
           url match
             case "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=san+francisco" =>
-              ZIO.effectTotal {
+              ZIO.succeed {
                 Response(
                   status = 200,
                   headers = Map.empty,
@@ -32,7 +31,7 @@ object WeatherSpec extends DefaultRunnableSpec:
                 )
               }
             case "https://api.darksky.net/forecast/alligator3/37.7790262,-122.419906" =>
-              ZIO.effectTotal {
+              ZIO.succeed {
                 Response(
                   status = 200,
                   headers = Map.empty,
@@ -42,7 +41,7 @@ object WeatherSpec extends DefaultRunnableSpec:
                 )
               }
             case "https://www.airnowapi.org/aq/observation/latLong/current/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3" =>
-              ZIO.effectTotal {
+              ZIO.succeed {
                 Response(
                   status = 200,
                   headers = Map.empty,
@@ -52,7 +51,7 @@ object WeatherSpec extends DefaultRunnableSpec:
                 )
               }
             case s"""https://www.airnowapi.org/aq/forecast/latLong/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3""" =>
-              ZIO.effectTotal {
+              ZIO.succeed {
                 Response(
                   status = 200,
                   headers = Map.empty,
@@ -62,7 +61,7 @@ object WeatherSpec extends DefaultRunnableSpec:
                 )
               }
             case _ =>
-              ZIO.effectTotal {
+              ZIO.succeed {
                 Response(
                   status = 404,
                   headers = Map.empty,
@@ -73,12 +72,12 @@ object WeatherSpec extends DefaultRunnableSpec:
 
   override def spec =
     suite(getClass().getName())(
-      testM("@wx produces weather") {
+      test("@wx produces weather") {
         for
           sent <- ZQueue.unbounded[Tx]
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(TestDb(), http)
+            .inject_(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@wx san francisco"))
           _ <- TestClock.adjust(1.seconds)
           ms <- sent.takeAll

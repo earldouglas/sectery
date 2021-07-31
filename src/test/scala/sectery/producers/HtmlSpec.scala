@@ -3,7 +3,6 @@ package sectery.producers
 import sectery._
 import zio.Inject._
 import zio._
-import zio.duration._
 import zio.test.Assertion.equalTo
 import zio.test.TestAspect._
 import zio.test._
@@ -12,7 +11,7 @@ import zio.test.environment.TestClock
 object HtmlSpec extends DefaultRunnableSpec:
   override def spec =
     suite(getClass().getName())(
-      testM("URL produces description from HTML") {
+      test("URL produces description from HTML") {
         for
           sent <- ZQueue.unbounded[Tx]
           http = sys.env.get("TEST_HTTP_LIVE") match
@@ -29,7 +28,7 @@ object HtmlSpec extends DefaultRunnableSpec:
                     ): UIO[Response] =
                       url match
                         case "https://earldouglas.com/posts/scala.html" =>
-                          ZIO.effectTotal {
+                          ZIO.succeed {
                             Response(
                               status = 200,
                               headers = Map.empty,
@@ -39,7 +38,7 @@ object HtmlSpec extends DefaultRunnableSpec:
                             )
                           }
                         case _ =>
-                          ZIO.effectTotal {
+                          ZIO.succeed {
                             Response(
                               status = 404,
                               headers = Map.empty,
@@ -50,7 +49,7 @@ object HtmlSpec extends DefaultRunnableSpec:
               http
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(TestDb(), http)
+            .inject_(TestDb(), http)
           _ <- inbox.offer(
             Rx(
               "#foo",

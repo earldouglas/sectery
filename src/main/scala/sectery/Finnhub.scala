@@ -60,13 +60,13 @@ class Finnhub(apiToken: String):
               current = c.toFloat,
               previousClose = pc.toFloat
             )
-          ZIO.effect(quote)
+          ZIO.attempt(quote)
         case _ =>
-          ZIO.effectTotal(None)
+          ZIO.succeed(None)
       }
       .catchAll { e =>
         LoggerFactory
           .getLogger(this.getClass())
           .error("caught exception", e)
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)
       }

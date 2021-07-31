@@ -11,10 +11,10 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
+import zio.Clock
 import zio.Has
 import zio.URIO
 import zio.ZIO
-import zio.clock.Clock
 
 object Html extends Producer:
 
@@ -49,11 +49,11 @@ object Html extends Producer:
             LoggerFactory
               .getLogger(this.getClass())
               .error("caught exception", e)
-            ZIO.effectTotal(None)
+            ZIO.succeed(None)
           }
           .map(_.iterator.to(Iterable))
       case _ =>
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)
 
   private def nonEmpty(x: String): Option[String] =
     Option(x).map(_.trim).filter(_.length > 0)

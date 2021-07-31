@@ -38,7 +38,7 @@ object Http:
             headers: Map[String, String],
             body: Option[String]
         ): Task[Response] =
-          ZIO.effect {
+          ZIO.attempt {
             Http.unsafeRequest(
               method = method,
               url = url,
@@ -54,7 +54,7 @@ object Http:
       headers: Map[String, String],
       body: Option[String]
   ): RIO[Http, Response] =
-    ZIO.accessM(_.get.request(method, url, headers, body))
+    ZIO.accessZIO(_.get.request(method, url, headers, body))
 
   def unsafeRequest(
       method: String,

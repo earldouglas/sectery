@@ -8,12 +8,12 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
+import zio.Clock
 import zio.Has
 import zio.Task
 import zio.UIO
 import zio.URIO
 import zio.ZIO
-import zio.clock.Clock
 
 class Stock(finnhubApiToken: String) extends Producer:
 
@@ -46,4 +46,4 @@ class Stock(finnhubApiToken: String) extends Producer:
           }
           .map(_.toIterable)
       case _ =>
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)

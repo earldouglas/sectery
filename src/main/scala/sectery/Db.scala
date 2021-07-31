@@ -26,8 +26,8 @@ object Db:
           DriverManager.getConnection(dbUrl, username, password)
 
         override def query[A](k: Connection => A): Task[A] =
-          ZIO.effect(k(conn))
+          ZIO.attempt(k(conn))
     }
 
   def query[A](k: Connection => A): RIO[Db, A] =
-    ZIO.accessM(_.get.query(k))
+    ZIO.accessZIO(_.get.query(k))

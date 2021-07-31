@@ -3,7 +3,6 @@ package sectery.producers
 import sectery._
 import zio.Inject._
 import zio._
-import zio.duration._
 import zio.test.Assertion.equalTo
 import zio.test.TestAspect._
 import zio.test._
@@ -22,7 +21,7 @@ object BtcSpec extends DefaultRunnableSpec:
         ): UIO[Response] =
           url match
             case "https://api.coindesk.com/v1/bpi/currentprice.json" =>
-              ZIO.effectTotal {
+              ZIO.succeed {
                 Response(
                   status = 200,
                   headers = Map.empty,
@@ -35,12 +34,12 @@ object BtcSpec extends DefaultRunnableSpec:
 
   override def spec =
     suite(getClass().getName())(
-      testM("@btc produces rate") {
+      test("@btc produces rate") {
         for
           sent <- ZQueue.unbounded[Tx]
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(TestDb(), http)
+            .inject_(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@btc"))
           _ <- TestClock.adjust(1.seconds)
           ms <- sent.takeAll

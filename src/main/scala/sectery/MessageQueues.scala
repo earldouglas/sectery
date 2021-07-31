@@ -8,8 +8,7 @@ import zio.UIO
 import zio.URIO
 import zio.ZIO
 import zio.ZQueue
-import zio.clock.Clock
-import zio.duration._
+import zio.durationInt
 
 /** A message received from IRC.
   */

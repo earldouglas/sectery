@@ -3,7 +3,6 @@ package sectery.producers
 import sectery._
 import zio.Inject._
 import zio._
-import zio.duration._
 import zio.test.Assertion.equalTo
 import zio.test.TestAspect._
 import zio.test._
@@ -12,12 +11,12 @@ import zio.test.environment.TestClock
 object SubstituteSpec extends DefaultRunnableSpec:
   override def spec =
     suite(getClass().getName())(
-      testM("s/bar/baz/ replaces bar with baz") {
+      test("s/bar/baz/ replaces bar with baz") {
         for
           sent <- ZQueue.unbounded[Tx]
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(TestDb(), TestHttp())
+            .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(
             Rx("#substitute", "foo", "I said bar first.")
           )

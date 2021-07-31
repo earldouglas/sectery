@@ -3,7 +3,6 @@ package sectery.producers
 import sectery._
 import zio.Inject._
 import zio._
-import zio.duration._
 import zio.test.Assertion.equalTo
 import zio.test.TestAspect._
 import zio.test._
@@ -22,7 +21,7 @@ object StockSpec extends DefaultRunnableSpec:
         ): UIO[Response] =
           url match
             case "https://finnhub.io/api/v1/quote?symbol=VOO&token=alligator3" =>
-              ZIO.effectTotal {
+              ZIO.succeed {
                 Response(
                   status = 200,
                   headers = Map.empty,
@@ -32,7 +31,7 @@ object StockSpec extends DefaultRunnableSpec:
                 )
               }
             case "https://finnhub.io/api/v1/quote?symbol=FOO&token=alligator3" =>
-              ZIO.effectTotal {
+              ZIO.succeed {
                 Response(
                   status = 200,
                   headers = Map.empty,
@@ -45,12 +44,12 @@ object StockSpec extends DefaultRunnableSpec:
 
   override def spec =
     suite(getClass().getName())(
-      testM("@stock VOO produces quote") {
+      test("@stock VOO produces quote") {
         for
           sent <- ZQueue.unbounded[Tx]
           inbox <- MessageQueues
             .loop(new MessageLogger(sent))
-            .inject(TestDb(), http)
+            .inject_(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@stock VOO"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock voo"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock FOO"))

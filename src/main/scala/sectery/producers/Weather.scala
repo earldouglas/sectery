@@ -16,10 +16,10 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
+import zio.Clock
 import zio.Has
 import zio.URIO
 import zio.ZIO
-import zio.clock.Clock
 
 object OSM:
 
@@ -42,7 +42,7 @@ object OSM:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.effect {
+        ZIO.attempt {
           val json = parse(body)
           (
             json(0) \ "display_name",
@@ -70,7 +70,7 @@ object OSM:
         LoggerFactory
           .getLogger(this.getClass())
           .error("caught exception", e)
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)
       }
 
 object DarkSky:
@@ -100,7 +100,7 @@ object DarkSky:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.effect {
+        ZIO.attempt {
           val json = parse(body)
           (
             json \ "currently" \ "temperature",
@@ -139,7 +139,7 @@ object DarkSky:
         LoggerFactory
           .getLogger(this.getClass())
           .error("caught exception", e)
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)
       }
 
 object AirNowObservation:
@@ -186,13 +186,13 @@ object AirNowObservation:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.effect(parseAqi(parse(body)))
+        ZIO.attempt(parseAqi(parse(body)))
       }
       .catchAll { e =>
         LoggerFactory
           .getLogger(this.getClass())
           .error("caught exception", e)
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)
       }
 
 object AirNowForecast:
@@ -251,13 +251,13 @@ object AirNowForecast:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.effect(parseAqi(parse(body)))
+        ZIO.attempt(parseAqi(parse(body)))
       }
       .catchAll { e =>
         LoggerFactory
           .getLogger(this.getClass())
           .error("caught exception", e)
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)
       }
 
 class Weather(darkSkyApiKey: String, airNowApiKey: String)
@@ -357,4 +357,4 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
             ZIO.succeed(List(Tx(c, s"I have no idea where ${q} is.")))
         }
       case _ =>
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)

@@ -16,8 +16,8 @@ object Version extends Producer:
   override def apply(m: Rx): UIO[Iterable[Tx]] =
     m match
       case Rx(channel, _, "@version") =>
-        ZIO.effectTotal(
+        ZIO.succeed(
           Some(Tx(channel, s"${BuildInfo.version}"))
         )
       case _ =>
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)

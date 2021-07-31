@@ -4,18 +4,19 @@ import sectery.Info
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
+import zio.Clock
+import zio.Has
 import zio.URIO
 import zio.ZIO
-import zio.clock.Clock
 
 object Ping extends Producer:
 
   override def help(): Iterable[Info] =
     Some(Info("@ping", "@ping"))
 
-  override def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
+  override def apply(m: Rx): URIO[Has[Clock], Iterable[Tx]] =
     m match
       case Rx(c, _, "@ping") =>
-        ZIO.effectTotal(Some(Tx(c, "pong")))
+        ZIO.succeed(Some(Tx(c, "pong")))
       case _ =>
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)

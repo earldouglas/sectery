@@ -15,10 +15,10 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
+import zio.Clock
 import zio.Has
 import zio.URIO
 import zio.ZIO
-import zio.clock.Clock
 
 object Btc extends Producer:
 
@@ -31,7 +31,7 @@ object Btc extends Producer:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.effect {
+        ZIO.attempt {
           val json = parse(body)
           json \ "bpi" \ "USD" \ "rate_float" match
             case JDouble(rate) =>
@@ -47,7 +47,7 @@ object Btc extends Producer:
         LoggerFactory
           .getLogger(this.getClass())
           .error("caught exception", e)
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)
       }
 
   override def help(): Iterable[Info] =
@@ -67,7 +67,7 @@ object Btc extends Producer:
               )
             )
           case None =>
-            ZIO.effectTotal(None)
+            ZIO.succeed(None)
         }
       case _ =>
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)

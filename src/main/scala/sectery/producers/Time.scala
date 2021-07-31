@@ -8,24 +8,25 @@ import sectery.Info
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
+import zio.Clock
+import zio.Has
 import zio.URIO
 import zio.ZIO
-import zio.clock.Clock
 
 object Time extends Producer:
 
   override def help(): Iterable[Info] =
     Some(Info("@time", "@time"))
 
-  override def apply(m: Rx): URIO[Clock, Iterable[Tx]] =
+  override def apply(m: Rx): URIO[Has[Clock], Iterable[Tx]] =
     m match
       case Rx(c, _, "@time") =>
         for
-          millis <- zio.clock.currentTime(TimeUnit.MILLISECONDS)
+          millis <- Clock.currentTime(TimeUnit.MILLISECONDS)
           date = new Date(millis)
           sdf = new SimpleDateFormat("EEE, d MMM yyyy, kk:mm zzz")
           _ = sdf.setTimeZone(TimeZone.getTimeZone("America/Phoenix"))
           pretty = sdf.format(date)
         yield Some(Tx(c, pretty))
       case _ =>
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)
