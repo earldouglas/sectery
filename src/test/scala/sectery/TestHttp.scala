@@ -24,7 +24,7 @@ object TestHttp:
             headers: Map[String, String],
             body: Option[String]
         ): UIO[Response] =
-          ZIO.effectTotal {
+          ZIO.succeed {
             Response(
               status = resStatus,
               headers = resHeaders,

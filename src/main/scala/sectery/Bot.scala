@@ -67,7 +67,7 @@ object Bot extends Sender:
     new PircBotX(config)
 
   override def send(m: Tx): UIO[Unit] =
-    ZIO.effectTotal(unsafeSend(m))
+    ZIO.succeed(unsafeSend(m))
 
   private def unsafeSend(m: Tx): Unit =
     bot.sendIRC.message(m.channel, m.message)

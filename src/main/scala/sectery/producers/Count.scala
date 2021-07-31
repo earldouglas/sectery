@@ -65,8 +65,8 @@ object Count extends Producer:
             LoggerFactory
               .getLogger(this.getClass())
               .error("caught exception", e)
-            ZIO.effectTotal(None)
+            ZIO.succeed(None)
           }
           .map(_.toIterable)
       case _ =>
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)

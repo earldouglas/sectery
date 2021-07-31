@@ -1,5 +1,6 @@
 package sectery
 
+import zio.durationInt
 import zio.Has
 import zio.Queue
 import zio.RIO
@@ -8,8 +9,6 @@ import zio.UIO
 import zio.URIO
 import zio.ZIO
 import zio.ZQueue
-import zio.clock.Clock
-import zio.duration._
 
 /** A message received from IRC.
   */

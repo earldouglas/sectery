@@ -8,10 +8,10 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
+import zio.Clock
 import zio.Has
 import zio.URIO
 import zio.ZIO
-import zio.clock.Clock
 
 object Eval extends Producer:
 
@@ -45,8 +45,8 @@ object Eval extends Producer:
             LoggerFactory
               .getLogger(this.getClass())
               .error("caught exception", e)
-            ZIO.effectTotal(None)
+            ZIO.succeed(None)
           }
           .map(_.toIterable)
       case _ =>
-        ZIO.effectTotal(None)
+        ZIO.succeed(None)

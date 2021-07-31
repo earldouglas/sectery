@@ -2,12 +2,12 @@ package sectery
 
 import org.slf4j.LoggerFactory
 import zio.App
+import zio.Clock
 import zio.ExitCode
 import zio.RIO
 import zio.URIO
 import zio.ZEnv
 import zio.ZIO
-import zio.clock.Clock
 
 object Sectery extends App:
 
@@ -19,7 +19,7 @@ object Sectery extends App:
     val go: RIO[Producer.Env, Unit] =
       for
         inbox <- MessageQueues.loop(Bot)
-        _ = Bot.receive = (m: Rx) => unsafeRunAsync_(inbox.offer(m))
+        _ = Bot.receive = (m: Rx) => unsafeRunAsync(inbox.offer(m))
         _ = Bot.start()
       yield ()
     go
@@ -28,7 +28,7 @@ object Sectery extends App:
         LoggerFactory
           .getLogger(this.getClass())
           .error("caught exception", e)
-        ZIO.effectTotal(())
+        ZIO.succeed(())
       }
       .map { _ =>
         ExitCode.failure // should never exit

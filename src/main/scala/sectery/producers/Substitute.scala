@@ -81,7 +81,7 @@ object Substitute extends Producer:
             LoggerFactory
               .getLogger(this.getClass())
               .error("caught exception", e)
-            ZIO.effectTotal(None)
+            ZIO.succeed(None)
           }
           .map(_.toIterable)
       case Rx(channel, nick, msg) =>
@@ -113,6 +113,6 @@ object Substitute extends Producer:
             LoggerFactory
               .getLogger(this.getClass())
               .error("caught exception", e)
-            ZIO.effectTotal(None)
+            ZIO.succeed(None)
           }
           .map(_.toIterable)
