@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import zio.App
 import zio.Clock
 import zio.ExitCode
+import zio.Fiber
 import zio.RIO
 import zio.URIO
 import zio.ZEnv
@@ -16,20 +17,18 @@ object Sectery extends App:
     *      [[Bot.receive]] 3. Connect to IRC
     */
   def run(args: List[String]): URIO[ZEnv, ExitCode] =
-    val go: RIO[Producer.Env, Unit] =
+    val go: RIO[Producer.Env, ExitCode] =
       for
-        inbox <- MessageQueues.loop(Bot)
+        (inbox, fibers) <- MessageQueues.loop(Bot)
         _ = Bot.receive = (m: Rx) => unsafeRunAsync(inbox.offer(m))
         _ = Bot.start()
-      yield ()
+        _ <- Fiber.joinAll(fibers)
+      yield ExitCode.failure // should never exit
     go
-      .provideLayer(ZEnv.any ++ Db.live ++ Http.live)
       .catchAll { e =>
         LoggerFactory
           .getLogger(this.getClass())
           .error("caught exception", e)
-        ZIO.succeed(())
+        ZIO.succeed(ExitCode.failure)
       }
-      .map { _ =>
-        ExitCode.failure // should never exit
-      }
+      .provideLayer(ZEnv.any ++ Db.live ++ Http.live)

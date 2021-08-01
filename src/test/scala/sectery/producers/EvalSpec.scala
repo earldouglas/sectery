@@ -17,7 +17,7 @@ object EvalSpec extends DefaultRunnableSpec:
           http = sys.env.get("TEST_HTTP_LIVE") match
             case Some("true") => Http.live
             case _            => TestHttp(200, Map.empty, "42")
-          inbox <- MessageQueues
+          (inbox, _) <- MessageQueues
             .loop(new MessageLogger(sent))
             .inject_(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@eval 6 * 7"))

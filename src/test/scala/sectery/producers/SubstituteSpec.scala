@@ -14,7 +14,7 @@ object SubstituteSpec extends DefaultRunnableSpec:
       test("s/bar/baz/ replaces bar with baz") {
         for
           sent <- ZQueue.unbounded[Tx]
-          inbox <- MessageQueues
+          (inbox, _) <- MessageQueues
             .loop(new MessageLogger(sent))
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(

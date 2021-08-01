@@ -14,7 +14,7 @@ object HelpSpec extends DefaultRunnableSpec:
       test("@help produces help") {
         for
           sent <- ZQueue.unbounded[Tx]
-          inbox <- MessageQueues
+          (inbox, _) <- MessageQueues
             .loop(new MessageLogger(sent))
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(Rx("#foo", "bar", "@help"))
