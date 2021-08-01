@@ -54,11 +54,8 @@ object MessageQueues:
       _ <- Producer.init()
       inbox <- ZQueue.unbounded[Rx]
       outbox <- ZQueue.unbounded[Tx]
-      fiber0 <- ZIO
-        .succeed(println("wat"))
-        .fork // throwaway effect -- since 2.0.0-M1, the first .fork in this for comprehension never runs for some unknown reason
       fiber1 <- produce(inbox, outbox).forever.fork
       fiber2 <- send(outbox, sender)
         .repeat(Schedule.spaced(250.milliseconds))
         .fork
-    yield (inbox, List(fiber0, fiber1, fiber2))
+    yield (inbox, List(fiber1, fiber2))

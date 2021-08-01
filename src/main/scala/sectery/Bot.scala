@@ -72,5 +72,5 @@ object Bot extends Sender:
   private def unsafeSend(m: Tx): Unit =
     bot.sendIRC.message(m.channel, m.message)
 
-  def start(): Unit =
-    bot.startBot()
+  def start(): UIO[Unit] =
+    ZIO.succeedBlocking(bot.startBot())
