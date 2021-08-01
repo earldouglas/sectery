@@ -21,7 +21,7 @@ object Sectery extends App:
       for
         (inbox, fibers) <- MessageQueues.loop(Bot)
         _ = Bot.receive = (m: Rx) => unsafeRunAsync(inbox.offer(m))
-        _ = Bot.start()
+        _ <- Bot.start()
         _ <- Fiber.joinAll(fibers)
       yield ExitCode.failure // should never exit
     go
