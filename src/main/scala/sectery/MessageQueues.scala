@@ -1,5 +1,6 @@
 package sectery
 
+import zio.Fiber
 import zio.Has
 import zio.Queue
 import zio.RIO
@@ -46,13 +47,18 @@ object MessageQueues:
       _ <- sender.send(message)
     yield ()
 
-  def loop(sender: Sender): RIO[Producer.Env, Queue[Rx]] =
+  def loop(
+      sender: Sender
+  ): RIO[Producer.Env, (Queue[Rx], List[Fiber[Nothing, Any]])] =
     for
       _ <- Producer.init()
       inbox <- ZQueue.unbounded[Rx]
       outbox <- ZQueue.unbounded[Tx]
-      _ <- produce(inbox, outbox).forever.fork
-      _ <- send(outbox, sender)
+      fiber0 <- ZIO
+        .succeed(println("wat"))
+        .fork // throwaway effect -- since 2.0.0-M1, the first .fork in this for comprehension never runs for some unknown reason
+      fiber1 <- produce(inbox, outbox).forever.fork
+      fiber2 <- send(outbox, sender)
         .repeat(Schedule.spaced(250.milliseconds))
         .fork
-    yield inbox
+    yield (inbox, List(fiber0, fiber1, fiber2))

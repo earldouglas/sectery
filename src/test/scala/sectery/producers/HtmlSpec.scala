@@ -47,7 +47,7 @@ object HtmlSpec extends DefaultRunnableSpec:
                           }
                 }
               http
-          inbox <- MessageQueues
+          (inbox, _) <- MessageQueues
             .loop(new MessageLogger(sent))
             .inject_(TestDb(), http)
           _ <- inbox.offer(

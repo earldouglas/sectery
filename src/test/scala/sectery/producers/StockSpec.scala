@@ -47,7 +47,7 @@ object StockSpec extends DefaultRunnableSpec:
       test("@stock VOO produces quote") {
         for
           sent <- ZQueue.unbounded[Tx]
-          inbox <- MessageQueues
+          (inbox, _) <- MessageQueues
             .loop(new MessageLogger(sent))
             .inject_(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@stock VOO"))
