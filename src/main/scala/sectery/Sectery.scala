@@ -17,18 +17,25 @@ object Sectery extends App:
     *      [[Bot.receive]] 3. Connect to IRC
     */
   def run(args: List[String]): URIO[ZEnv, ExitCode] =
-    val go: RIO[Producer.Env, ExitCode] =
+
+    val k1: RIO[Producer.Env, ExitCode] =
       for
         (inbox, fibers) <- MessageQueues.loop(Bot)
         _ = Bot.receive = (m: Rx) => unsafeRunAsync(inbox.offer(m))
         _ <- Bot.start()
         _ <- Fiber.joinAll(fibers)
       yield ExitCode.failure // should never exit
-    go
-      .catchAll { e =>
-        LoggerFactory
-          .getLogger(this.getClass())
-          .error("caught exception", e)
-        ZIO.succeed(ExitCode.failure)
-      }
-      .provideLayer(ZEnv.any ++ Db.live ++ Http.live)
+
+    val k0: URIO[Producer.Env, ExitCode] =
+      k1
+        .catchAll { e =>
+          LoggerFactory
+            .getLogger(this.getClass())
+            .error("caught exception", e)
+          ZIO.succeed(ExitCode.failure)
+        }
+
+    val k: URIO[ZEnv, ExitCode] =
+      k0.provideLayer(ZEnv.any ++ Db.live ++ Http.live)
+
+    k.forever
