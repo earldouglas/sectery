@@ -6,7 +6,7 @@ object Inject:
       z: ZIO[Has[R0] with Has[R1], E, A]
   )(implicit t: Tag[Has[R1]]):
     def inject_(r0: ULayer[Has[R0]]): ZIO[Has[R1], E, A] =
-      ZIO.fromFunctionZIO { r =>
+      ZIO.accessZIO { r =>
         z.provideLayer(r0 ++ ZLayer.succeedMany(r))
       }
 
@@ -17,7 +17,7 @@ object Inject:
         r0: ULayer[Has[R0]],
         r1: ULayer[Has[R1]]
     ): ZIO[Has[R2], E, A] =
-      ZIO.fromFunctionZIO { r =>
+      ZIO.accessZIO { r =>
         z.provideLayer(r0 ++ r1 ++ ZLayer.succeedMany(r))
       }
 
@@ -29,6 +29,6 @@ object Inject:
         r1: ULayer[Has[R1]],
         r2: ULayer[Has[R2]]
     ): ZIO[Has[R3], E, A] =
-      ZIO.fromFunctionZIO { r =>
+      ZIO.accessZIO { r =>
         z.provideLayer(r0 ++ r1 ++ r2 ++ ZLayer.succeedMany(r))
       }
