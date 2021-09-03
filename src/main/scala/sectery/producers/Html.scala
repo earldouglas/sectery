@@ -36,7 +36,7 @@ object Html extends Producer:
           .map {
             case Response(200, _, body) =>
               val doc: Document = Jsoup.parse(body)
-              (getTitle(doc).toSeq ++ getDescription(doc).toSeq).map(
+              (getTitle(doc).toSeq ++ getDescription(doc).toSet).map(
                 d => Tx(c, d)
               )
             case r =>
@@ -58,7 +58,7 @@ object Html extends Producer:
   private def nonEmpty(x: String): Option[String] =
     Option(x).map(_.trim).filter(_.length > 0)
 
-  def getTitle(doc: Document): Option[String] =
+  private def getTitle(doc: Document): Option[String] =
 
     val elements: List[Element] =
       doc.select("title").asScala.toList ++
@@ -77,7 +77,7 @@ object Html extends Producer:
       .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
       .headOption
 
-  def getDescription(doc: Document): Option[String] =
+  private def getDescription(doc: Document): Option[String] =
 
     val elements: List[Element] =
       doc.select("meta[name=description]").asScala.toList ++
@@ -90,7 +90,7 @@ object Html extends Producer:
     val descriptions: List[String] =
       elements.map(_.attr("content"))
 
-    (descriptions :+ doc.title())
+    descriptions
       .flatMap(nonEmpty)
       .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
       .headOption
