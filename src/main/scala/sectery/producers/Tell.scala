@@ -32,11 +32,11 @@ object Tell extends Producer:
       _ <- Db.query { conn =>
         val s =
           """|CREATE TABLE IF NOT EXISTS TELL (
-             |  `CHANNEL` VARCHAR(64) NOT NULL,
-             |  `FROM` VARCHAR(64) NOT NULL,
-             |  `TO` VARCHAR(64) NOT NULL,
-             |  `MESSAGE` VARCHAR(64) NOT NULL,
-             |  `TIMESTAMP` TIMESTAMP NOT NULL
+             |  _CHANNEL_ VARCHAR(64) NOT NULL,
+             |  _FROM_ VARCHAR(64) NOT NULL,
+             |  _TO_ VARCHAR(64) NOT NULL,
+             |  _MESSAGE_ VARCHAR(64) NOT NULL,
+             |  _TIMESTAMP_ TIMESTAMP NOT NULL
              |)
              |""".stripMargin
         val stmt = conn.createStatement
@@ -53,7 +53,7 @@ object Tell extends Producer:
           reply <- Db
             .query { conn =>
               val s =
-                "INSERT INTO TELL (`CHANNEL`, `FROM`, `TO`, `MESSAGE`, `TIMESTAMP`) VALUES (?, ?, ?, ?, ?)"
+                "INSERT INTO TELL (_CHANNEL_, _FROM_, _TO_, _MESSAGE_, _TIMESTAMP_) VALUES (?, ?, ?, ?, ?)"
               val stmt = conn.prepareStatement(s)
               stmt.setString(1, c)
               stmt.setString(2, from)
@@ -76,16 +76,16 @@ object Tell extends Producer:
           for
             messages <- Db.query { conn =>
               val s =
-                "SELECT `FROM`, `MESSAGE`, `TIMESTAMP` FROM TELL WHERE `CHANNEL` = ? AND `TO` = ?"
+                "SELECT _FROM_, _MESSAGE_, _TIMESTAMP_ FROM TELL WHERE _CHANNEL_ = ? AND _TO_ = ?"
               val stmt = conn.prepareStatement(s)
               stmt.setString(1, c)
               stmt.setString(2, nick)
               val rs = stmt.executeQuery()
               var msgs: List[Tx] = Nil
               while (rs.next()) {
-                val from = rs.getString("FROM")
-                val message = rs.getString("MESSAGE")
-                val timestamp = rs.getDate("TIMESTAMP")
+                val from = rs.getString("_FROM_")
+                val message = rs.getString("_MESSAGE_")
+                val timestamp = rs.getDate("_TIMESTAMP_")
                 msgs = Tx(
                   c,
                   s"${nick}: on ${timestamp}, ${from} said: ${message}"
@@ -96,7 +96,7 @@ object Tell extends Producer:
             }
             _ <- Db.query { conn =>
               val s =
-                "DELETE FROM TELL WHERE `CHANNEL` = ? AND `TO` = ?"
+                "DELETE FROM TELL WHERE _CHANNEL_ = ? AND _TO_ = ?"
               val stmt = conn.prepareStatement(s)
               stmt.setString(1, c)
               stmt.setString(2, nick)
