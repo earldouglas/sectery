@@ -62,12 +62,12 @@ object Html extends Producer:
 
     val elements: List[Element] =
       doc.select("title").asScala.toList ++
-        doc.select("meta[name=title]").asScala.toList ++
-        doc.select("meta[property=title]").asScala.toList ++
         doc.select("meta[name=og:title]").asScala.toList ++
         doc.select("meta[property=og:title]").asScala.toList ++
         doc.select("meta[name=twitter:title]").asScala.toList ++
-        doc.select("meta[property=twitter:title]").asScala.toList
+        doc.select("meta[property=twitter:title]").asScala.toList ++
+        doc.select("meta[name=title]").asScala.toList ++
+        doc.select("meta[property=title]").asScala.toList
 
     val titles: List[String] =
       elements.map(_.attr("content"))
@@ -80,12 +80,15 @@ object Html extends Producer:
   private def getDescription(doc: Document): Option[String] =
 
     val elements: List[Element] =
-      doc.select("meta[name=description]").asScala.toList ++
-        doc.select("meta[property=description]").asScala.toList ++
-        doc.select("meta[name=og:description]").asScala.toList ++
+      doc.select("meta[name=og:description]").asScala.toList ++
         doc.select("meta[property=og:description]").asScala.toList ++
         doc.select("meta[name=twitter:description]").asScala.toList ++
-        doc.select("meta[property=twitter:description]").asScala.toList
+        doc
+          .select("meta[property=twitter:description]")
+          .asScala
+          .toList ++
+        doc.select("meta[name=description]").asScala.toList ++
+        doc.select("meta[property=description]").asScala.toList
 
     val descriptions: List[String] =
       elements.map(_.attr("content"))
