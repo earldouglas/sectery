@@ -1,7 +1,7 @@
 package sectery.producers
 
-import java.sql.{Date => SqlDate}
-import java.util.Date
+import java.sql.Timestamp
+import java.util.concurrent.TimeUnit
 import org.slf4j.LoggerFactory
 import scala.util.matching.Regex
 import sectery.Db
@@ -10,6 +10,8 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
+import zio.Clock
+import zio.Has
 import zio.RIO
 import zio.URIO
 import zio.ZIO
@@ -44,7 +46,7 @@ object Substitute extends Producer:
       }
     yield ()
 
-  override def apply(m: Rx): URIO[Db.Db, Iterable[Tx]] =
+  override def apply(m: Rx): URIO[Db.Db with Has[Clock], Iterable[Tx]] =
     m match
       case Rx(channel, nick, sub(toReplace, withReplace)) =>
         val matcher: Regex = new Regex(s".*${toReplace}.*")
@@ -96,6 +98,7 @@ object Substitute extends Producer:
               stmt.executeUpdate
               stmt.close
             }
+            nowMillis <- Clock.currentTime(TimeUnit.MILLISECONDS)
             newCount <- Db.query { conn =>
               val s =
                 "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE, TIMESTAMP) VALUES (?, ?, ?, ?)"
@@ -103,7 +106,7 @@ object Substitute extends Producer:
               stmt.setString(1, channel)
               stmt.setString(2, nick)
               stmt.setString(3, msg)
-              stmt.setDate(4, new SqlDate((new Date()).getTime()))
+              stmt.setTimestamp(4, new Timestamp(nowMillis))
               stmt.executeUpdate
               stmt.close
             }
