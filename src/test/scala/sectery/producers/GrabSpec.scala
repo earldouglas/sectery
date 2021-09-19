@@ -21,6 +21,7 @@ object GrabSpec extends DefaultRunnableSpec:
           _ <- inbox.offer(Rx("#foo", "baz", "Howdy"))
           _ <- inbox.offer(Rx("#foo", "baz", "Hey"))
           _ <- inbox.offer(Rx("#foo", "bar", "@quote baz"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@grab bar"))
           _ <- inbox.offer(Rx("#foo", "bar", "@grab baz"))
           _ <- inbox.offer(Rx("#foo", "bar", "@quote baz"))
           _ <- TestClock.adjust(1.seconds)
@@ -30,6 +31,7 @@ object GrabSpec extends DefaultRunnableSpec:
             List(
               Tx("#foo", "baz hasn't said anything."),
               Tx("#foo", "baz hasn't said anything."),
+              Tx("#foo", "You can't grab yourself."),
               Tx("#foo", "Grabbed baz."),
               Tx("#foo", "<baz> Hey")
             )

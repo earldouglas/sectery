@@ -46,6 +46,10 @@ object Grab extends Producer:
 
   override def apply(m: Rx): URIO[Db.Db with Has[Clock], Iterable[Tx]] =
     m match
+      case Rx(c, from, grab(nick)) if from == nick =>
+        ZIO.succeed(
+          Some(Tx(c, "You can't grab yourself."))
+        )
       case Rx(c, _, grab(nick)) =>
         for
           now <- Clock.currentTime(TimeUnit.MILLISECONDS)
