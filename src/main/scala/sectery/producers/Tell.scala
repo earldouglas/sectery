@@ -76,7 +76,11 @@ object Tell extends Producer:
           for
             messages <- Db.query { conn =>
               val s =
-                "SELECT _FROM_, _MESSAGE_, _TIMESTAMP_ FROM TELL WHERE _CHANNEL_ = ? AND _TO_ = ?"
+                """|SELECT _FROM_, _MESSAGE_, _TIMESTAMP_
+                   |FROM TELL
+                   |WHERE _CHANNEL_ = ? AND _TO_ = ?
+                   |ORDER BY _TIMESTAMP_ DESC
+                   |""".stripMargin
               val stmt = conn.prepareStatement(s)
               stmt.setString(1, c)
               stmt.setString(2, nick)
@@ -92,7 +96,7 @@ object Tell extends Producer:
                 ) :: msgs
               }
               stmt.close
-              msgs.reverse
+              msgs
             }
             _ <- Db.query { conn =>
               val s =
