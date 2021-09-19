@@ -22,7 +22,7 @@ object TellSpec extends DefaultRunnableSpec:
           (inbox, _) <- MessageQueues
             .loop(new MessageLogger(sent))
             .inject_(TestDb(), TestHttp())
-          _ <- inbox.offer(Rx("#foo", "user1", "@tell user2 Howdy"))
+          _ <- inbox.offer(Rx("#foo", "user1", "@tell user2 Hi there!"))
           _ <- inbox.offer(Rx("#foo", "user2", "Hey"))
           _ <- TestClock.adjust(1.seconds)
           ms <- sent.takeAll
@@ -30,7 +30,7 @@ object TellSpec extends DefaultRunnableSpec:
           equalTo(
             List(
               Tx("#foo", "I will let them know."),
-              Tx("#foo", "user2: on 1970-02-11, user1 said: Howdy")
+              Tx("#foo", "user2: on 1970-02-11, user1 said: Hi there!")
             )
           )
         )
