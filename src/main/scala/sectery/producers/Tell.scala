@@ -1,6 +1,6 @@
 package sectery.producers
 
-import java.sql.Date
+import java.sql.Timestamp
 import java.util.concurrent.TimeUnit
 import org.slf4j.LoggerFactory
 import sectery.Db
@@ -59,7 +59,7 @@ object Tell extends Producer:
               stmt.setString(2, from)
               stmt.setString(3, to)
               stmt.setString(4, message)
-              stmt.setDate(5, new Date(now))
+              stmt.setTimestamp(5, new Timestamp(now))
               stmt.executeUpdate()
               stmt.close
               Some(Tx(c, "I will let them know."))
