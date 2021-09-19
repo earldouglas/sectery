@@ -81,7 +81,8 @@ object Producer:
         ),
         Btc,
         Version,
-        Tell
+        Tell,
+        LastMessage
       )
     )
 

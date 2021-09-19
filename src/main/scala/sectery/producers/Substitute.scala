@@ -27,25 +27,6 @@ object Substitute extends Producer:
   override def help(): Iterable[Info] =
     Some(Info("s///", "s/find/replace/"))
 
-  override def init(): RIO[Db.Db, Unit] =
-    for
-      _ <- Db.query { conn =>
-        val s =
-          """|CREATE TABLE IF NOT EXISTS
-             |LAST_MESSAGE(
-             |  CHANNEL VARCHAR(256) NOT NULL,
-             |  NICK VARCHAR(256) NOT NULL,
-             |  MESSAGE TEXT NOT NULL,
-             |  TIMESTAMP TIMESTAMP NOT NULL,
-             |  PRIMARY KEY (CHANNEL, NICK)
-             |)
-             |""".stripMargin
-        val stmt = conn.createStatement
-        stmt.executeUpdate(s)
-        stmt.close
-      }
-    yield ()
-
   override def apply(m: Rx): URIO[Db.Db with Has[Clock], Iterable[Tx]] =
     m match
       case Rx(channel, nick, sub(toReplace, withReplace)) =>
@@ -86,36 +67,5 @@ object Substitute extends Producer:
             ZIO.succeed(None)
           }
           .map(_.toIterable)
-      case Rx(channel, nick, msg) =>
-        val increment =
-          for
-            _ <- Db.query { conn =>
-              val s =
-                "DELETE FROM LAST_MESSAGE WHERE CHANNEL = ? AND NICK = ?"
-              val stmt = conn.prepareStatement(s)
-              stmt.setString(1, channel)
-              stmt.setString(2, nick)
-              stmt.executeUpdate
-              stmt.close
-            }
-            nowMillis <- Clock.currentTime(TimeUnit.MILLISECONDS)
-            newCount <- Db.query { conn =>
-              val s =
-                "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE, TIMESTAMP) VALUES (?, ?, ?, ?)"
-              val stmt = conn.prepareStatement(s)
-              stmt.setString(1, channel)
-              stmt.setString(2, nick)
-              stmt.setString(3, msg)
-              stmt.setTimestamp(4, new Timestamp(nowMillis))
-              stmt.executeUpdate
-              stmt.close
-            }
-          yield None
-        increment
-          .catchAll { e =>
-            LoggerFactory
-              .getLogger(this.getClass())
-              .error("caught exception", e)
-            ZIO.succeed(None)
-          }
-          .map(_.toIterable)
+      case _ =>
+        ZIO.succeed(None)
