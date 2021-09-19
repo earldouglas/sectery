@@ -17,7 +17,7 @@ import zio.ZIO
 
 object Tell extends Producer:
 
-  private val tell = """^@tell\s+(.+)\s+(.+)\s*$""".r
+  private val tell = """^@tell\s+([^\s]+)\s+(.+)\s*$""".r
 
   override def help(): Iterable[Info] =
     Some(
