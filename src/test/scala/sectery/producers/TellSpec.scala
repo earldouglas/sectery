@@ -15,13 +15,16 @@ object TellSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@tell leaves a message") {
         for
-          _ <- TestClock.setDateTime(
-            OffsetDateTime.of(1970, 2, 11, 0, 0, 0, 0, ZoneOffset.UTC)
-          )
+          _ <- TestClock.setDateTime {
+            val zo = OffsetDateTime.now().getOffset()
+            OffsetDateTime.of(1970, 2, 11, 0, 0, 0, 0, zo)
+          }
           sent <- ZQueue.unbounded[Tx]
           (inbox, _) <- MessageQueues
             .loop(new MessageLogger(sent))
             .inject_(TestDb(), TestHttp())
+          _ <- inbox.offer(Rx("#foo", "user1", "@tell user2 Howdy!"))
+          _ <- TestClock.adjust(1.days)
           _ <- inbox.offer(Rx("#foo", "user1", "@tell user2 Hi there!"))
           _ <- inbox.offer(Rx("#foo", "user2", "Hey"))
           _ <- TestClock.adjust(1.seconds)
@@ -30,7 +33,9 @@ object TellSpec extends DefaultRunnableSpec:
           equalTo(
             List(
               Tx("#foo", "I will let them know."),
-              Tx("#foo", "user2: on 1970-02-11, user1 said: Hi there!")
+              Tx("#foo", "I will let them know."),
+              Tx("#foo", "user2: on 1970-02-11, user1 said: Howdy!"),
+              Tx("#foo", "user2: on 1970-02-12, user1 said: Hi there!")
             )
           )
         )
