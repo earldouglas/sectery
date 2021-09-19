@@ -16,6 +16,13 @@ import zio.RIO
 import zio.URIO
 import zio.ZIO
 
+case class LastMessage(
+    channel: String,
+    nick: String,
+    message: String,
+    timestamp: Timestamp
+)
+
 object LastMessage extends Producer:
 
   override def help(): Iterable[Info] =
@@ -73,3 +80,73 @@ object LastMessage extends Producer:
         ZIO.succeed(None)
       }
       .map(_.toIterable)
+
+  def lastMessages(channel: String): URIO[Db.Db, List[LastMessage]] =
+    Db.query { conn =>
+      val s =
+        """|SELECT NICK, MESSAGE, TIMESTAMP
+           |FROM LAST_MESSAGE
+           |WHERE CHANNEL = ?
+           |ORDER BY TIMESTAMP DESC
+           |""".stripMargin
+      val stmt = conn.prepareStatement(s)
+      stmt.setString(1, channel)
+      val rs = stmt.executeQuery
+      var ms: List[LastMessage] = Nil
+      while (rs.next()) {
+        val nick = rs.getString("NICK")
+        val message = rs.getString("MESSAGE")
+        val timestamp = rs.getTimestamp("TIMESTAMP")
+        ms = LastMessage(
+          channel = channel,
+          nick = nick,
+          message = message,
+          timestamp = timestamp
+        ) :: ms
+      }
+      stmt.close
+      ms.reverse
+    }.catchAll { e =>
+      LoggerFactory
+        .getLogger(this.getClass())
+        .error("caught exception", e)
+      ZIO.succeed(Nil)
+    }.map(_.toIterable)
+
+  def lastMessage(
+      channel: String,
+      nick: String
+  ): URIO[Db.Db, Option[LastMessage]] =
+    Db.query { conn =>
+      val s =
+        """|SELECT MESSAGE, TIMESTAMP
+           |FROM LAST_MESSAGE
+           |WHERE CHANNEL = ?
+           |  AND NICK = ?
+           |ORDER BY TIMESTAMP DESC
+           |""".stripMargin
+      val stmt = conn.prepareStatement(s)
+      stmt.setString(1, channel)
+      stmt.setString(2, nick)
+      val rs = stmt.executeQuery
+      var mo: Option[LastMessage] = None
+      if (rs.next()) {
+        val message = rs.getString("MESSAGE")
+        val timestamp = rs.getTimestamp("TIMESTAMP")
+        mo = Some(
+          LastMessage(
+            channel = channel,
+            nick = nick,
+            message = message,
+            timestamp = timestamp
+          )
+        )
+      }
+      stmt.close
+      mo
+    }.catchAll { e =>
+      LoggerFactory
+        .getLogger(this.getClass())
+        .error("caught exception", e)
+      ZIO.succeed(None)
+    }

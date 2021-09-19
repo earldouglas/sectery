@@ -31,41 +31,13 @@ object Substitute extends Producer:
     m match
       case Rx(channel, nick, sub(toReplace, withReplace)) =>
         val matcher: Regex = new Regex(s".*${toReplace}.*")
-        val sub =
-          for
-            m <- Db.query { conn =>
-              val s =
-                """|SELECT NICK, MESSAGE
-                   |FROM LAST_MESSAGE
-                   |WHERE CHANNEL = ?
-                   |ORDER BY TIMESTAMP DESC
-                   |""".stripMargin
-              val stmt = conn.prepareStatement(s)
-              stmt.setString(1, channel)
-              val rs = stmt.executeQuery
-              var m: Option[(Nick, Msg)] = None
-              while (m.isEmpty && rs.next()) {
-                val nick = rs.getString("NICK")
-                val msg = rs.getString("MESSAGE")
-                if (matcher.matches(msg)) {
-                  m = Some((nick, msg))
-                }
-              }
-              stmt.close
-              m
-            }
-          yield m.map { case (nick, msg) =>
-            val replacedMsg: Msg =
-              msg.replaceAll(toReplace, withReplace)
-            Tx(channel, s"<${nick}> ${replacedMsg}")
-          }
-        sub
-          .catchAll { e =>
-            LoggerFactory
-              .getLogger(this.getClass())
-              .error("caught exception", e)
-            ZIO.succeed(None)
-          }
-          .map(_.toIterable)
+        for
+          ms <- LastMessage.lastMessages(channel)
+          mo = ms.find(m => matcher.matches(m.message))
+        yield mo map { m =>
+          val replacedMsg: Msg =
+            m.message.replaceAll(toReplace, withReplace)
+          Tx(channel, s"<${m.nick}> ${replacedMsg}")
+        }
       case _ =>
         ZIO.succeed(None)
