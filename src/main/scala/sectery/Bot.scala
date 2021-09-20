@@ -40,15 +40,16 @@ object Bot extends Sender:
           override def onGenericMessage(
               event: GenericMessageEvent
           ): Unit =
-            event match
-              case e: MessageEvent =>
-                val m =
-                  Rx(
-                    channel = e.getChannel().getName(),
-                    nick = e.getUser().getNick(),
-                    message = e.getMessage()
-                  )
-                receive(m)
+            if (event.getUser().getNick() != sys.env("IRC_USER"))
+              event match
+                case e: MessageEvent =>
+                  val m =
+                    Rx(
+                      channel = e.getChannel().getName(),
+                      nick = e.getUser().getNick(),
+                      message = e.getMessage()
+                    )
+                  receive(m)
           override def onJoin(
               event: JoinEvent
           ): Unit =
