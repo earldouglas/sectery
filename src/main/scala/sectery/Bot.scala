@@ -10,10 +10,8 @@ import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.types.GenericMessageEvent
 import scala.collection.JavaConverters._
 
-object Bot:
-
-  def apply(rx: Rx => Unit, tx: Tx => Unit): PircBotX =
-    val config: Configuration =
+class Bot(rx: Rx => Unit, tx: Tx => Unit)
+    extends PircBotX(
       new Configuration.Builder()
         .setSocketFactory(SSLSocketFactory.getDefault())
         .addCapHandler(
@@ -61,5 +59,4 @@ object Bot:
           }
         )
         .buildConfiguration()
-
-    new PircBotX(config)
+    )
