@@ -6,9 +6,11 @@ import zio.Clock
 import zio.ExitCode
 import zio.Fiber
 import zio.RIO
+import zio.Schedule
 import zio.URIO
 import zio.ZEnv
 import zio.ZIO
+import zio.durationInt
 
 object Sectery extends App:
 
@@ -24,10 +26,21 @@ object Sectery extends App:
 
     val k1: RIO[Producer.Env, ExitCode] =
       for
-        (inbox, fibers) <- MessageQueues.loop(Bot)
-        _ = Bot.receive = (m: Rx) => unsafeRunAsync(inbox.offer(m))
-        _ <- Bot.start()
-        _ <- Fiber.joinAll(fibers)
+        (inbox, outbox, loopFiber) <- MessageQueues.loop
+        bot = Bot(
+          (m: Rx) => unsafeRunAsync(inbox.offer(m)),
+          (m: Tx) => unsafeRunAsync(outbox.offer(m))
+        )
+        _ <- ZIO.attemptBlocking(bot.startBot())
+        outboxFiber <- (
+          for
+            m <- outbox.take
+            _ <- ZIO.attempt {
+              bot.sendIRC.message(m.channel, m.message)
+            }
+          yield ()
+        ).repeat(Schedule.spaced(250.milliseconds)).fork
+        _ <- Fiber.joinAll(List(loopFiber, outboxFiber))
       yield ExitCode.failure // should never exit
 
     val k0: URIO[Producer.Env, ExitCode] =

@@ -74,13 +74,11 @@ object WeatherSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@wx produces weather") {
         for
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@wx san francisco"))
           _ <- TestClock.adjust(1.seconds)
-          ms <- sent.takeAll
+          ms <- outbox.takeAll
         yield assert(ms)(
           equalTo(
             List(

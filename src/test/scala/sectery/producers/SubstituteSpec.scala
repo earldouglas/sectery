@@ -13,9 +13,7 @@ object SubstituteSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("s/bar/baz/ replaces bar with baz") {
         for
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(
             Rx("#substitute", "foo", "I said bar first.")
@@ -43,7 +41,7 @@ object SubstituteSpec extends DefaultRunnableSpec:
           ) // timestamps in db need to differ by at least a millisecond
           _ <- inbox.offer(Rx("#substitute", "qux", "s/bar/baz/"))
           _ <- TestClock.adjust(1.seconds)
-          m <- sent.take
+          m <- outbox.take
         yield assert(m)(
           equalTo(Tx("#substitute", "<baz> I said baz third."))
         )

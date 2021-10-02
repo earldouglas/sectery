@@ -13,9 +13,7 @@ object GrabSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@count produces count") {
         for
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(Rx("#foo", "bar", "@grab baz"))
           _ <- inbox.offer(Rx("#foo", "baz", "Howdy"))
@@ -25,7 +23,7 @@ object GrabSpec extends DefaultRunnableSpec:
           _ <- inbox.offer(Rx("#foo", "bar", "@grab baz"))
           _ <- inbox.offer(Rx("#foo", "bar", "@quote baz"))
           _ <- TestClock.adjust(1.seconds)
-          ms <- sent.takeAll
+          ms <- outbox.takeAll
         yield assert(ms)(
           equalTo(
             List(

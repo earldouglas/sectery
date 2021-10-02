@@ -13,15 +13,13 @@ object CountSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@count produces count") {
         for
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(Rx("#foo", "bar", "@count"))
           _ <- inbox.offer(Rx("#foo", "bar", "@count"))
           _ <- inbox.offer(Rx("#foo", "bar", "@count"))
           _ <- TestClock.adjust(1.seconds)
-          ms <- sent.takeAll
+          ms <- outbox.takeAll
         yield assert(ms)(
           equalTo(
             List(Tx("#foo", "1"), Tx("#foo", "2"), Tx("#foo", "3"))

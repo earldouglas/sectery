@@ -36,13 +36,11 @@ object BtcSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@btc produces rate") {
         for
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@btc"))
           _ <- TestClock.adjust(1.seconds)
-          ms <- sent.takeAll
+          ms <- outbox.takeAll
         yield assert(ms)(equalTo(List(Tx("#foo", "$39,193.03"))))
       } @@ timeout(2.seconds)
     )

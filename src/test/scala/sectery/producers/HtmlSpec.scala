@@ -13,7 +13,7 @@ object HtmlSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("URL produces description from HTML") {
         for
-          sent <- ZQueue.unbounded[Tx]
+          _ <- ZIO.succeed(())
           http = sys.env.get("TEST_HTTP_LIVE") match
             case Some("true") => Http.live
             case _ =>
@@ -47,8 +47,7 @@ object HtmlSpec extends DefaultRunnableSpec:
                           }
                 }
               http
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), http)
           _ <- inbox.offer(
             Rx(
@@ -58,7 +57,7 @@ object HtmlSpec extends DefaultRunnableSpec:
             )
           )
           _ <- TestClock.adjust(1.seconds)
-          ms <- sent.takeAll
+          ms <- outbox.takeAll
         yield assert(ms)(
           equalTo(
             List(

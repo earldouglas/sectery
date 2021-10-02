@@ -13,13 +13,11 @@ object PingSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@ping produces pong") {
         for
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(Rx("#foo", "bar", "@ping"))
           _ <- TestClock.adjust(1.seconds)
-          m <- sent.take
+          m <- outbox.take
         yield assert(m)(equalTo(Tx("#foo", "pong")))
       } @@ timeout(2.seconds)
     )

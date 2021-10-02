@@ -46,17 +46,15 @@ object StockSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@stock VOO produces quote") {
         for
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@stock VOO"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock voo"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock FOO"))
           _ <- TestClock.adjust(1.seconds)
-          m1 <- sent.take
-          m2 <- sent.take
-          m3 <- sent.take
+          m1 <- outbox.take
+          m2 <- outbox.take
+          m3 <- outbox.take
         yield assert((m1, m2, m3))(
           equalTo(
             (
