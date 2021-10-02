@@ -12,9 +12,13 @@ import zio.ZIO
 
 object Sectery extends App:
 
-  /**   1. Spin up the message queues using [[Bot]] as the [[Sender]] 2.
-    *      Asynchronously process received messages through
-    *      [[Bot.receive]] 3. Connect to IRC
+  /** This is the main entry point for the application. Set your env
+    * vars, then run this main method.
+    *
+    *   1. Spin up the message queues using [[Bot]] as the [[Sender]]
+    *   1. Asynchronously process received messages through
+    *      [[Bot.receive]]
+    *   1. Connect to IRC
     */
   def run(args: List[String]): URIO[ZEnv, ExitCode] =
 
