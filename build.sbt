@@ -1,5 +1,5 @@
 val scala3Version = "3.0.1"
-val zioVersion = "2.0.0-M2"
+val zioVersion = "2.0.0-M3"
 
 val enableScalafix =
   List(
