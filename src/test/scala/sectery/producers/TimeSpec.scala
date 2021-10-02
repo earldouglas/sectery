@@ -11,7 +11,7 @@ import zio.test.environment.TestClock
 object TimeSpec extends DefaultRunnableSpec:
   override def spec =
     suite(getClass().getName())(
-      test("@time produces time") {
+      test("@time produces server time") {
         for
           (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
@@ -21,6 +21,46 @@ object TimeSpec extends DefaultRunnableSpec:
           m <- outbox.take
         yield assert(m)(
           equalTo(Tx("#foo", "Wed, 14 Jan 1970, 23:56 MST"))
+        )
+      } @@ timeout(2.seconds),
+      test("@time PST produces time in PST") {
+        for
+          (inbox, outbox, _) <- MessageQueues.loop
+            .inject_(TestDb(), TestHttp())
+          _ <- TestClock.setTime(1234567890.millis)
+          _ <- inbox.offer(Rx("#foo", "bar", "@time PST"))
+          _ <- TestClock.adjust(1.seconds)
+          m <- outbox.take
+        yield assert(m)(
+          equalTo(Tx("#foo", "Wed, 14 Jan 1970, 22:56 PST"))
+        )
+      } @@ timeout(2.seconds),
+      test("@time GMT-8 produces time in GMT-8") {
+        for
+          (inbox, outbox, _) <- MessageQueues.loop
+            .inject_(TestDb(), TestHttp())
+          _ <- TestClock.setTime(1234567890.millis)
+          _ <- inbox.offer(Rx("#foo", "bar", "@time GMT-8"))
+          _ <- TestClock.adjust(1.seconds)
+          m <- outbox.take
+        yield assert(m)(
+          equalTo(Tx("#foo", "Wed, 14 Jan 1970, 22:56 GMT-08:00"))
+        )
+      } @@ timeout(2.seconds),
+      test(
+        "@time America/Los_Angeles produces time in America/Los_Angeles"
+      ) {
+        for
+          (inbox, outbox, _) <- MessageQueues.loop
+            .inject_(TestDb(), TestHttp())
+          _ <- TestClock.setTime(1234567890.millis)
+          _ <- inbox.offer(
+            Rx("#foo", "bar", "@time America/Los_Angeles")
+          )
+          _ <- TestClock.adjust(1.seconds)
+          m <- outbox.take
+        yield assert(m)(
+          equalTo(Tx("#foo", "Wed, 14 Jan 1970, 22:56 PST"))
         )
       } @@ timeout(2.seconds)
     )
