@@ -31,7 +31,7 @@ object Sectery extends App:
           (m: Rx) => unsafeRunAsync(inbox.offer(m)),
           (m: Tx) => unsafeRunAsync(outbox.offer(m))
         )
-        _ <- ZIO.attemptBlocking(bot.startBot())
+        botFiber <- ZIO.attemptBlocking(bot.startBot()).fork
         outboxFiber <- (
           for
             m <- outbox.take
@@ -40,7 +40,7 @@ object Sectery extends App:
             }
           yield ()
         ).repeat(Schedule.spaced(250.milliseconds)).fork
-        _ <- Fiber.joinAll(List(loopFiber, outboxFiber))
+        _ <- Fiber.joinAll(List(loopFiber, outboxFiber, botFiber))
       yield ExitCode.failure // should never exit
 
     val k0: URIO[Producer.Env, ExitCode] =
