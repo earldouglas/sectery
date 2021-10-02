@@ -13,14 +13,12 @@ object TimeSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@time produces time") {
         for
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- TestClock.setTime(1234567890.millis)
           _ <- inbox.offer(Rx("#foo", "bar", "@time"))
           _ <- TestClock.adjust(1.seconds)
-          m <- sent.take
+          m <- outbox.take
         yield assert(m)(
           equalTo(Tx("#foo", "Wed, 14 Jan 1970, 23:56 MST"))
         )

@@ -13,13 +13,11 @@ object VersionSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@version produces version") {
         for
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(Rx("#foo", "bar", "@version"))
           _ <- TestClock.adjust(1.seconds)
-          m <- sent.take
+          m <- outbox.take
         yield assert(m.message)(
           matchesRegex("^[0-9a-f]{40}(-SNAPSHOT)?$")
         )

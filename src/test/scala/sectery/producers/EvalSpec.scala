@@ -13,16 +13,15 @@ object EvalSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@eval produces result") {
         for
-          sent <- ZQueue.unbounded[Tx]
+          _ <- ZIO.succeed(())
           http = sys.env.get("TEST_HTTP_LIVE") match
             case Some("true") => Http.live
             case _            => TestHttp(200, Map.empty, "42")
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), http)
           _ <- inbox.offer(Rx("#foo", "bar", "@eval 6 * 7"))
           _ <- TestClock.adjust(1.seconds)
-          m <- sent.take
+          m <- outbox.take
         yield assert(m)(equalTo(Tx("#foo", "42")))
       } @@ timeout(2.seconds)
     )

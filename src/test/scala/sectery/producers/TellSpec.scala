@@ -19,16 +19,14 @@ object TellSpec extends DefaultRunnableSpec:
             val zo = OffsetDateTime.now().getOffset()
             OffsetDateTime.of(1970, 2, 11, 0, 0, 0, 0, zo)
           }
-          sent <- ZQueue.unbounded[Tx]
-          (inbox, _) <- MessageQueues
-            .loop(new MessageLogger(sent))
+          (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(Rx("#foo", "user1", "@tell user2 Howdy!"))
           _ <- TestClock.adjust(1.days)
           _ <- inbox.offer(Rx("#foo", "user1", "@tell user2 Hi there!"))
           _ <- inbox.offer(Rx("#foo", "user2", "Hey"))
           _ <- TestClock.adjust(1.seconds)
-          ms <- sent.takeAll
+          ms <- outbox.takeAll
         yield assert(ms)(
           equalTo(
             List(
