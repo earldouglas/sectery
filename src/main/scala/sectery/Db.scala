@@ -2,6 +2,7 @@ package sectery
 
 import java.net.URI
 import java.sql._
+import org.slf4j.LoggerFactory
 import zio._
 
 object Db:
@@ -26,7 +27,20 @@ object Db:
           DriverManager.getConnection(dbUrl, username, password)
 
         override def query[A](k: Connection => A): Task[A] =
-          ZIO.attempt(k(conn))
+          ZIO
+            .attempt {
+              conn.setAutoCommit(false)
+              val result: A = k(conn)
+              conn.commit()
+              result
+            }
+            .catchAll { e =>
+              LoggerFactory
+                .getLogger(this.getClass())
+                .warn("caught exception; rolling back transaction", e)
+              conn.rollback()
+              ZIO.fail(e)
+            }
     }
 
   def query[A](k: Connection => A): RIO[Db, A] =
