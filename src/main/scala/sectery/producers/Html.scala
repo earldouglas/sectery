@@ -13,7 +13,7 @@ import sectery.Rx
 import sectery.Tx
 import zio.Clock
 import zio.Has
-import zio.URIO
+import zio.RIO
 import zio.ZIO
 
 object Html extends Producer:
@@ -23,7 +23,7 @@ object Html extends Producer:
   override def help(): Iterable[Info] =
     None
 
-  override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, url(url)) =>
         Http
@@ -45,13 +45,6 @@ object Html extends Producer:
                 .error(s"unexpected response: ${r}")
               None
           }
-          .catchAll { e =>
-            LoggerFactory
-              .getLogger(this.getClass())
-              .error("caught exception", e)
-            ZIO.succeed(None)
-          }
-          .map(_.iterator.to(Iterable))
       case _ =>
         ZIO.succeed(None)
 

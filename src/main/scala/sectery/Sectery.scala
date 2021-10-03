@@ -45,10 +45,10 @@ object Sectery extends App:
 
     val k0: URIO[Producer.Env, ExitCode] =
       k1
-        .catchAll { e =>
+        .catchAllCause { cause =>
           LoggerFactory
             .getLogger(this.getClass())
-            .error("caught exception", e)
+            .error(cause.prettyPrint)
           ZIO.succeed(ExitCode.failure)
         }
 

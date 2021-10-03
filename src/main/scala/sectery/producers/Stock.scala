@@ -1,6 +1,5 @@
 package sectery.producers
 
-import org.slf4j.LoggerFactory
 import sectery.Finnhub
 import sectery.Http
 import sectery.Info
@@ -10,9 +9,9 @@ import sectery.Rx
 import sectery.Tx
 import zio.Clock
 import zio.Has
+import zio.RIO
 import zio.Task
 import zio.UIO
-import zio.URIO
 import zio.ZIO
 
 class Stock(finnhubApiToken: String) extends Producer:
@@ -25,7 +24,7 @@ class Stock(finnhubApiToken: String) extends Producer:
   override def help(): Iterable[Info] =
     Some(Info("@stock", "@stock <symbol>, e.g. @stock GME"))
 
-  override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, stock(symbol)) =>
         finnhub

@@ -4,13 +4,12 @@ import org.json4s.JsonDSL._
 import org.json4s.MonadicJValue.jvalueToMonadic
 import org.json4s._
 import org.json4s.native.JsonMethods._
-import org.slf4j.LoggerFactory
 import scala.util.Try
 import sectery.Http
 import zio.Has
+import zio.RIO
 import zio.Task
 import zio.ULayer
-import zio.URIO
 import zio.ZIO
 import zio.ZLayer
 
@@ -32,7 +31,7 @@ class Finnhub(apiToken: String):
       case JLong(x)    => Some(x.toFloat)
       case _           => None
 
-  def quote(symbol: String): URIO[Http.Http, Option[Quote]] =
+  def quote(symbol: String): RIO[Http.Http, Option[Quote]] =
     Http
       .request(
         method = "GET",
@@ -63,10 +62,4 @@ class Finnhub(apiToken: String):
           ZIO.attempt(quote)
         case _ =>
           ZIO.succeed(None)
-      }
-      .catchAll { e =>
-        LoggerFactory
-          .getLogger(this.getClass())
-          .error("caught exception", e)
-        ZIO.succeed(None)
       }

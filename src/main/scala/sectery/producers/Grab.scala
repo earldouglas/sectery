@@ -2,7 +2,6 @@ package sectery.producers
 
 import java.sql.Timestamp
 import java.util.concurrent.TimeUnit
-import org.slf4j.LoggerFactory
 import sectery.Db
 import sectery.Info
 import sectery.Producer
@@ -12,7 +11,6 @@ import zio.Clock
 import zio.Has
 import zio.RIO
 import zio.UIO
-import zio.URIO
 import zio.ZIO
 
 object Grab extends Producer:
@@ -44,7 +42,7 @@ object Grab extends Producer:
       }
     yield ()
 
-  override def apply(m: Rx): URIO[Db.Db with Has[Clock], Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
     m match
       case Rx(c, from, grab(nick)) if from == nick =>
         ZIO.succeed(
@@ -71,11 +69,6 @@ object Grab extends Producer:
                   stmt.executeUpdate()
                   stmt.close
                   Some(Tx(c, s"Grabbed ${nick}."))
-                }.catchAll { e =>
-                  LoggerFactory
-                    .getLogger(this.getClass())
-                    .error("caught exception", e)
-                  ZIO.succeed(None)
                 }
               case None =>
                 ZIO.succeed(
@@ -97,7 +90,7 @@ object Grab extends Producer:
   private def randomGrabbedMessage(
       channel: String,
       nick: String
-  ): URIO[Db.Db, Option[String]] =
+  ): RIO[Db.Db, Option[String]] =
     Db.query { conn =>
       val s =
         """|SELECT MESSAGE
@@ -118,9 +111,4 @@ object Grab extends Producer:
       }
       stmt.close
       mo
-    }.catchAll { e =>
-      LoggerFactory
-        .getLogger(this.getClass())
-        .error("caught exception", e)
-      ZIO.succeed(None)
     }

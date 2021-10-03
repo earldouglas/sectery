@@ -37,7 +37,7 @@ object Db:
             .catchAll { e =>
               LoggerFactory
                 .getLogger(this.getClass())
-                .warn("caught exception; rolling back transaction", e)
+                .error("rolling back transaction")
               conn.rollback()
               ZIO.fail(e)
             }
