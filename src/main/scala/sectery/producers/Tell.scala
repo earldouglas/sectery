@@ -2,7 +2,6 @@ package sectery.producers
 
 import java.sql.Timestamp
 import java.util.concurrent.TimeUnit
-import org.slf4j.LoggerFactory
 import sectery.Db
 import sectery.Info
 import sectery.Producer
@@ -12,7 +11,6 @@ import zio.Clock
 import zio.Has
 import zio.RIO
 import zio.UIO
-import zio.URIO
 import zio.ZIO
 
 object Tell extends Producer:
@@ -45,7 +43,7 @@ object Tell extends Producer:
       }
     yield ()
 
-  override def apply(m: Rx): URIO[Db.Db with Has[Clock], Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
     m match
       case Rx(c, from, tell(to, message)) =>
         for {
@@ -63,12 +61,6 @@ object Tell extends Producer:
               stmt.executeUpdate()
               stmt.close
               Some(Tx(c, "I will let them know."))
-            }
-            .catchAll { e =>
-              LoggerFactory
-                .getLogger(this.getClass())
-                .error("caught exception", e)
-              ZIO.succeed(None)
             }
         } yield reply
       case Rx(c, nick, _) =>
@@ -109,9 +101,3 @@ object Tell extends Producer:
             }
           yield messages
         increment
-          .catchAll { e =>
-            LoggerFactory
-              .getLogger(this.getClass())
-              .error("caught exception", e)
-            ZIO.succeed(None)
-          }

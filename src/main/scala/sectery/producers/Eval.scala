@@ -10,7 +10,7 @@ import sectery.Rx
 import sectery.Tx
 import zio.Clock
 import zio.Has
-import zio.URIO
+import zio.RIO
 import zio.ZIO
 
 object Eval extends Producer:
@@ -20,7 +20,7 @@ object Eval extends Producer:
   override def help(): Iterable[Info] =
     Some(Info("@eval", "@eval <expression>, e.g. @eval 6 * 7"))
 
-  override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, eval(expr)) =>
         val encExpr = URLEncoder.encode(expr, "UTF-8")
@@ -41,12 +41,5 @@ object Eval extends Producer:
                 .error(s"unexpected response: ${r}")
               None
           }
-          .catchAll { e =>
-            LoggerFactory
-              .getLogger(this.getClass())
-              .error("caught exception", e)
-            ZIO.succeed(None)
-          }
-          .map(_.toIterable)
       case _ =>
         ZIO.succeed(None)

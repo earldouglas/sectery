@@ -1,5 +1,6 @@
 package sectery
 
+import org.slf4j.LoggerFactory
 import sectery.producers._
 import zio.Clock
 import zio.Has
@@ -24,7 +25,7 @@ trait Producer:
 
   /** Reads an incoming message, and produces any number of responses.
     */
-  def apply(m: Rx): URIO[Producer.Env, Iterable[Tx]]
+  def apply(m: Rx): RIO[Producer.Env, Iterable[Tx]]
 
 class Help(producers: List[Producer]) extends Producer:
 
@@ -92,5 +93,13 @@ object Producer:
 
   def apply(m: Rx): URIO[Env, Iterable[Tx]] =
     ZIO.foldLeft(producers)(List.empty) { (txs, p) =>
-      p.apply(m).map(_.toList).map(_ ++ txs)
+      p.apply(m)
+        .catchAllCause { cause =>
+          LoggerFactory
+            .getLogger(this.getClass())
+            .error(cause.prettyPrint)
+          ZIO.succeed(None)
+        }
+        .map(_.iterator.to(List))
+        .map(_ ++ txs)
     }

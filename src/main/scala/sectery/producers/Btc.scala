@@ -17,12 +17,12 @@ import sectery.Rx
 import sectery.Tx
 import zio.Clock
 import zio.Has
-import zio.URIO
+import zio.RIO
 import zio.ZIO
 
 object Btc extends Producer:
 
-  private val findRate: URIO[Http.Http, Option[Double]] =
+  private val findRate: RIO[Http.Http, Option[Double]] =
     Http
       .request(
         method = "GET",
@@ -43,17 +43,11 @@ object Btc extends Producer:
               None
         }
       }
-      .catchAll { e =>
-        LoggerFactory
-          .getLogger(this.getClass())
-          .error("caught exception", e)
-        ZIO.succeed(None)
-      }
 
   override def help(): Iterable[Info] =
     Some(Info("@btc", "@btc"))
 
-  override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, "@btc") =>
         findRate.flatMap {

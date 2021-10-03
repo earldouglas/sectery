@@ -18,7 +18,7 @@ import sectery.Rx
 import sectery.Tx
 import zio.Clock
 import zio.Has
-import zio.URIO
+import zio.RIO
 import zio.ZIO
 
 object OSM:
@@ -30,7 +30,7 @@ object OSM:
       lon: Double
   )
 
-  def findPlace(q: String): URIO[Http.Http, Option[Place]] =
+  def findPlace(q: String): RIO[Http.Http, Option[Place]] =
     val qEnc = URLEncoder.encode(q, "UTF-8")
     Http
       .request(
@@ -66,12 +66,6 @@ object OSM:
               None
         }
       }
-      .catchAll { e =>
-        LoggerFactory
-          .getLogger(this.getClass())
-          .error("caught exception", e)
-        ZIO.succeed(None)
-      }
 
 object DarkSky:
 
@@ -89,7 +83,7 @@ object DarkSky:
       apiKey: String,
       lat: Double,
       lon: Double
-  ): URIO[Http.Http, Option[Forecast]] =
+  ): RIO[Http.Http, Option[Forecast]] =
     Http
       .request(
         method = "GET",
@@ -135,12 +129,6 @@ object DarkSky:
               None
         }
       }
-      .catchAll { e =>
-        LoggerFactory
-          .getLogger(this.getClass())
-          .error("caught exception", e)
-        ZIO.succeed(None)
-      }
 
 object AirNowObservation:
 
@@ -175,7 +163,7 @@ object AirNowObservation:
       apiKey: String,
       lat: Double,
       lon: Double
-  ): URIO[Http.Http, Option[Aqi]] =
+  ): RIO[Http.Http, Option[Aqi]] =
     Http
       .request(
         method = "GET",
@@ -187,12 +175,6 @@ object AirNowObservation:
       )
       .flatMap { case Response(200, _, body) =>
         ZIO.attempt(parseAqi(parse(body)))
-      }
-      .catchAll { e =>
-        LoggerFactory
-          .getLogger(this.getClass())
-          .error("caught exception", e)
-        ZIO.succeed(None)
       }
 
 object AirNowForecast:
@@ -240,7 +222,7 @@ object AirNowForecast:
       apiKey: String,
       lat: Double,
       lon: Double
-  ): URIO[Http.Http, Option[Aqi]] =
+  ): RIO[Http.Http, Option[Aqi]] =
     Http
       .request(
         method = "GET",
@@ -252,12 +234,6 @@ object AirNowForecast:
       )
       .flatMap { case Response(200, _, body) =>
         ZIO.attempt(parseAqi(parse(body)))
-      }
-      .catchAll { e =>
-        LoggerFactory
-          .getLogger(this.getClass())
-          .error("caught exception", e)
-        ZIO.succeed(None)
       }
 
 class Weather(darkSkyApiKey: String, airNowApiKey: String)
@@ -273,7 +249,7 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
   private def findWx(
       lat: Double,
       lon: Double
-  ): URIO[Http.Http, Option[Wx]] =
+  ): RIO[Http.Http, Option[Wx]] =
     for
       forecastO <- DarkSky.findForecast(
         apiKey = darkSkyApiKey,
@@ -324,7 +300,7 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
   override def help(): Iterable[Info] =
     Some(Info("@wx", "@wx <location>, e.g. @wx san francisco"))
 
-  override def apply(m: Rx): URIO[Http.Http, Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Http.Http, Iterable[Tx]] =
     m match
       case Rx(c, _, wx(q)) =>
         OSM.findPlace(q).flatMap {
