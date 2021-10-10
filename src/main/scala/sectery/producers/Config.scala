@@ -50,7 +50,7 @@ object Config extends Producer:
       }
     yield ()
 
-  private def getConfig(
+  def getConfig(
       nick: String,
       key: String
   ): RIO[Db.Db, Option[String]] =

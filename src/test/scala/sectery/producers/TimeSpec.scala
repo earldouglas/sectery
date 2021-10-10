@@ -23,16 +23,44 @@ object TimeSpec extends DefaultRunnableSpec:
           equalTo(Tx("#foo", "Wed, 14 Jan 1970, 23:56 MST"))
         )
       } @@ timeout(2.seconds),
+      test("@time produces time in user-configured tz") {
+        for
+          (inbox, outbox, _) <- MessageQueues.loop
+            .inject_(TestDb(), TestHttp())
+          _ <- TestClock.setTime(1234567890.millis)
+          _ <- inbox.offer(Rx("#foo", "bar", "@time"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@set tz PST"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@time"))
+          _ <- TestClock.adjust(1.seconds)
+          ms <- outbox.takeAll
+        yield assert(ms)(
+          equalTo(
+            List(
+              Tx("#foo", "Wed, 14 Jan 1970, 23:56 MST"),
+              Tx("#foo", "bar: tz set to PST"),
+              Tx("#foo", "Wed, 14 Jan 1970, 22:56 PST")
+            )
+          )
+        )
+      } @@ timeout(2.seconds),
       test("@time PST produces time in PST") {
         for
           (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- TestClock.setTime(1234567890.millis)
           _ <- inbox.offer(Rx("#foo", "bar", "@time PST"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@set tz EST"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@time PST"))
           _ <- TestClock.adjust(1.seconds)
-          m <- outbox.take
-        yield assert(m)(
-          equalTo(Tx("#foo", "Wed, 14 Jan 1970, 22:56 PST"))
+          ms <- outbox.takeAll
+        yield assert(ms)(
+          equalTo(
+            List(
+              Tx("#foo", "Wed, 14 Jan 1970, 22:56 PST"),
+              Tx("#foo", "bar: tz set to EST"),
+              Tx("#foo", "Wed, 14 Jan 1970, 22:56 PST")
+            )
+          )
         )
       } @@ timeout(2.seconds),
       test("@time GMT-8 produces time in GMT-8") {
