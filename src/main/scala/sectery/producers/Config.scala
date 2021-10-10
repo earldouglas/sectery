@@ -1,0 +1,122 @@
+package sectery.producers
+
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
+import java.util.concurrent.TimeUnit
+import sectery.Db
+import sectery.Info
+import sectery.Producer
+import sectery.Rx
+import sectery.Tx
+import zio.Clock
+import zio.Has
+import zio.RIO
+import zio.URIO
+import zio.ZIO
+
+object Config extends Producer:
+
+  private val get = """^@get\s+([^\s]+)\s*$""".r
+  private val set = """^@set\s+([^\s]+)\s+([^\s]+)\s*$""".r
+
+  override def help(): Iterable[Info] =
+    List(
+      Info(
+        "@get",
+        "@get <key>, e.g. @get tz"
+      ),
+      Info(
+        "@set",
+        "@set <key> <value>, e.g. @set tz America/New_York"
+      )
+    )
+
+  override def init(): RIO[Db.Db, Unit] =
+    for
+      _ <- Db.query { conn =>
+        val s =
+          """|CREATE TABLE IF NOT EXISTS
+             |CONFIG(
+             |  NICK VARCHAR(256) NOT NULL,
+             |  KEY VARCHAR(256) NOT NULL,
+             |  VALUE VARCHAR(256) NOT NULL,
+             |  PRIMARY KEY (NICK, KEY)
+             |)
+             |""".stripMargin
+        val stmt = conn.createStatement
+        stmt.executeUpdate(s)
+        stmt.close
+      }
+    yield ()
+
+  private def getConfig(
+      nick: String,
+      key: String
+  ): RIO[Db.Db, Option[String]] =
+    Db.query { conn =>
+      val s =
+        """|SELECT VALUE
+           |FROM CONFIG
+           |WHERE NICK = ?
+           |  AND KEY = ?
+           |""".stripMargin
+      val stmt = conn.prepareStatement(s)
+      stmt.setString(1, nick)
+      stmt.setString(2, key)
+      val rs = stmt.executeQuery
+      var vo: Option[String] = None
+      if (rs.next()) {
+        val value = rs.getString("VALUE")
+        vo = Some(value)
+      }
+      stmt.close
+      vo
+    }
+
+  private def setConfig(
+      nick: String,
+      key: String,
+      value: String
+  ): RIO[Db.Db, Unit] =
+    for
+      _ <- Db.query { conn =>
+        val s =
+          """|DELETE FROM CONFIG
+             |WHERE NICK = ?
+             |  AND KEY = ?
+             |""".stripMargin
+        val stmt = conn.prepareStatement(s)
+        stmt.setString(1, nick)
+        stmt.setString(2, key)
+        stmt.close
+      }
+      _ <- Db.query { conn =>
+        val s =
+          """|INSERT INTO CONFIG (NICK, KEY, VALUE)
+             |VALUES (?, ?, ?)
+             |""".stripMargin
+        val stmt = conn.prepareStatement(s)
+        stmt.setString(1, nick)
+        stmt.setString(2, key)
+        stmt.setString(3, value)
+        stmt.executeUpdate
+        stmt.close
+      }
+    yield ()
+
+  override def apply(m: Rx): RIO[Db.Db, Iterable[Tx]] =
+    m match
+      case Rx(c, nick, get(key)) =>
+        getConfig(nick, key).map {
+          _ match
+            case Some(value) =>
+              Some(Tx(c, s"${nick}: ${key} is set to ${value}"))
+            case None =>
+              Some(Tx(c, s"${nick}: ${key} is not set"))
+        }
+      case Rx(c, nick, set(key, value)) =>
+        for _ <- setConfig(nick, key, value)
+        yield Some(Tx(c, s"${nick}: ${key} set to ${value}"))
+      case _ =>
+        ZIO.succeed(None)
