@@ -84,7 +84,8 @@ object Producer:
         Version,
         Tell,
         LastMessage,
-        Grab
+        Grab,
+        Config
       )
     )
 
