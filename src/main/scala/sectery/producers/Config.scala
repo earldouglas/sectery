@@ -89,6 +89,7 @@ object Config extends Producer:
         val stmt = conn.prepareStatement(s)
         stmt.setString(1, nick)
         stmt.setString(2, key)
+        stmt.executeUpdate
         stmt.close
       }
       _ <- Db.query { conn =>
