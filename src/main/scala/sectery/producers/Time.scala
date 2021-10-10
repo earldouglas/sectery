@@ -1,15 +1,17 @@
 package sectery.producers
 
 import java.text.SimpleDateFormat
+import java.util.concurrent.TimeUnit
 import java.util.Date
 import java.util.TimeZone
-import java.util.concurrent.TimeUnit
+import sectery.Db
 import sectery.Info
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
 import zio.Has
+import zio.RIO
 import zio.URIO
 import zio.ZIO
 
@@ -25,6 +27,9 @@ object Time extends Producer:
       )
     )
 
+  private def getTz(nick: String): RIO[Db.Db, Option[String]] =
+    Config.getConfig(nick, "tz")
+
   private def getTime(zone: String): URIO[Has[Clock], String] =
     for
       millis <- Clock.currentTime(TimeUnit.MILLISECONDS)
@@ -34,10 +39,17 @@ object Time extends Producer:
       pretty = sdf.format(date)
     yield pretty
 
-  override def apply(m: Rx): URIO[Has[Clock], Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
     m match
-      case Rx(c, _, "@time") =>
-        getTime("America/Phoenix").map(t => Some(Tx(c, t)))
+      case Rx(c, nick, "@time") =>
+        for
+          zo <- getTz(nick)
+          t <- zo match
+            case Some(z) =>
+              getTime(z).map(t => Some(Tx(c, t)))
+            case None =>
+              getTime("America/Phoenix").map(t => Some(Tx(c, t)))
+        yield t
       case Rx(c, _, time(_, zone)) =>
         getTime(zone).map(t => Some(Tx(c, t)))
       case _ =>
