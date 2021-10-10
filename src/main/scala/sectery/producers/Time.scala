@@ -27,9 +27,6 @@ object Time extends Producer:
       )
     )
 
-  private def getTz(nick: String): RIO[Db.Db, Option[String]] =
-    Config.getConfig(nick, "tz")
-
   private def getTime(zone: String): URIO[Has[Clock], String] =
     for
       millis <- Clock.currentTime(TimeUnit.MILLISECONDS)
@@ -43,7 +40,7 @@ object Time extends Producer:
     m match
       case Rx(c, nick, "@time") =>
         for
-          zo <- getTz(nick)
+          zo <- Config.getConfig(nick, "tz")
           t <- zo match
             case Some(z) =>
               getTime(z).map(t => Some(Tx(c, t)))
