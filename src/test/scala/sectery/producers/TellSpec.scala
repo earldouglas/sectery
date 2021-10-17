@@ -17,12 +17,12 @@ object TellSpec extends DefaultRunnableSpec:
         for
           _ <- TestClock.setDateTime {
             val zo = OffsetDateTime.now().getOffset()
-            OffsetDateTime.of(1970, 2, 11, 0, 0, 0, 0, zo)
+            OffsetDateTime.of(1970, 2, 11, 23, 59, 59, 0, zo)
           }
           (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(Rx("#foo", "user1", "@tell user2 Howdy!"))
-          _ <- TestClock.adjust(1.days)
+          _ <- TestClock.adjust(1.seconds)
           _ <- inbox.offer(Rx("#foo", "user1", "@tell user2 Hi there!"))
           _ <- inbox.offer(Rx("#foo", "user2", "Hey"))
           _ <- TestClock.adjust(1.seconds)
