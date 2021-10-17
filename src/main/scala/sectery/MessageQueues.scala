@@ -5,10 +5,12 @@ import zio.Fiber
 import zio.Has
 import zio.Queue
 import zio.RIO
+import zio.Schedule
 import zio.UIO
 import zio.URIO
 import zio.ZIO
 import zio.ZQueue
+import zio.durationInt
 
 /** A message received from IRC.
   */
@@ -39,5 +41,8 @@ object MessageQueues:
       _ <- Producer.init()
       inbox <- ZQueue.unbounded[Rx]
       outbox <- ZQueue.unbounded[Tx]
+      _ <- Autoquote(outbox)
+        .repeat(Schedule.spaced(5.minutes))
+        .fork
       fiber <- produce(inbox, outbox).forever.fork
     yield (inbox, outbox, fiber)

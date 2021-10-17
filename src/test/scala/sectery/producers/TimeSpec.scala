@@ -13,9 +13,9 @@ object TimeSpec extends DefaultRunnableSpec:
     suite(getClass().getName())(
       test("@time produces server time") {
         for
+          _ <- TestClock.setTime(1234567890.millis)
           (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
-          _ <- TestClock.setTime(1234567890.millis)
           _ <- inbox.offer(Rx("#foo", "bar", "@time"))
           _ <- TestClock.adjust(1.seconds)
           m <- outbox.take
@@ -25,9 +25,9 @@ object TimeSpec extends DefaultRunnableSpec:
       } @@ timeout(2.seconds),
       test("@time produces time in user-configured tz") {
         for
+          _ <- TestClock.setTime(1234567890.millis)
           (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
-          _ <- TestClock.setTime(1234567890.millis)
           _ <- inbox.offer(Rx("#foo", "bar", "@time"))
           _ <- inbox.offer(Rx("#foo", "bar", "@set tz PST"))
           _ <- inbox.offer(Rx("#foo", "bar", "@time"))
@@ -45,9 +45,9 @@ object TimeSpec extends DefaultRunnableSpec:
       } @@ timeout(2.seconds),
       test("@time PST produces time in PST") {
         for
+          _ <- TestClock.setTime(1234567890.millis)
           (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
-          _ <- TestClock.setTime(1234567890.millis)
           _ <- inbox.offer(Rx("#foo", "bar", "@time PST"))
           _ <- inbox.offer(Rx("#foo", "bar", "@set tz EST"))
           _ <- inbox.offer(Rx("#foo", "bar", "@time PST"))
@@ -65,9 +65,9 @@ object TimeSpec extends DefaultRunnableSpec:
       } @@ timeout(2.seconds),
       test("@time GMT-8 produces time in GMT-8") {
         for
+          _ <- TestClock.setTime(1234567890.millis)
           (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
-          _ <- TestClock.setTime(1234567890.millis)
           _ <- inbox.offer(Rx("#foo", "bar", "@time GMT-8"))
           _ <- TestClock.adjust(1.seconds)
           m <- outbox.take
@@ -79,9 +79,9 @@ object TimeSpec extends DefaultRunnableSpec:
         "@time America/Los_Angeles produces time in America/Los_Angeles"
       ) {
         for
+          _ <- TestClock.setTime(1234567890.millis)
           (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
-          _ <- TestClock.setTime(1234567890.millis)
           _ <- inbox.offer(
             Rx("#foo", "bar", "@time America/Los_Angeles")
           )

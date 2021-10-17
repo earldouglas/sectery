@@ -41,7 +41,20 @@ object LastMessage extends Producer:
              |""".stripMargin
         val stmt = conn.createStatement
         stmt.executeUpdate(s)
-        stmt.close
+        stmt.close()
+      }
+      _ <- Db.query { conn =>
+        val s =
+          """|CREATE TABLE IF NOT EXISTS
+             |AUTOQUOTE(
+             |  CHANNEL VARCHAR(256) NOT NULL,
+             |  TIMESTAMP TIMESTAMP NOT NULL,
+             |  PRIMARY KEY (CHANNEL)
+             |)
+             |""".stripMargin
+        val stmt = conn.createStatement
+        stmt.executeUpdate(s)
+        stmt.close()
       }
     yield ()
 
@@ -54,7 +67,7 @@ object LastMessage extends Producer:
         stmt.setString(1, m.channel)
         stmt.setString(2, m.nick)
         stmt.executeUpdate
-        stmt.close
+        stmt.close()
       }
       nowMillis <- Clock.currentTime(TimeUnit.MILLISECONDS)
       newCount <- Db.query { conn =>
@@ -66,7 +79,25 @@ object LastMessage extends Producer:
         stmt.setString(3, m.message)
         stmt.setTimestamp(4, new Timestamp(nowMillis))
         stmt.executeUpdate
-        stmt.close
+        stmt.close()
+      }
+      _ <- Db.query { conn =>
+        val s =
+          "DELETE FROM AUTOQUOTE WHERE CHANNEL = ?"
+        val stmt = conn.prepareStatement(s)
+        stmt.setString(1, m.channel)
+        stmt.executeUpdate
+        stmt.close()
+      }
+      nowMillis <- Clock.currentTime(TimeUnit.MILLISECONDS)
+      newCount <- Db.query { conn =>
+        val s =
+          "INSERT INTO AUTOQUOTE (CHANNEL, TIMESTAMP) VALUES (?, ?)"
+        val stmt = conn.prepareStatement(s)
+        stmt.setString(1, m.channel)
+        stmt.setTimestamp(2, new Timestamp(nowMillis))
+        stmt.executeUpdate
+        stmt.close()
       }
     yield None
 
@@ -93,7 +124,7 @@ object LastMessage extends Producer:
           timestamp = timestamp
         ) :: ms
       }
-      stmt.close
+      stmt.close()
       ms.reverse
     }
 
@@ -126,6 +157,6 @@ object LastMessage extends Producer:
           )
         )
       }
-      stmt.close
+      stmt.close()
       mo
     }
