@@ -62,21 +62,24 @@ object Autoquote:
           cs
         }
       _ <-
-        Db.query { conn =>
-          val in = channels.map(_ => "?").mkString(", ")
-          val s =
-            s"""|UPDATE AUTOQUOTE
-                |SET TIMESTAMP = ?
-                |WHERE CHANNEL IN (${in})
-                |""".stripMargin
-          val stmt = conn.prepareStatement(s)
-          stmt.setTimestamp(1, new Timestamp(nowMillis))
-          channels.zipWithIndex.map { case (channel, index) =>
-            stmt.setString(2 + index, channel)
+        if (channels.length > 0)
+          Db.query { conn =>
+            val in = channels.map(_ => "?").mkString(", ")
+            val s =
+              s"""|UPDATE AUTOQUOTE
+                  |SET TIMESTAMP = ?
+                  |WHERE CHANNEL IN (${in})
+                  |""".stripMargin
+            val stmt = conn.prepareStatement(s)
+            stmt.setTimestamp(1, new Timestamp(nowMillis))
+            channels.zipWithIndex.map { case (channel, index) =>
+              stmt.setString(2 + index, channel)
+            }
+            stmt.execute()
+            stmt.close()
           }
-          stmt.execute()
-          stmt.close()
-        }
+        else
+          ZIO.succeed(())
     yield channels
 
   private def getAutoquoteMessages(
