@@ -92,8 +92,11 @@ object Producer:
   def init(): RIO[Env, Iterable[Unit]] =
     ZIO.foreach(producers)(_.init())
 
-  def apply(m: Rx): URIO[Env, Iterable[Tx]] =
+  def apply(raw: Rx): URIO[Env, Iterable[Tx]] =
     ZIO.foldLeft(producers)(List.empty) { (txs, p) =>
+      val m = raw.copy(message =
+        raw.message.replaceAll("""^<[^>]*>\s*""", "")
+      )
       p.apply(m)
         .catchAllCause { cause =>
           LoggerFactory
