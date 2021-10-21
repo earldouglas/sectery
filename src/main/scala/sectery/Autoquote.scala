@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit
 import org.slf4j.LoggerFactory
 import sectery.Db
 import sectery.Tx
+import sectery.producers.Grab
 import zio.Clock
 import zio.Has
 import zio.Queue
@@ -84,30 +85,13 @@ object Autoquote:
     ZIO
       .collectAll(
         channels.map { channel =>
-          Db.query { conn =>
-            val s =
-              """|SELECT NICK, MESSAGE
-                 |FROM GRABBED_MESSAGES
-                 |WHERE CHANNEL = ?
-                 |ORDER BY RANDOM()
-                 |LIMIT 1
-                 |""".stripMargin
-            val stmt = conn.prepareStatement(s)
-            stmt.setString(1, channel)
-            val rs = stmt.executeQuery
-            var txo: Option[Tx] = None
-            if (rs.next()) {
-              val message = rs.getString("MESSAGE")
-              val nick = rs.getString("NICK")
-              txo = Some(
-                Tx(
-                  channel = channel,
-                  message = s"<${nick}> ${message}"
-                )
+          Grab.randomGrabbedMessage(channel).map { gmo =>
+            gmo.map { gm =>
+              Tx(
+                channel = channel,
+                message = s"<${gm.nick}> ${gm.message}"
               )
             }
-            stmt.close
-            txo
           }
         }
       )
