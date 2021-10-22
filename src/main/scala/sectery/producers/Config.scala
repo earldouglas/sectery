@@ -18,7 +18,7 @@ import zio.ZIO
 object Config extends Producer:
 
   private val get = """^@get\s+([^\s]+)\s*$""".r
-  private val set = """^@set\s+([^\s]+)\s+([^\s]+)\s*$""".r
+  private val set = """^@set\s+([^\s]+)\s+(.+)\s*$""".r
 
   override def help(): Iterable[Info] =
     List(

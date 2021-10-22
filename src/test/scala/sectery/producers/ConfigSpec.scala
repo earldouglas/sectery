@@ -22,6 +22,8 @@ object ConfigSpec extends DefaultRunnableSpec:
           _ <- inbox.offer(Rx("#foo", "baz", "@set tz PST"))
           _ <- inbox.offer(Rx("#foo", "bar", "@get tz"))
           _ <- inbox.offer(Rx("#foo", "baz", "@get tz"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@set foo bar baz"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@get foo"))
           _ <- TestClock.adjust(1.seconds)
           ms <- outbox.takeAll
         yield assert(ms)(
@@ -33,7 +35,9 @@ object ConfigSpec extends DefaultRunnableSpec:
               Tx("#foo", "baz: tz is not set"),
               Tx("#foo", "baz: tz set to PST"),
               Tx("#foo", "bar: tz is set to EST"),
-              Tx("#foo", "baz: tz is set to PST")
+              Tx("#foo", "baz: tz is set to PST"),
+              Tx("#foo", "bar: foo set to bar baz"),
+              Tx("#foo", "bar: foo is set to bar baz")
             )
           )
         )
