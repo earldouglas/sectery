@@ -51,6 +51,9 @@ object Html extends Producer:
   private def nonEmpty(x: String): Option[String] =
     Option(x).map(_.trim).filter(_.length > 0)
 
+  private def shorten(x: String): String =
+    if (x.length > 300) x.take(280) + "..." else x
+
   private def getTitle(doc: Document): Option[String] =
 
     val elements: List[Element] =
@@ -67,8 +70,9 @@ object Html extends Producer:
 
     (titles :+ doc.title())
       .flatMap(nonEmpty)
-      .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
       .headOption
+      .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
+      .map(shorten)
 
   private def getDescription(doc: Document): Option[String] =
 
@@ -88,5 +92,6 @@ object Html extends Producer:
 
     descriptions
       .flatMap(nonEmpty)
-      .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
       .headOption
+      .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
+      .map(shorten)
