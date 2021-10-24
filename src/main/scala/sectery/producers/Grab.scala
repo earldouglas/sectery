@@ -16,12 +16,12 @@ import zio.ZIO
 object Grab extends Producer:
 
   private val grab = """^@grab\s+([^\s]+)\s*$""".r
-  private val quote = """^@quote\s+([^\s]+)\s*$""".r
+  private val quoteNick = """^@quote\s+([^\s]+)\s*$""".r
 
   override def help(): Iterable[Info] =
     List(
       Info("@grab", "@grab <nick>"),
-      Info("@quote", "@quote <nick>")
+      Info("@quote", "@quote [nick]")
     )
 
   override def init(): RIO[Db.Db, Unit] =
@@ -75,17 +75,50 @@ object Grab extends Producer:
                   Some(Tx(c, s"${nick} hasn't said anything."))
                 )
         yield reply
-      case Rx(c, _, quote(nick)) =>
-        randomGrabbedMessage(c, nick) map { mo =>
-          mo match {
-            case Some(m) =>
-              Some(Tx(c, s"<${nick}> ${m}"))
-            case None =>
-              Some(Tx(c, s"${nick} hasn't said anything."))
-          }
+      case Rx(c, _, quoteNick(nick)) =>
+        randomGrabbedMessage(c, nick) map {
+          case Some(m) =>
+            Some(Tx(c, s"<${nick}> ${m}"))
+          case None =>
+            Some(Tx(c, s"${nick} hasn't said anything."))
+        }
+      case Rx(c, _, "@quote") =>
+        randomGrabbedMessage(c) map {
+          case Some(gm) =>
+            Some(Tx(c, s"<${gm.nick}> ${gm.message}"))
+          case None =>
+            Some(Tx(c, s"Nobody has said anything."))
         }
       case _ =>
         ZIO.succeed(None)
+
+  case class GrabbedMessage(nick: String, message: String)
+
+  private def randomGrabbedNick(
+      channel: String
+  ): RIO[Db.Db, Option[String]] =
+    Db.query { conn =>
+      val s =
+        """|SELECT NICK
+           |FROM (
+           |  SELECT DISTINCT(NICK)
+           |  FROM GRABBED_MESSAGES
+           |  WHERE CHANNEL = ?
+           |) NICKS
+           |ORDER BY RANDOM()
+           |LIMIT 1
+           |""".stripMargin
+      val stmt = conn.prepareStatement(s)
+      stmt.setString(1, channel)
+      val rs = stmt.executeQuery
+      var no: Option[String] = None
+      if (rs.next()) {
+        val nick = rs.getString("NICK")
+        no = Some(nick)
+      }
+      stmt.close
+      no
+    }
 
   private def randomGrabbedMessage(
       channel: String,
@@ -112,3 +145,20 @@ object Grab extends Producer:
       stmt.close
       mo
     }
+
+  def randomGrabbedMessage(
+      channel: String
+  ): RIO[Db.Db, Option[GrabbedMessage]] =
+    for
+      no <- randomGrabbedNick(channel)
+      gmo <- no match {
+        case Some(nick) =>
+          randomGrabbedMessage(channel = channel, nick = nick).map {
+            mo =>
+              mo.map { message =>
+                GrabbedMessage(nick = nick, message = message)
+              }
+          }
+        case None => ZIO.succeed(None)
+      }
+    yield gmo
