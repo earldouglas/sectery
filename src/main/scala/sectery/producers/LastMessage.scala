@@ -32,14 +32,14 @@ object LastMessage extends Producer:
     def createLastMessage(conn: Connection): Unit =
       val s =
         """|CREATE TABLE IF NOT EXISTS
-             |LAST_MESSAGE(
-             |  CHANNEL VARCHAR(256) NOT NULL,
-             |  NICK VARCHAR(256) NOT NULL,
-             |  MESSAGE TEXT NOT NULL,
-             |  TIMESTAMP TIMESTAMP NOT NULL,
-             |  PRIMARY KEY (CHANNEL, NICK)
-             |)
-             |""".stripMargin
+           |LAST_MESSAGE(
+           |  CHANNEL VARCHAR(256) NOT NULL,
+           |  NICK VARCHAR(256) NOT NULL,
+           |  MESSAGE TEXT NOT NULL,
+           |  TIMESTAMP TIMESTAMP NOT NULL,
+           |  PRIMARY KEY (CHANNEL, NICK)
+           |)
+           |""".stripMargin
       val stmt = conn.createStatement
       stmt.executeUpdate(s)
       stmt.close()
@@ -47,12 +47,12 @@ object LastMessage extends Producer:
     def createAutoquote(conn: Connection): Unit =
       val s =
         """|CREATE TABLE IF NOT EXISTS
-             |AUTOQUOTE(
-             |  CHANNEL VARCHAR(256) NOT NULL,
-             |  TIMESTAMP TIMESTAMP NOT NULL,
-             |  PRIMARY KEY (CHANNEL)
-             |)
-             |""".stripMargin
+           |AUTOQUOTE(
+           |  CHANNEL VARCHAR(256) NOT NULL,
+           |  TIMESTAMP TIMESTAMP NOT NULL,
+           |  PRIMARY KEY (CHANNEL)
+           |)
+           |""".stripMargin
       val stmt = conn.createStatement
       stmt.executeUpdate(s)
       stmt.close()
@@ -116,10 +116,10 @@ object LastMessage extends Producer:
   ): List[LastMessage] =
     val s =
       """|SELECT NICK, MESSAGE, TIMESTAMP
-           |FROM LAST_MESSAGE
-           |WHERE CHANNEL = ?
-           |ORDER BY TIMESTAMP DESC
-           |""".stripMargin
+         |FROM LAST_MESSAGE
+         |WHERE CHANNEL = ?
+         |ORDER BY TIMESTAMP DESC
+         |""".stripMargin
     val stmt = conn.prepareStatement(s)
     stmt.setString(1, channel)
     val rs = stmt.executeQuery
@@ -143,11 +143,11 @@ object LastMessage extends Producer:
   ): Option[LastMessage] =
     val s =
       """|SELECT MESSAGE, TIMESTAMP
-           |FROM LAST_MESSAGE
-           |WHERE CHANNEL = ?
-           |  AND NICK = ?
-           |ORDER BY TIMESTAMP DESC
-           |""".stripMargin
+         |FROM LAST_MESSAGE
+         |WHERE CHANNEL = ?
+         |  AND NICK = ?
+         |ORDER BY TIMESTAMP DESC
+         |""".stripMargin
     val stmt = conn.prepareStatement(s)
     stmt.setString(1, channel)
     stmt.setString(2, nick)

@@ -58,9 +58,9 @@ object Grab extends Producer:
                 case Some(m) =>
                   val s =
                     """|INSERT INTO GRABBED_MESSAGES (
-                         |  CHANNEL, NICK, MESSAGE, TIMESTAMP
-                         |) VALUES (?, ?, ?, ?)
-                         |""".stripMargin
+                       |  CHANNEL, NICK, MESSAGE, TIMESTAMP
+                       |) VALUES (?, ?, ?, ?)
+                       |""".stripMargin
                   val stmt = conn.prepareStatement(s)
                   stmt.setString(1, c)
                   stmt.setString(2, nick)
