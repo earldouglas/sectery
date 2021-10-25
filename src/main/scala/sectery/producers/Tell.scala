@@ -30,13 +30,13 @@ object Tell extends Producer:
     Db { conn =>
       val s =
         """|CREATE TABLE IF NOT EXISTS TELL (
-             |  _CHANNEL_ VARCHAR(64) NOT NULL,
-             |  _FROM_ VARCHAR(64) NOT NULL,
-             |  _TO_ VARCHAR(64) NOT NULL,
-             |  _MESSAGE_ VARCHAR(64) NOT NULL,
-             |  _TIMESTAMP_ TIMESTAMP NOT NULL
-             |)
-             |""".stripMargin
+           |  _CHANNEL_ VARCHAR(64) NOT NULL,
+           |  _FROM_ VARCHAR(64) NOT NULL,
+           |  _TO_ VARCHAR(64) NOT NULL,
+           |  _MESSAGE_ VARCHAR(64) NOT NULL,
+           |  _TIMESTAMP_ TIMESTAMP NOT NULL
+           |)
+           |""".stripMargin
       val stmt = conn.createStatement
       stmt.executeUpdate(s)
       stmt.close
@@ -65,10 +65,10 @@ object Tell extends Producer:
         def findMessages(conn: Connection): List[Tx] =
           val s =
             """|SELECT _FROM_, _MESSAGE_, _TIMESTAMP_
-                   |FROM TELL
-                   |WHERE _CHANNEL_ = ? AND _TO_ = ?
-                   |ORDER BY _TIMESTAMP_ DESC
-                   |""".stripMargin
+               |FROM TELL
+               |WHERE _CHANNEL_ = ? AND _TO_ = ?
+               |ORDER BY _TIMESTAMP_ DESC
+               |""".stripMargin
           val stmt = conn.prepareStatement(s)
           stmt.setString(1, c)
           stmt.setString(2, nick)
