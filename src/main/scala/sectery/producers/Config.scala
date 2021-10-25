@@ -1,5 +1,6 @@
 package sectery.producers
 
+import java.sql.Connection
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
@@ -34,7 +35,7 @@ object Config extends Producer:
 
   override def init(): RIO[Db.Db, Unit] =
     for
-      _ <- Db.query { conn =>
+      _ <- Db { conn =>
         val s =
           """|CREATE TABLE IF NOT EXISTS
              |CONFIG(
@@ -54,7 +55,7 @@ object Config extends Producer:
       nick: String,
       key: String
   ): RIO[Db.Db, Option[String]] =
-    Db.query { conn =>
+    Db { conn =>
       val s =
         """|SELECT VALUE
            |FROM CONFIG
@@ -79,32 +80,35 @@ object Config extends Producer:
       key: String,
       value: String
   ): RIO[Db.Db, Unit] =
-    for
-      _ <- Db.query { conn =>
-        val s =
-          """|DELETE FROM CONFIG
-             |WHERE NICK = ?
-             |  AND KEY = ?
-             |""".stripMargin
-        val stmt = conn.prepareStatement(s)
-        stmt.setString(1, nick)
-        stmt.setString(2, key)
-        stmt.executeUpdate
-        stmt.close
-      }
-      _ <- Db.query { conn =>
-        val s =
-          """|INSERT INTO CONFIG (NICK, KEY, VALUE)
-             |VALUES (?, ?, ?)
-             |""".stripMargin
-        val stmt = conn.prepareStatement(s)
-        stmt.setString(1, nick)
-        stmt.setString(2, key)
-        stmt.setString(3, value)
-        stmt.executeUpdate
-        stmt.close
-      }
-    yield ()
+
+    def dropConfig(conn: Connection): Unit =
+      val s =
+        """|DELETE FROM CONFIG
+           |WHERE NICK = ?
+           |  AND KEY = ?
+           |""".stripMargin
+      val stmt = conn.prepareStatement(s)
+      stmt.setString(1, nick)
+      stmt.setString(2, key)
+      stmt.executeUpdate
+      stmt.close
+
+    def addConfig(conn: Connection): Unit =
+      val s =
+        """|INSERT INTO CONFIG (NICK, KEY, VALUE)
+           |VALUES (?, ?, ?)
+           |""".stripMargin
+      val stmt = conn.prepareStatement(s)
+      stmt.setString(1, nick)
+      stmt.setString(2, key)
+      stmt.setString(3, value)
+      stmt.executeUpdate
+      stmt.close
+
+    Db { conn =>
+      dropConfig(conn)
+      addConfig(conn)
+    }
 
   override def apply(m: Rx): RIO[Db.Db, Iterable[Tx]] =
     m match

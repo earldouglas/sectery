@@ -29,13 +29,13 @@ object Substitute extends Producer:
     m match
       case Rx(channel, nick, sub(toReplace, withReplace)) =>
         val matcher: Regex = new Regex(s".*${toReplace}.*")
-        for
-          ms <- LastMessage.lastMessages(channel)
-          mo = ms.find(m => matcher.matches(m.message))
-        yield mo map { m =>
-          val replacedMsg: Msg =
-            m.message.replaceAll(toReplace, withReplace)
-          Tx(channel, s"<${m.nick}> ${replacedMsg}")
+        Db { conn =>
+          val ms = LastMessage.lastMessages(channel)(conn)
+          ms.find(m => matcher.matches(m.message)) map { m =>
+            val replacedMsg: Msg =
+              m.message.replaceAll(toReplace, withReplace)
+            Tx(channel, s"<${m.nick}> ${replacedMsg}")
+          }
         }
       case _ =>
         ZIO.succeed(None)

@@ -10,7 +10,7 @@ object Db:
   type Db = Has[Db.Service]
 
   trait Service:
-    def query[A](k: Connection => A): Task[A]
+    def apply[A](k: Connection => A): Task[A]
 
   lazy val live: ULayer[Has[Service]] =
     ZLayer.succeed {
@@ -23,10 +23,9 @@ object Db:
         val dbUrl =
           s"jdbc:postgresql://${dbUri.getHost()}:${dbUri.getPort()}${dbUri.getPath()}?sslmode=require"
 
-        val conn: Connection =
-          DriverManager.getConnection(dbUrl, username, password)
-
-        override def query[A](k: Connection => A): Task[A] =
+        override def apply[A](k: Connection => A): Task[A] =
+          val conn =
+            DriverManager.getConnection(dbUrl, username, password)
           ZIO
             .attempt {
               conn.setAutoCommit(false)
@@ -43,5 +42,5 @@ object Db:
             }
     }
 
-  def query[A](k: Connection => A): RIO[Db, A] =
-    ZIO.accessZIO(_.get.query(k))
+  def apply[A](k: Connection => A): RIO[Db, A] =
+    ZIO.accessZIO(_.get.apply(k))

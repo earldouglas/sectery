@@ -15,6 +15,6 @@ object TestDb:
         Class.forName("org.sqlite.JDBC");
         lazy val conn: Connection =
           DriverManager.getConnection(s"jdbc:sqlite::memory:")
-        override def query[A](k: Connection => A): Task[A] =
+        override def apply[A](k: Connection => A): Task[A] =
           ZIO.attempt(k(conn))
     }
