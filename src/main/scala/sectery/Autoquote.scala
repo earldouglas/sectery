@@ -1,5 +1,6 @@
 package sectery
 
+import java.sql.Connection
 import java.sql.Timestamp
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -41,46 +42,49 @@ object Autoquote:
   private def getAutoquoteChannels(
       nowMillis: Long
   ): RIO[Db.Db, List[String]] =
-    for
-      channels <-
-        Db.query { conn =>
-          val s =
-            """|SELECT CHANNEL
-               |FROM AUTOQUOTE
-               |WHERE TIMESTAMP <= ?
-               |""".stripMargin
-          val stmt = conn.prepareStatement(s)
-          val hourAgoMillis = nowMillis - 60L * 60L * 1000L
-          stmt.setTimestamp(1, new Timestamp(hourAgoMillis))
-          val rs = stmt.executeQuery
-          var cs: List[String] = Nil
-          if (rs.next()) {
-            val channel = rs.getString("CHANNEL")
-            cs = channel :: cs
-          }
-          stmt.close()
-          cs
+
+    def getChannels(conn: Connection): List[String] =
+      val s =
+        """|SELECT CHANNEL
+           |FROM AUTOQUOTE
+           |WHERE TIMESTAMP <= ?
+           |""".stripMargin
+      val stmt = conn.prepareStatement(s)
+      val hourAgoMillis = nowMillis - 60L * 60L * 1000L
+      stmt.setTimestamp(1, new Timestamp(hourAgoMillis))
+      val rs = stmt.executeQuery
+      var cs: List[String] = Nil
+      if (rs.next()) {
+        val channel = rs.getString("CHANNEL")
+        cs = channel :: cs
+      }
+      stmt.close()
+      cs
+
+    def updateAutoquote(
+        channels: List[String]
+    )(conn: Connection): Unit =
+      if (channels.length > 0)
+        val in = channels.map(_ => "?").mkString(", ")
+        val s =
+          s"""|UPDATE AUTOQUOTE
+              |SET TIMESTAMP = ?
+              |WHERE CHANNEL IN (${in})
+              |""".stripMargin
+        val stmt = conn.prepareStatement(s)
+        stmt.setTimestamp(1, new Timestamp(nowMillis))
+        channels.zipWithIndex.map { case (channel, index) =>
+          stmt.setString(2 + index, channel)
         }
-      _ <-
-        if (channels.length > 0)
-          Db.query { conn =>
-            val in = channels.map(_ => "?").mkString(", ")
-            val s =
-              s"""|UPDATE AUTOQUOTE
-                  |SET TIMESTAMP = ?
-                  |WHERE CHANNEL IN (${in})
-                  |""".stripMargin
-            val stmt = conn.prepareStatement(s)
-            stmt.setTimestamp(1, new Timestamp(nowMillis))
-            channels.zipWithIndex.map { case (channel, index) =>
-              stmt.setString(2 + index, channel)
-            }
-            stmt.execute()
-            stmt.close()
-          }
-        else
-          ZIO.succeed(())
-    yield channels
+        stmt.execute()
+        stmt.close()
+      else ()
+
+    Db { conn =>
+      val channels = getChannels(conn)
+      updateAutoquote(channels)(conn)
+      channels
+    }
 
   private def getAutoquoteMessages(
       channels: List[String]

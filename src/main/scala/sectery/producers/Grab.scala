@@ -1,5 +1,6 @@
 package sectery.producers
 
+import java.sql.Connection
 import java.sql.Timestamp
 import java.util.concurrent.TimeUnit
 import sectery.Db
@@ -26,7 +27,7 @@ object Grab extends Producer:
 
   override def init(): RIO[Db.Db, Unit] =
     for
-      _ <- Db.query { conn =>
+      _ <- Db { conn =>
         val s =
           """|CREATE TABLE IF NOT EXISTS
              |GRABBED_MESSAGES(
@@ -51,11 +52,10 @@ object Grab extends Producer:
       case Rx(c, _, grab(nick)) =>
         for
           now <- Clock.currentTime(TimeUnit.MILLISECONDS)
-          mo <- LastMessage.lastMessage(c, nick)
           reply <-
-            mo match
-              case Some(m) =>
-                Db.query { conn =>
+            Db { conn =>
+              LastMessage.lastMessage(c, nick)(conn) match
+                case Some(m) =>
                   val s =
                     """|INSERT INTO GRABBED_MESSAGES (
                        |  CHANNEL, NICK, MESSAGE, TIMESTAMP
@@ -69,18 +69,18 @@ object Grab extends Producer:
                   stmt.executeUpdate()
                   stmt.close
                   Some(Tx(c, s"Grabbed ${nick}."))
-                }
-              case None =>
-                ZIO.succeed(
+                case None =>
                   Some(Tx(c, s"${nick} hasn't said anything."))
-                )
+            }
         yield reply
       case Rx(c, _, quoteNick(nick)) =>
-        randomGrabbedMessage(c, nick) map {
-          case Some(m) =>
-            Some(Tx(c, s"<${nick}> ${m}"))
-          case None =>
-            Some(Tx(c, s"${nick} hasn't said anything."))
+        Db { conn =>
+          randomGrabbedMessage(c, nick)(conn) match {
+            case Some(m) =>
+              Some(Tx(c, s"<${nick}> ${m}"))
+            case None =>
+              Some(Tx(c, s"${nick} hasn't said anything."))
+          }
         }
       case Rx(c, _, "@quote") =>
         randomGrabbedMessage(c) map {
@@ -94,71 +94,61 @@ object Grab extends Producer:
 
   case class GrabbedMessage(nick: String, message: String)
 
-  private def randomGrabbedNick(
-      channel: String
-  ): RIO[Db.Db, Option[String]] =
-    Db.query { conn =>
-      val s =
-        """|SELECT NICK
-           |FROM (
-           |  SELECT DISTINCT(NICK)
-           |  FROM GRABBED_MESSAGES
-           |  WHERE CHANNEL = ?
-           |) NICKS
-           |ORDER BY RANDOM()
-           |LIMIT 1
-           |""".stripMargin
-      val stmt = conn.prepareStatement(s)
-      stmt.setString(1, channel)
-      val rs = stmt.executeQuery
-      var no: Option[String] = None
-      if (rs.next()) {
-        val nick = rs.getString("NICK")
-        no = Some(nick)
-      }
-      stmt.close
-      no
+  private def randomGrabbedNick(channel: String)(
+      conn: Connection
+  ): Option[String] =
+    val s =
+      """|SELECT NICK
+         |FROM (
+         |  SELECT DISTINCT(NICK)
+         |  FROM GRABBED_MESSAGES
+         |  WHERE CHANNEL = ?
+         |) NICKS
+         |ORDER BY RANDOM()
+         |LIMIT 1
+         |""".stripMargin
+    val stmt = conn.prepareStatement(s)
+    stmt.setString(1, channel)
+    val rs = stmt.executeQuery
+    var no: Option[String] = None
+    if (rs.next()) {
+      val nick = rs.getString("NICK")
+      no = Some(nick)
     }
+    stmt.close
+    no
 
-  private def randomGrabbedMessage(
-      channel: String,
-      nick: String
-  ): RIO[Db.Db, Option[String]] =
-    Db.query { conn =>
-      val s =
-        """|SELECT MESSAGE
-           |FROM GRABBED_MESSAGES
-           |WHERE CHANNEL = ?
-           |  AND NICK = ?
-           |ORDER BY RANDOM()
-           |LIMIT 1
-           |""".stripMargin
-      val stmt = conn.prepareStatement(s)
-      stmt.setString(1, channel)
-      stmt.setString(2, nick)
-      val rs = stmt.executeQuery
-      var mo: Option[String] = None
-      if (rs.next()) {
-        val message = rs.getString("MESSAGE")
-        mo = Some(message)
-      }
-      stmt.close
-      mo
+  private def randomGrabbedMessage(channel: String, nick: String)(
+      conn: Connection
+  ): Option[String] =
+    val s =
+      """|SELECT MESSAGE
+         |FROM GRABBED_MESSAGES
+         |WHERE CHANNEL = ?
+         |  AND NICK = ?
+         |ORDER BY RANDOM()
+         |LIMIT 1
+         |""".stripMargin
+    val stmt = conn.prepareStatement(s)
+    stmt.setString(1, channel)
+    stmt.setString(2, nick)
+    val rs = stmt.executeQuery
+    var mo: Option[String] = None
+    if (rs.next()) {
+      val message = rs.getString("MESSAGE")
+      mo = Some(message)
     }
+    stmt.close
+    mo
 
   def randomGrabbedMessage(
       channel: String
   ): RIO[Db.Db, Option[GrabbedMessage]] =
-    for
-      no <- randomGrabbedNick(channel)
-      gmo <- no match {
-        case Some(nick) =>
-          randomGrabbedMessage(channel = channel, nick = nick).map {
-            mo =>
-              mo.map { message =>
-                GrabbedMessage(nick = nick, message = message)
-              }
-          }
-        case None => ZIO.succeed(None)
-      }
-    yield gmo
+    Db { conn =>
+      for
+        nick <- randomGrabbedNick(channel)(conn)
+        message <- randomGrabbedMessage(channel = channel, nick = nick)(
+          conn
+        )
+      yield GrabbedMessage(nick = nick, message = message)
+    }
