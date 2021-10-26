@@ -14,7 +14,21 @@ import zio.durationInt
 
 /** A message received from IRC.
   */
-case class Rx(channel: String, nick: String, message: String)
+class Rx(
+    val channel: String,
+    val nick: String,
+    val message: String
+)
+
+object Rx:
+  def unapply(r: Rx): Option[(String, String, String)] =
+    Some(
+      (
+        r.channel,
+        r.nick,
+        r.message.replaceAll("""^<[^>]*>\s*""", "")
+      )
+    )
 
 /** A message to send to IRC.
   */
