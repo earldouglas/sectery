@@ -62,6 +62,9 @@ object StockSpec extends DefaultRunnableSpec:
           _ <- inbox.offer(Rx("#foo", "bar", "@stock voo"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock FOO"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock VOO BAR"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@stock"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@set stock VOO BAR"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@stock"))
           _ <- TestClock.adjust(1.seconds)
           ms <- outbox.takeAll
         yield assert((ms))(
@@ -70,6 +73,13 @@ object StockSpec extends DefaultRunnableSpec:
               Tx("#foo", "VOO: 390.09 +0.68 (+0.17%)"),
               Tx("#foo", "VOO: 390.09 +0.68 (+0.17%)"),
               Tx("#foo", "FOO: stonk not found"),
+              Tx("#foo", "VOO: 390.09 +0.68 (+0.17%)"),
+              Tx("#foo", "BAR: 1.00 +0.00 (+0.00%)"),
+              Tx(
+                "#foo",
+                "Set default symbols with `@set stock <symbol1> [symbol2] ... [symbolN]`"
+              ),
+              Tx("#foo", "bar: stock set to VOO BAR"),
               Tx("#foo", "VOO: 390.09 +0.68 (+0.17%)"),
               Tx("#foo", "BAR: 1.00 +0.00 (+0.00%)")
             )
