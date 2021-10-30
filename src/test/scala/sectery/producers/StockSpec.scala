@@ -40,6 +40,16 @@ object StockSpec extends DefaultRunnableSpec:
                   )
                 )
               }
+            case "https://finnhub.io/api/v1/quote?symbol=BAR&token=alligator3" =>
+              ZIO.succeed {
+                Response(
+                  status = 200,
+                  headers = Map.empty,
+                  body = Resource.read(
+                    "/io/finnhub/api/v1/quote?symbol=BAR&token=alligator3"
+                  )
+                )
+              }
     }
 
   override def spec =
@@ -51,16 +61,17 @@ object StockSpec extends DefaultRunnableSpec:
           _ <- inbox.offer(Rx("#foo", "bar", "@stock VOO"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock voo"))
           _ <- inbox.offer(Rx("#foo", "bar", "@stock FOO"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@stock VOO BAR"))
           _ <- TestClock.adjust(1.seconds)
-          m1 <- outbox.take
-          m2 <- outbox.take
-          m3 <- outbox.take
-        yield assert((m1, m2, m3))(
+          ms <- outbox.takeAll
+        yield assert((ms))(
           equalTo(
-            (
+            List(
               Tx("#foo", "VOO: 390.09 +0.68 (+0.17%)"),
-              Tx("#foo", "voo: 390.09 +0.68 (+0.17%)"),
-              Tx("#foo", "FOO: stonk not found")
+              Tx("#foo", "VOO: 390.09 +0.68 (+0.17%)"),
+              Tx("#foo", "FOO: stonk not found"),
+              Tx("#foo", "VOO: 390.09 +0.68 (+0.17%)"),
+              Tx("#foo", "BAR: 1.00 +0.00 (+0.00%)")
             )
           )
         )
