@@ -31,6 +31,7 @@ object Db:
               conn.setAutoCommit(false)
               val result: A = k(conn)
               conn.commit()
+              conn.close()
               result
             }
             .catchAll { e =>
@@ -38,6 +39,7 @@ object Db:
                 .getLogger(this.getClass())
                 .error("rolling back transaction")
               conn.rollback()
+              conn.close()
               ZIO.fail(e)
             }
     }
