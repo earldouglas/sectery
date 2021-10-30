@@ -26,7 +26,9 @@ object Rx:
       (
         r.channel,
         r.nick,
-        r.message.replaceAll("""^<[^>]*>\s*""", "")
+        r.message
+          .replaceAll("""^<[^>]*>""", "")
+          .trim
       )
     )
 
