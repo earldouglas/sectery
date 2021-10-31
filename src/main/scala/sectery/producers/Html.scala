@@ -52,7 +52,7 @@ object Html extends Producer:
     Option(x).map(_.trim).filter(_.length > 0)
 
   private def shorten(x: String): String =
-    if (x.length > 300) x.take(280) + "..." else x
+    if x.length > 300 then x.take(280) + "..." else x
 
   private def getTitle(doc: Document): Option[String] =
 

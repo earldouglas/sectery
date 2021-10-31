@@ -273,22 +273,20 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
     yield
       var aqiMap: Map[String, AqiParameter] = Map.empty
       aqiObservation.parameters.foreach { case p =>
-        if (!aqiMap.contains(p.name)) {
+        if !aqiMap.contains(p.name) then
           aqiMap = aqiMap + (p.name -> AqiParameter(
             name = p.name,
             value = p.value,
             category = p.category
           ))
-        }
       }
       aqiForecast.parameters.sortBy(_.date).foreach { case p =>
-        if (!aqiMap.contains(p.name)) {
+        if !aqiMap.contains(p.name) then
           aqiMap = aqiMap + (p.name -> AqiParameter(
             name = p.name,
             value = p.value,
             category = p.category
           ))
-        }
       }
       Wx(
         forecast = forecast,

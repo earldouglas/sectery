@@ -111,10 +111,9 @@ object Grab extends Producer:
     stmt.setString(1, channel)
     val rs = stmt.executeQuery
     var no: Option[String] = None
-    if (rs.next()) {
+    if rs.next() then
       val nick = rs.getString("NICK")
       no = Some(nick)
-    }
     stmt.close
     no
 
@@ -134,10 +133,9 @@ object Grab extends Producer:
     stmt.setString(2, nick)
     val rs = stmt.executeQuery
     var mo: Option[String] = None
-    if (rs.next()) {
+    if rs.next() then
       val message = rs.getString("MESSAGE")
       mo = Some(message)
-    }
     stmt.close
     mo
 

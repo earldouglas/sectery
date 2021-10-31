@@ -54,17 +54,16 @@ object Autoquote:
       stmt.setTimestamp(1, new Timestamp(hourAgoMillis))
       val rs = stmt.executeQuery
       var cs: List[String] = Nil
-      if (rs.next()) {
+      if rs.next() then
         val channel = rs.getString("CHANNEL")
         cs = channel :: cs
-      }
       stmt.close()
       cs
 
     def updateAutoquote(
         channels: List[String]
     )(conn: Connection): Unit =
-      if (channels.length > 0)
+      if channels.length > 0 then
         val in = channels.map(_ => "?").mkString(", ")
         val s =
           s"""|UPDATE AUTOQUOTE
@@ -110,14 +109,13 @@ object Autoquote:
     for
       nowMillis <- Clock.currentTime(TimeUnit.MILLISECONDS)
       _ <-
-        if (timeForAutoquote(nowMillis))
+        if timeForAutoquote(nowMillis) then
           for
             channels <- getAutoquoteChannels(nowMillis)
             messages <- getAutoquoteMessages(channels)
             _ <- ZIO.collectAll(messages.map(outbox.offer))
           yield ()
-        else
-          ZIO.succeed(())
+        else ZIO.succeed(())
     yield ()
 
   def apply(outbox: Queue[Tx]): URIO[Has[Clock] with Db.Db, Unit] =
