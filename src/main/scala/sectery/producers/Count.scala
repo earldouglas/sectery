@@ -33,11 +33,8 @@ object Count extends Producer:
           val stmt = conn.createStatement
           val rs = stmt.executeQuery(q)
           val count =
-            if (rs.next()) {
-              rs.getInt("VALUE")
-            } else {
-              0
-            }
+            if rs.next() then rs.getInt("VALUE")
+            else 0
           stmt.close
           count
 

@@ -90,11 +90,8 @@ object Http:
           .map({ case (k, v) => (k, v.asScala.mkString(",")) })
           .toMap - "Date" - "Content-Length" - "Server",
         body = Source.fromInputStream {
-          if (c.getResponseCode() < 400) {
-            c.getInputStream
-          } else {
-            c.getErrorStream
-          }
+          if c.getResponseCode() < 400 then c.getInputStream
+          else c.getErrorStream
         }.mkString
       )
 

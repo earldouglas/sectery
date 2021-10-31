@@ -36,7 +36,7 @@ class Bot(rx: Rx => Unit, tx: Tx => Unit)
             override def onGenericMessage(
                 event: GenericMessageEvent
             ): Unit =
-              if (event.getUser().getNick() != sys.env("IRC_USER"))
+              if event.getUser().getNick() != sys.env("IRC_USER") then
                 event match
                   case e: MessageEvent =>
                     val m =
@@ -49,7 +49,7 @@ class Bot(rx: Rx => Unit, tx: Tx => Unit)
             override def onJoin(
                 event: JoinEvent
             ): Unit =
-              if (event.getUser().getNick() != sys.env("IRC_USER"))
+              if event.getUser().getNick() != sys.env("IRC_USER") then
                 val m =
                   Tx(
                     channel = event.getChannel().getName(),

@@ -153,7 +153,7 @@ object LastMessage extends Producer:
     stmt.setString(2, nick)
     val rs = stmt.executeQuery
     var mo: Option[LastMessage] = None
-    if (rs.next()) {
+    if rs.next() then
       val message = rs.getString("MESSAGE")
       val timestamp = rs.getTimestamp("TIMESTAMP")
       mo = Some(
@@ -164,6 +164,5 @@ object LastMessage extends Producer:
           timestamp = timestamp
         )
       )
-    }
     stmt.close()
     mo

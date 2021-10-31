@@ -67,10 +67,9 @@ object Config extends Producer:
       stmt.setString(2, key)
       val rs = stmt.executeQuery
       var vo: Option[String] = None
-      if (rs.next()) {
+      if rs.next() then
         val value = rs.getString("VALUE")
         vo = Some(value)
-      }
       stmt.close
       vo
     }
