@@ -1,9 +1,8 @@
 package sectery
 
 import org.json4s.JsonDSL._
-import org.json4s.MonadicJValue.jvalueToMonadic
 import org.json4s._
-import org.json4s.native.JsonMethods._
+import org.json4s.jackson.JsonMethods._
 import scala.util.Try
 import sectery.Http
 import zio.Has

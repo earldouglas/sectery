@@ -4,9 +4,8 @@ import java.net.URLEncoder
 import java.text.NumberFormat
 import java.util.Locale
 import org.json4s.JsonDSL._
-import org.json4s.MonadicJValue.jvalueToMonadic
 import org.json4s._
-import org.json4s.native.JsonMethods._
+import org.json4s.jackson.JsonMethods._
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import sectery.Http

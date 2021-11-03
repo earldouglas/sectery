@@ -1,0 +1,84 @@
+{
+  "Episode": {
+    "Id": 410,
+    "Key": "S04E16",
+    "Season": 4,
+    "EpisodeNumber": 16,
+    "Title": "Duffless",
+    "Director": "Jim Reardon",
+    "Writer": "David M. Stern",
+    "OriginalAirDate": "18-Feb-93",
+    "WikiLink": "https://en.wikipedia.org/wiki/Duffless"
+  },
+  "Frame": {
+    "Id": 484106,
+    "Episode": "S04E16",
+    "Timestamp": 166465
+  },
+  "Subtitles": [
+    {
+      "Id": 39268,
+      "RepresentativeTimestamp": 165214,
+      "Episode": "S04E16",
+      "StartTimestamp": 164400,
+      "EndTimestamp": 166333,
+      "Content": "DID I SAY THAT OR JUST THINK IT?",
+      "Language": "en"
+    },
+    {
+      "Id": 39269,
+      "RepresentativeTimestamp": 167099,
+      "Episode": "S04E16",
+      "StartTimestamp": 166333,
+      "EndTimestamp": 167934,
+      "Content": "I GOT TO THINK OF A LIE FAST.",
+      "Language": "en"
+    },
+    {
+      "Id": 39270,
+      "RepresentativeTimestamp": 168767,
+      "Episode": "S04E16",
+      "StartTimestamp": 167934,
+      "EndTimestamp": 169900,
+      "Content": "HOMER, ARE YOU GOING TO THE DUFF BREWERY?",
+      "Language": "en"
+    }
+  ],
+  "Nearby": [
+    {
+      "Id": 484102,
+      "Episode": "S04E16",
+      "Timestamp": 165848
+    },
+    {
+      "Id": 484104,
+      "Episode": "S04E16",
+      "Timestamp": 166048
+    },
+    {
+      "Id": 484110,
+      "Episode": "S04E16",
+      "Timestamp": 166265
+    },
+    {
+      "Id": 484106,
+      "Episode": "S04E16",
+      "Timestamp": 166465
+    },
+    {
+      "Id": 484107,
+      "Episode": "S04E16",
+      "Timestamp": 166682
+    },
+    {
+      "Id": 484108,
+      "Episode": "S04E16",
+      "Timestamp": 166882
+    },
+    {
+      "Id": 484109,
+      "Episode": "S04E16",
+      "Timestamp": 167099
+    }
+  ]
+}

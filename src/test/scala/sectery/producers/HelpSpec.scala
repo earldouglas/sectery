@@ -26,7 +26,23 @@ object HelpSpec extends DefaultRunnableSpec:
             List(
               Tx(
                 "#foo",
-                "@btc, @count, @eval, @get, @grab, @ping, @quote, @set, @stock, @tell, @time, @version, @wx, s///"
+                List(
+                  "@btc",
+                  "@count",
+                  "@eval",
+                  "@frinkiac",
+                  "@get",
+                  "@grab",
+                  "@ping",
+                  "@quote",
+                  "@set",
+                  "@stock",
+                  "@tell",
+                  "@time",
+                  "@version",
+                  "@wx",
+                  "s///"
+                ).mkString(", ")
               ),
               Tx(
                 "#foo",

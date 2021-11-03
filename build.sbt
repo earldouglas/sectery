@@ -22,7 +22,7 @@ lazy val root = project
   .settings(
     name := "sectery",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.json4s" %% "json4s-native-core" % "4.0.3",
+    libraryDependencies += "org.json4s" %% "json4s-jackson" % "4.0.3",
     libraryDependencies += "org.postgresql" % "postgresql" % "42.3.0",
     libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.6",
