@@ -85,7 +85,8 @@ object Producer:
         Tell,
         LastMessage,
         Grab,
-        Config
+        Config,
+        Frinkiac
       )
     )
 
