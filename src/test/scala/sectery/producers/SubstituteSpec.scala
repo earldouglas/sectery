@@ -39,11 +39,25 @@ object SubstituteSpec extends DefaultRunnableSpec:
           _ <- TestClock.adjust(
             1.millis
           ) // timestamps in db need to differ by at least a millisecond
-          _ <- inbox.offer(Rx("#substitute", "qux", "s/bar/baz/"))
+          _ <- inbox.offer(
+            Rx("#substitute", "qux", "123 123 123")
+          )
+          _ <- TestClock.adjust(
+            1.millis
+          ) // timestamps in db need to differ by at least a millisecond
+          _ <- inbox.offer(Rx("#substitute", "waldo", "s/bar/baz/"))
+          _ <- inbox.offer(Rx("#substitute", "waldo", "s/1/one/"))
+          _ <- inbox.offer(Rx("#substitute", "waldo", "s/2/two/g"))
           _ <- TestClock.adjust(1.seconds)
-          m <- outbox.take
-        yield assert(m)(
-          equalTo(Tx("#substitute", "<baz> I said baz third."))
+          ms <- outbox.takeAll
+        yield assert(ms)(
+          equalTo(
+            List(
+              Tx("#substitute", "<baz> I said baz third."),
+              Tx("#substitute", "<qux> one23 123 123"),
+              Tx("#substitute", "<qux> 1two3 1two3 1two3")
+            )
+          )
         )
       } @@ timeout(2.seconds)
     )

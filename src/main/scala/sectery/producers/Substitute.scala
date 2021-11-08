@@ -16,26 +16,39 @@ import zio.ZIO
 
 object Substitute extends Producer:
 
-  type Channel = String
-  type Nick = String
-  type Msg = String
-
-  private val sub = """s\/(.*)\/(.*)\/""".r
+  private val subOne = """s\/(.*)\/(.*)\/$""".r
+  private val subAll = """s\/(.*)\/(.*)\/g""".r
 
   override def help(): Iterable[Info] =
     Some(Info("s///", "s/find/replace/"))
 
+  private def substitute(
+      channel: String,
+      toReplace: String,
+      howReplace: String => String
+  ): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
+    val matcher: Regex = new Regex(s".*${toReplace}.*")
+    Db { conn =>
+      val ms = LastMessage.lastMessages(channel)(conn)
+      ms.find(m => matcher.matches(m.message)) map { m =>
+        val replacedMsg: String = howReplace(m.message)
+        Tx(channel, s"<${m.nick}> ${replacedMsg}")
+      }
+    }
+
   override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
     m match
-      case Rx(channel, nick, sub(toReplace, withReplace)) =>
-        val matcher: Regex = new Regex(s".*${toReplace}.*")
-        Db { conn =>
-          val ms = LastMessage.lastMessages(channel)(conn)
-          ms.find(m => matcher.matches(m.message)) map { m =>
-            val replacedMsg: Msg =
-              m.message.replaceAll(toReplace, withReplace)
-            Tx(channel, s"<${m.nick}> ${replacedMsg}")
-          }
-        }
+      case Rx(channel, nick, subOne(toReplace, withReplace)) =>
+        substitute(
+          channel,
+          toReplace,
+          _.replaceFirst(toReplace, withReplace)
+        )
+      case Rx(channel, nick, subAll(toReplace, withReplace)) =>
+        substitute(
+          channel,
+          toReplace,
+          _.replaceAll(toReplace, withReplace)
+        )
       case _ =>
         ZIO.succeed(None)
