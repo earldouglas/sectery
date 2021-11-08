@@ -71,6 +71,14 @@ object FrinkiacSpec extends DefaultRunnableSpec:
               Tx(
                 "#foo",
                 "DID I SAY THAT OR JUST THINK IT?"
+              ),
+              Tx(
+                "#foo",
+                "I GOT TO THINK OF A LIE FAST."
+              ),
+              Tx(
+                "#foo",
+                "HOMER, ARE YOU GOING TO THE DUFF BREWERY?"
               )
             )
           )
