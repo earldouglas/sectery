@@ -36,9 +36,16 @@ object Html extends Producer:
           .map {
             case Response(200, _, body) =>
               val doc: Document = Jsoup.parse(body)
-              (getTitle(doc).toSeq ++ getDescription(doc).toSet).map(
-                d => Tx(c, d)
-              )
+              val title: Option[String] = getTitle(doc)
+              val desc: Option[String] = getDescription(doc)
+              val m: String =
+                List(
+                  title,
+                  title.map(_ => ": "),
+                  desc
+                ).flatten.mkString.trim
+              if (m.isEmpty) then None
+              else Some(Tx(c, shorten(m)))
             case r =>
               LoggerFactory
                 .getLogger(this.getClass())
@@ -72,7 +79,6 @@ object Html extends Producer:
       .flatMap(nonEmpty)
       .headOption
       .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
-      .map(shorten)
 
   private def getDescription(doc: Document): Option[String] =
 
@@ -94,4 +100,3 @@ object Html extends Producer:
       .flatMap(nonEmpty)
       .headOption
       .map(_.replaceAll("[\\r\\n]", " ").replaceAll("\\s+", " "))
-      .map(shorten)

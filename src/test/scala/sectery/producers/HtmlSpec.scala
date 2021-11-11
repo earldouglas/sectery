@@ -61,10 +61,9 @@ object HtmlSpec extends DefaultRunnableSpec:
         yield assert(ms)(
           equalTo(
             List(
-              Tx("#foo", "Notes on Scala"),
               Tx(
                 "#foo",
-                "Some notes on the Scala language, libraries, and ecosystem."
+                "Notes on Scala: Some notes on the Scala language, libraries, and ecosystem."
               )
             )
           )
