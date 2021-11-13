@@ -132,17 +132,12 @@ object Frinkiac extends Producer:
           for
             s <- ZIOO(Search.search(q).map(_.headOption))
             c <- ZIOO(Caption.caption(s.Episode, s.Timestamp))
-          yield List(
-            Some(
-              Tx(
-                channel,
-                s"https://frinkiac.com/caption/${s.Episode}/${s.Timestamp}"
-              )
-            ),
-            c.Subtitles.headOption
-              .map(_.Content)
-              .map(content => Tx(channel, content))
-          ).flatten
+          yield Tx(
+            channel,
+            s"https://frinkiac.com/caption/${s.Episode}/${s.Timestamp}"
+          ) :: c.Subtitles
+            .map(_.Content)
+            .map(content => Tx(channel, content))
         ).map(_.toList.flatten)
       case _ =>
         ZIO.succeed(None)
