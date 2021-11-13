@@ -63,53 +63,58 @@ object LastMessage extends Producer:
     }
 
   override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
+    m match
+      case Rx(_, _, Substitute.subFirst(toReplace, withReplace)) =>
+        ZIO.succeed(None)
+      case Rx(_, _, Substitute.subAll(toReplace, withReplace)) =>
+        ZIO.succeed(None)
+      case _ =>
+        def deleteLastMessage(conn: Connection): Unit =
+          val s =
+            "DELETE FROM LAST_MESSAGE WHERE CHANNEL = ? AND NICK = ?"
+          val stmt = conn.prepareStatement(s)
+          stmt.setString(1, m.channel)
+          stmt.setString(2, m.nick)
+          stmt.executeUpdate
+          stmt.close()
 
-    def deleteLastMessage(conn: Connection): Unit =
-      val s =
-        "DELETE FROM LAST_MESSAGE WHERE CHANNEL = ? AND NICK = ?"
-      val stmt = conn.prepareStatement(s)
-      stmt.setString(1, m.channel)
-      stmt.setString(2, m.nick)
-      stmt.executeUpdate
-      stmt.close()
+        def addLastMessage(nowMillis: Long)(conn: Connection): Unit =
+          val s =
+            "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE, TIMESTAMP) VALUES (?, ?, ?, ?)"
+          val stmt = conn.prepareStatement(s)
+          stmt.setString(1, m.channel)
+          stmt.setString(2, m.nick)
+          stmt.setString(3, m.message)
+          stmt.setTimestamp(4, new Timestamp(nowMillis))
+          stmt.executeUpdate
+          stmt.close()
 
-    def addLastMessage(nowMillis: Long)(conn: Connection): Unit =
-      val s =
-        "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE, TIMESTAMP) VALUES (?, ?, ?, ?)"
-      val stmt = conn.prepareStatement(s)
-      stmt.setString(1, m.channel)
-      stmt.setString(2, m.nick)
-      stmt.setString(3, m.message)
-      stmt.setTimestamp(4, new Timestamp(nowMillis))
-      stmt.executeUpdate
-      stmt.close()
+        def deleteAutoquote(conn: Connection): Unit =
+          val s =
+            "DELETE FROM AUTOQUOTE WHERE CHANNEL = ?"
+          val stmt = conn.prepareStatement(s)
+          stmt.setString(1, m.channel)
+          stmt.executeUpdate
+          stmt.close()
 
-    def deleteAutoquote(conn: Connection): Unit =
-      val s =
-        "DELETE FROM AUTOQUOTE WHERE CHANNEL = ?"
-      val stmt = conn.prepareStatement(s)
-      stmt.setString(1, m.channel)
-      stmt.executeUpdate
-      stmt.close()
+        def addAutoquote(nowMillis: Long)(conn: Connection): Unit =
+          val s =
+            "INSERT INTO AUTOQUOTE (CHANNEL, TIMESTAMP) VALUES (?, ?)"
+          val stmt = conn.prepareStatement(s)
+          stmt.setString(1, m.channel)
+          stmt.setTimestamp(2, new Timestamp(nowMillis))
+          stmt.executeUpdate
+          stmt.close()
 
-    def addAutoquote(nowMillis: Long)(conn: Connection): Unit =
-      val s =
-        "INSERT INTO AUTOQUOTE (CHANNEL, TIMESTAMP) VALUES (?, ?)"
-      val stmt = conn.prepareStatement(s)
-      stmt.setString(1, m.channel)
-      stmt.setTimestamp(2, new Timestamp(nowMillis))
-      stmt.executeUpdate
-      stmt.close()
-
-    for
-      nowMillis <- Clock.currentTime(TimeUnit.MILLISECONDS)
-      _ <- Db { conn =>
-        deleteLastMessage(conn)
-        addLastMessage(nowMillis)(conn)
-        deleteAutoquote(conn)
-        addAutoquote(nowMillis)(conn)
-      }
-    yield None
+        for
+          nowMillis <- Clock.currentTime(TimeUnit.MILLISECONDS)
+          _ <- Db { conn =>
+            deleteLastMessage(conn)
+            addLastMessage(nowMillis)(conn)
+            deleteAutoquote(conn)
+            addAutoquote(nowMillis)(conn)
+          }
+        yield None
 
   def lastMessages(channel: String)(
       conn: Connection

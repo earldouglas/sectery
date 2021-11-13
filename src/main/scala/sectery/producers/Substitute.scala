@@ -16,8 +16,8 @@ import zio.ZIO
 
 object Substitute extends Producer:
 
-  private val subOne = """s\/(.*)\/(.*)\/$""".r
-  private val subAll = """s\/(.*)\/(.*)\/g""".r
+  val subFirst = """s\/(.*)\/(.*)\/$""".r
+  val subAll = """s\/(.*)\/(.*)\/g""".r
 
   override def help(): Iterable[Info] =
     Some(Info("s///", "s/find/replace/"))
@@ -38,7 +38,7 @@ object Substitute extends Producer:
 
   override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
     m match
-      case Rx(channel, nick, subOne(toReplace, withReplace)) =>
+      case Rx(channel, nick, subFirst(toReplace, withReplace)) =>
         substitute(
           channel,
           toReplace,
