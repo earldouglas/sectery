@@ -49,8 +49,8 @@ object Ascii extends Producer:
     val g = i.getGraphics().asInstanceOf[Graphics2D]
     g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12))
     g.drawString(text, 0, height)
-    (0 until height) map { y =>
+    ((0 until height) map { y =>
       (0 until width).map { x =>
         if i.getRGB(x, y) == -16777216 then " " else "#"
       }.mkString
-    }
+    }).dropWhile(_.trim().length == 0)
