@@ -14,6 +14,8 @@ import zio.durationInt
 
 object Sectery extends App:
 
+  val messageDelayMs = 250
+
   /** This is the main entry point for the application. Set your env
     * vars, then run this main method.
     *
@@ -39,7 +41,7 @@ object Sectery extends App:
               bot.sendIRC.message(m.channel, m.message)
             }
           yield ()
-        ).repeat(Schedule.spaced(250.milliseconds)).fork
+        ).repeat(Schedule.spaced(messageDelayMs.milliseconds)).fork
         _ <- Fiber.joinAll(List(loopFiber, outboxFiber, botFiber))
       yield ExitCode.failure // should never exit
 
