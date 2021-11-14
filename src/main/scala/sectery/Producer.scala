@@ -86,7 +86,8 @@ object Producer:
         LastMessage,
         Grab,
         Config,
-        Frinkiac
+        Frinkiac,
+        Blink
       )
     )
 
