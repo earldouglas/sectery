@@ -27,6 +27,7 @@ object HelpSpec extends DefaultRunnableSpec:
               Tx(
                 "#foo",
                 List(
+                  "@blink",
                   "@btc",
                   "@count",
                   "@eval",
