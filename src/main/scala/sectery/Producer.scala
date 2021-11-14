@@ -87,7 +87,8 @@ object Producer:
         Grab,
         Config,
         Frinkiac,
-        Blink
+        Blink,
+        Ascii
       )
     )
 
