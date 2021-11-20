@@ -9,7 +9,6 @@ import sectery.Producer
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
-import zio.Has
 import zio.RIO
 import zio.UIO
 import zio.ZIO
@@ -42,7 +41,7 @@ object Tell extends Producer:
       stmt.close
     }
 
-  override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Db.Db with Clock, Iterable[Tx]] =
     m match
       case Rx(c, from, tell(to, message)) =>
         for {

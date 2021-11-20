@@ -4,7 +4,7 @@ import zio._
 
 object TestHttp:
 
-  def apply(): ULayer[Has[Http.Service]] =
+  def apply(): ULayer[Http.Service] =
     apply(
       resStatus = 200,
       resHeaders = Map.empty,
@@ -15,8 +15,8 @@ object TestHttp:
       resStatus: Int,
       resHeaders: Map[String, String],
       resBody: String
-  ): ULayer[Has[Http.Service]] =
-    ZLayer.succeed {
+  ): ULayer[Http.Service] =
+    ZLayer.succeed[Http.Service] {
       new Http.Service:
         def request(
             method: String,

@@ -15,7 +15,6 @@ import sectery.Response
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
-import zio.Has
 import zio.RIO
 import zio.ZIO
 

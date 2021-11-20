@@ -4,7 +4,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 import scala.collection.JavaConverters._
 import scala.io.Source
-import zio.Has
 import zio.RIO
 import zio.Task
 import zio.ULayer
@@ -19,7 +18,7 @@ case class Response(
 
 object Http:
 
-  type Http = Has[Http.Service]
+  type Http = Http.Service
 
   trait Service:
     def request(
@@ -29,7 +28,7 @@ object Http:
         body: Option[String]
     ): Task[Response]
 
-  val live: ULayer[Has[Service]] =
+  val live: ULayer[Service] =
     ZLayer.succeed {
       new Service:
         def request(

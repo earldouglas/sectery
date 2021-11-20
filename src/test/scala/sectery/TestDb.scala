@@ -2,14 +2,13 @@ package sectery
 
 import java.sql.Connection
 import java.sql.DriverManager
-import zio.Has
 import zio.Task
 import zio.ULayer
 import zio.ZIO
 import zio.ZLayer
 
 object TestDb:
-  def apply(): ULayer[Has[Db.Service]] =
+  def apply(): ULayer[Db.Service] =
     ZLayer.succeed {
       new Db.Service:
         Class.forName("org.sqlite.JDBC");

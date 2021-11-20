@@ -10,7 +10,6 @@ import sectery.Response
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
-import zio.Has
 import zio.RIO
 import zio.ZIO
 
@@ -26,7 +25,7 @@ object Substitute extends Producer:
       channel: String,
       toReplace: String,
       howReplace: String => String
-  ): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
+  ): RIO[Db.Db with Clock, Iterable[Tx]] =
     val matcher: Regex = new Regex(s".*${toReplace}.*")
     Db { conn =>
       val ms = LastMessage.lastMessages(channel)(conn)
@@ -36,7 +35,7 @@ object Substitute extends Producer:
       }
     }
 
-  override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Db.Db with Clock, Iterable[Tx]] =
     m match
       case Rx(channel, nick, subFirst(toReplace, withReplace)) =>
         substitute(

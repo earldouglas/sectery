@@ -2,7 +2,6 @@ package sectery
 
 import sectery.Producer.Env
 import zio.Fiber
-import zio.Has
 import zio.Queue
 import zio.RIO
 import zio.Schedule
