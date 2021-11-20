@@ -11,7 +11,6 @@ import sectery.Response
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
-import zio.Has
 import zio.RIO
 import zio.ZIO
 
@@ -62,7 +61,7 @@ object LastMessage extends Producer:
       createAutoquote(conn)
     }
 
-  override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Db.Db with Clock, Iterable[Tx]] =
     m match
       case Rx(_, _, Substitute.subFirst(toReplace, withReplace)) =>
         ZIO.succeed(None)

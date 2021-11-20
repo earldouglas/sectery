@@ -5,13 +5,13 @@ import zio.Inject._
 import zio._
 import zio.test.Assertion.equalTo
 import zio.test.TestAspect._
+import zio.test.TestClock
 import zio.test._
-import zio.test.environment.TestClock
 
 object WeatherSpec extends DefaultRunnableSpec:
 
-  val http: ULayer[Has[Http.Service]] =
-    ZLayer.succeed {
+  val http: ULayer[Http.Service] =
+    ZLayer.succeed[Http.Service] {
       new Http.Service:
         def request(
             method: String,

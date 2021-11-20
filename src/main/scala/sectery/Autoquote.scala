@@ -9,7 +9,6 @@ import sectery.Db
 import sectery.Tx
 import sectery.producers.Grab
 import zio.Clock
-import zio.Has
 import zio.Queue
 import zio.RIO
 import zio.URIO
@@ -105,7 +104,7 @@ object Autoquote:
 
   private def unsafeAutoquote(
       outbox: Queue[Tx]
-  ): RIO[Has[Clock] with Db.Db, Unit] =
+  ): RIO[Clock with Db.Db, Unit] =
     for
       nowMillis <- Clock.currentTime(TimeUnit.MILLISECONDS)
       _ <-
@@ -118,7 +117,7 @@ object Autoquote:
         else ZIO.succeed(())
     yield ()
 
-  def apply(outbox: Queue[Tx]): URIO[Has[Clock] with Db.Db, Unit] =
+  def apply(outbox: Queue[Tx]): URIO[Clock with Db.Db, Unit] =
     unsafeAutoquote(outbox)
       .catchAllCause { cause =>
         LoggerFactory

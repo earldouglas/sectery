@@ -7,12 +7,12 @@ import zio._
 
 object Db:
 
-  type Db = Has[Db.Service]
+  type Db = Db.Service
 
   trait Service:
     def apply[A](k: Connection => A): Task[A]
 
-  lazy val live: ULayer[Has[Service]] =
+  lazy val live: ULayer[Service] =
     ZLayer.succeed {
       new Service:
         // for info about the DATABASE_URL env var, see

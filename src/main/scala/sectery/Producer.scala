@@ -3,7 +3,6 @@ package sectery
 import org.slf4j.LoggerFactory
 import sectery.producers._
 import zio.Clock
-import zio.Has
 import zio.RIO
 import zio.UIO
 import zio.URIO
@@ -64,7 +63,7 @@ object Help {
 
 object Producer:
 
-  type Env = Db.Db with Http.Http with Has[Clock]
+  type Env = Db.Db with Http.Http with Clock
 
   private val producers: List[Producer] =
     Help(

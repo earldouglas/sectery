@@ -10,7 +10,6 @@ import sectery.Producer
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
-import zio.Has
 import zio.RIO
 import zio.URIO
 import zio.ZIO
@@ -27,7 +26,7 @@ object Time extends Producer:
       )
     )
 
-  private def getTime(zone: String): URIO[Has[Clock], String] =
+  private def getTime(zone: String): URIO[Clock, String] =
     for
       millis <- Clock.currentTime(TimeUnit.MILLISECONDS)
       date = new Date(millis)
@@ -36,7 +35,7 @@ object Time extends Producer:
       pretty = sdf.format(date)
     yield pretty
 
-  override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Db.Db with Clock, Iterable[Tx]] =
     m match
       case Rx(c, nick, "@time") =>
         for

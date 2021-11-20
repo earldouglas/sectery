@@ -9,7 +9,6 @@ import sectery.Producer
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
-import zio.Has
 import zio.RIO
 import zio.UIO
 import zio.ZIO
@@ -43,7 +42,7 @@ object Grab extends Producer:
       }
     yield ()
 
-  override def apply(m: Rx): RIO[Db.Db with Has[Clock], Iterable[Tx]] =
+  override def apply(m: Rx): RIO[Db.Db with Clock, Iterable[Tx]] =
     m match
       case Rx(c, from, grab(nick)) if from == nick =>
         ZIO.succeed(

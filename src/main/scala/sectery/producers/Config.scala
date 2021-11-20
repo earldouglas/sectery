@@ -11,7 +11,6 @@ import sectery.Producer
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
-import zio.Has
 import zio.RIO
 import zio.URIO
 import zio.ZIO

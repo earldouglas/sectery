@@ -5,7 +5,6 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import scala.util.Try
 import sectery.Http
-import zio.Has
 import zio.RIO
 import zio.Task
 import zio.ULayer
