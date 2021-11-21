@@ -1,8 +1,5 @@
 package sectery
 
-import org.json4s.JsonDSL._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import scala.util.Try
 import sectery.Http
 import zio.RIO
@@ -10,6 +7,22 @@ import zio.Task
 import zio.ULayer
 import zio.ZIO
 import zio.ZLayer
+import zio.json._
+
+object FinnhubApi:
+
+  case class Quote(
+      c: Float, // current
+      h: Float, // high
+      l: Float, // low
+      o: Float, // open
+      pc: Float, // previous close
+      t: Long // time
+  )
+
+  object Quote:
+    implicit val decoder: JsonDecoder[Quote] =
+      DeriveJsonDecoder.gen[Quote]
 
 class Finnhub(apiToken: String):
 
@@ -21,14 +34,6 @@ class Finnhub(apiToken: String):
       previousClose: Float
   )
 
-  def floatish(v: JValue): Option[Float] =
-    v match
-      case JDouble(x)  => Some(x.toFloat)
-      case JDecimal(x) => Some(x.toFloat)
-      case JInt(x)     => Some(x.toFloat)
-      case JLong(x)    => Some(x.toFloat)
-      case _           => None
-
   def quote(symbol: String): RIO[Http.Http, Option[Quote]] =
     Http
       .request(
@@ -38,26 +43,21 @@ class Finnhub(apiToken: String):
         headers = Map("User-Agent" -> "bot"),
         body = None
       )
-      .flatMap {
-        case Response(200, _, body) =>
-          val quote: Option[Quote] =
-            for
-              json <- Try(parse(body)).toOption
-              c <- floatish(json \ "c")
-              h <- floatish(json \ "h")
-              l <- floatish(json \ "l")
-              o <- floatish(json \ "o")
-              pc <- floatish(json \ "pc")
-              // If Finnhub can't find a symbol, it returns all zeroes
-              if c != 0 || h != 0 || l != 0 || o != 0 || pc != 0
-            yield Quote(
-              open = o.toFloat,
-              high = h.toFloat,
-              low = l.toFloat,
-              current = c.toFloat,
-              previousClose = pc.toFloat
+      .flatMap { case Response(200, _, body) =>
+        body.fromJson[FinnhubApi.Quote] match
+          case Right(jq)
+              if jq.c != 0 || jq.h != 0 || jq.l != 0 || jq.o != 0 || jq.pc != 0 =>
+            ZIO.succeed(
+              Some(
+                Quote(
+                  open = jq.o.toFloat,
+                  high = jq.h.toFloat,
+                  low = jq.l.toFloat,
+                  current = jq.c.toFloat,
+                  previousClose = jq.pc.toFloat
+                )
+              )
             )
-          ZIO.attempt(quote)
-        case _ =>
-          ZIO.succeed(None)
+          case Right(_) => ZIO.succeed(None)
+          case Left(_)  => ZIO.succeed(None)
       }
