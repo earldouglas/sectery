@@ -37,14 +37,14 @@ object Html extends Producer:
               val doc: Document = Jsoup.parse(body)
               val title: Option[String] = getTitle(doc)
               val desc: Option[String] = getDescription(doc)
-              val m: String =
-                List(
-                  title,
-                  title.map(_ => ": "),
-                  desc
-                ).flatten.mkString.trim
-              if (m.isEmpty) then None
-              else Some(Tx(c, shorten(m)))
+              val titleDesc: Option[String] =
+                (title, desc) match
+                  case (None, None)    => None
+                  case (Some(t), None) => Some(t)
+                  case (None, Some(d)) => Some(d)
+                  case (Some(t), Some(d)) =>
+                    Some(List(t, ": ", d).mkString)
+              titleDesc.map(m => Tx(c, shorten(m)))
             case r =>
               LoggerFactory
                 .getLogger(this.getClass())
