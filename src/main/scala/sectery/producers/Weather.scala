@@ -1,9 +1,6 @@
 package sectery.producers
 
 import java.net.URLEncoder
-import org.json4s.JsonDSL._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -18,8 +15,19 @@ import sectery.Tx
 import zio.Clock
 import zio.RIO
 import zio.ZIO
+import zio.json._
 
 object OSM:
+
+  case class PlaceJson(
+      display_name: String,
+      lat: Double,
+      lon: Double
+  )
+
+  object PlaceJson:
+    implicit val decoder: JsonDecoder[PlaceJson] =
+      DeriveJsonDecoder.gen[PlaceJson]
 
   case class Place(
       displayName: String,
@@ -40,32 +48,62 @@ object OSM:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.attempt {
-          val json = parse(body)
-          (
-            json(0) \ "display_name",
-            json(0) \ "lat",
-            json(0) \ "lon"
-          ) match
-            case (JString(displayName), JString(lat), JString(lon)) =>
-              Some(
+        body.fromJson[List[PlaceJson]] match
+          case Right(pjs) =>
+            ZIO.succeed(
+              pjs.headOption.map(pj =>
                 Place(
-                  displayName = displayName,
+                  displayName = pj.display_name,
                   shortName =
-                    displayName.split(", ").headOption.getOrElse(q),
-                  lat = lat.toDouble,
-                  lon = lon.toDouble
+                    pj.display_name.split(", ").headOption.getOrElse(q),
+                  lat = pj.lat,
+                  lon = pj.lon
                 )
               )
-            case r =>
-              LoggerFactory
-                .getLogger(this.getClass())
-                .error(s"unexpected response: ${r}")
-              None
-        }
+            )
+          case Left(_) =>
+            ZIO.succeed(None)
       }
 
 object DarkSky:
+
+  case class Currently(
+      temperature: Float,
+      humidity: Float,
+      windSpeed: Float,
+      windGust: Float,
+      uvIndex: Int
+  )
+
+  object Currently:
+    implicit val decoder: JsonDecoder[Currently] =
+      DeriveJsonDecoder.gen[Currently]
+
+  case class Data(
+      temperatureHigh: Float,
+      temperatureLow: Float
+  )
+
+  object Data:
+    implicit val decoder: JsonDecoder[Data] =
+      DeriveJsonDecoder.gen[Data]
+
+  case class Daily(
+      data: List[Data]
+  )
+
+  object Daily:
+    implicit val decoder: JsonDecoder[Daily] =
+      DeriveJsonDecoder.gen[Daily]
+
+  case class ForecastJson(
+      currently: Currently,
+      daily: Daily
+  )
+
+  object ForecastJson:
+    implicit val decoder: JsonDecoder[ForecastJson] =
+      DeriveJsonDecoder.gen[ForecastJson]
 
   case class Forecast(
       temperature: Double,
@@ -92,70 +130,47 @@ object DarkSky:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.attempt {
-          val json = parse(body)
-          (
-            json \ "currently" \ "temperature",
-            (json \ "daily" \ "data")(0) \ "temperatureHigh",
-            (json \ "daily" \ "data")(0) \ "temperatureLow",
-            json \ "currently" \ "humidity",
-            json \ "currently" \ "windSpeed",
-            json \ "currently" \ "windGust",
-            json \ "currently" \ "uvIndex"
-          ) match
-            case (
-                  JDouble(temperature),
-                  JDouble(temperatureHigh),
-                  JDouble(temperatureLow),
-                  JDouble(humidity),
-                  JDouble(windSpeed),
-                  JDouble(windGust),
-                  JInt(uvIndex)
-                ) =>
-              Some(
+        body.fromJson[ForecastJson] match
+          case Right(fj) =>
+            ZIO.succeed(
+              fj.daily.data.headOption.map { dailyData =>
                 Forecast(
-                  temperature = temperature,
-                  temperatureHigh = temperatureHigh,
-                  temperatureLow = temperatureLow,
-                  humidity = humidity * 100,
-                  wind = windSpeed,
-                  gusts = windGust,
-                  uvIndex = uvIndex.toInt
+                  temperature = fj.currently.temperature,
+                  temperatureHigh = dailyData.temperatureHigh,
+                  temperatureLow = dailyData.temperatureLow,
+                  humidity = fj.currently.humidity * 100,
+                  wind = fj.currently.windSpeed,
+                  gusts = fj.currently.windGust,
+                  uvIndex = fj.currently.uvIndex
                 )
-              )
-            case _ =>
-              None
-        }
+              }
+            )
+          case Left(_) =>
+            ZIO.succeed(None)
       }
 
 object AirNowObservation:
 
+  case class Category(
+      Name: String
+  )
+
+  object Category:
+    implicit val decoder: JsonDecoder[Category] =
+      DeriveJsonDecoder.gen[Category]
+
+  case class Observation(
+      ParameterName: String,
+      AQI: Int,
+      Category: Category
+  )
+
+  object Observation:
+    implicit val decoder: JsonDecoder[Observation] =
+      DeriveJsonDecoder.gen[Observation]
+
   case class AqiParameter(name: String, value: Int, category: String)
   case class Aqi(parameters: List[AqiParameter])
-
-  private def parseAqiParameter(v: JValue): Option[AqiParameter] =
-    (
-      v \ "ParameterName",
-      v \ "AQI",
-      v \ "Category" \ "Name"
-    ) match
-      case (JString(name), JInt(value), JString(category)) =>
-        Some(
-          AqiParameter(
-            name = name,
-            value = value.toInt,
-            category = category
-          )
-        )
-      case _ =>
-        None
-
-  private def parseAqi(v: JValue): Option[Aqi] =
-    v match
-      case JArray(xs) =>
-        Some(Aqi(xs.flatMap(parseAqiParameter)))
-      case _ =>
-        None
 
   def findAqi(
       apiKey: String,
@@ -172,10 +187,45 @@ object AirNowObservation:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.attempt(parseAqi(parse(body)))
+        body.fromJson[List[Observation]] match
+          case Right(os) =>
+            ZIO.succeed(
+              Some(
+                Aqi(
+                  parameters = os.map { o =>
+                    AqiParameter(
+                      name = o.ParameterName,
+                      value = o.AQI,
+                      category = o.Category.Name
+                    )
+                  }
+                )
+              )
+            )
+          case Left(_) =>
+            ZIO.succeed(None)
       }
 
 object AirNowForecast:
+
+  case class Category(
+      Name: String
+  )
+
+  object Category:
+    implicit val decoder: JsonDecoder[Category] =
+      DeriveJsonDecoder.gen[Category]
+
+  case class Forecast(
+      DateForecast: String,
+      ParameterName: String,
+      AQI: Int,
+      Category: Category
+  )
+
+  object Forecast:
+    implicit val decoder: JsonDecoder[Forecast] =
+      DeriveJsonDecoder.gen[Forecast]
 
   case class AqiParameter(
       name: String,
@@ -184,37 +234,6 @@ object AirNowForecast:
       category: String
   )
   case class Aqi(parameters: List[AqiParameter])
-
-  private def parseAqiParameter(v: JValue): Option[AqiParameter] =
-    (
-      v \ "DateForecast",
-      v \ "ParameterName",
-      v \ "AQI",
-      v \ "Category" \ "Name"
-    ) match
-      case (
-            JString(date),
-            JString(name),
-            JInt(value),
-            JString(category)
-          ) =>
-        Some(
-          AqiParameter(
-            name = name,
-            date = date,
-            value = value.toInt,
-            category = category
-          )
-        )
-      case _ =>
-        None
-
-  private def parseAqi(v: JValue): Option[Aqi] =
-    v match
-      case JArray(xs) =>
-        Some(Aqi(xs.flatMap(parseAqiParameter)))
-      case _ =>
-        None
 
   def findAqi(
       apiKey: String,
@@ -231,7 +250,26 @@ object AirNowForecast:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.attempt(parseAqi(parse(body)))
+        body.fromJson[List[Forecast]] match
+          case Right(fs) if fs.length > 0 =>
+            ZIO.succeed(
+              Some(
+                Aqi(
+                  parameters = fs.map { f =>
+                    AqiParameter(
+                      name = f.ParameterName,
+                      date = f.DateForecast,
+                      value = f.AQI,
+                      category = f.Category.Name
+                    )
+                  }
+                )
+              )
+            )
+          case Right(_) =>
+            ZIO.succeed(None)
+          case Left(e) =>
+            ZIO.succeed(None)
       }
 
 class Weather(darkSkyApiKey: String, airNowApiKey: String)

@@ -1,10 +1,6 @@
 package sectery.producers
 
 import java.net.URLEncoder
-import org.json4s.JsonDSL._
-import org.json4s.MonadicJValue.jvalueToMonadic
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -19,6 +15,7 @@ import sectery.Tx
 import zio.Clock
 import zio.RIO
 import zio.ZIO
+import zio.json._
 
 object Frinkiac extends Producer:
 
@@ -38,8 +35,11 @@ object Frinkiac extends Producer:
         Timestamp: Long
     )
 
+    object Search:
+      implicit val decoder: JsonDecoder[Search] =
+        DeriveJsonDecoder.gen[Search]
+
     def search(q: String): RIO[Http.Http, List[Search]] =
-      implicit val formats: Formats = DefaultFormats
       val qEnc = URLEncoder.encode(q, "UTF-8")
       Http
         .request(
@@ -50,9 +50,9 @@ object Frinkiac extends Producer:
           body = None
         )
         .flatMap { case Response(200, _, body) =>
-          ZIO.attempt {
-            parse(body).extract[List[Search]]
-          }
+          body.fromJson[List[Search]] match
+            case Right(ss) => ZIO.succeed(ss)
+            case Left(_)   => ZIO.succeed(Nil)
         }
 
   object Caption:
@@ -69,11 +69,19 @@ object Frinkiac extends Producer:
         WikiLink: String
     )
 
+    object Episode:
+      implicit val decoder: JsonDecoder[Episode] =
+        DeriveJsonDecoder.gen[Episode]
+
     case class Frame(
         Id: Long,
         Episode: String,
         Timestamp: Long
     )
+
+    object Frame:
+      implicit val decoder: JsonDecoder[Frame] =
+        DeriveJsonDecoder.gen[Frame]
 
     case class Subtitles(
         Id: Long,
@@ -85,11 +93,19 @@ object Frinkiac extends Producer:
         Language: String
     )
 
+    object Subtitles:
+      implicit val decoder: JsonDecoder[Subtitles] =
+        DeriveJsonDecoder.gen[Subtitles]
+
     case class Nearby(
         Id: Long,
         Episode: String,
         Timestamp: Long
     )
+
+    object Nearby:
+      implicit val decoder: JsonDecoder[Nearby] =
+        DeriveJsonDecoder.gen[Nearby]
 
     case class Caption(
         Episode: Episode,
@@ -98,8 +114,11 @@ object Frinkiac extends Producer:
         Nearby: List[Nearby]
     )
 
+    object Caption:
+      implicit val decoder: JsonDecoder[Caption] =
+        DeriveJsonDecoder.gen[Caption]
+
     def caption(e: String, t: Long): RIO[Http.Http, Option[Caption]] =
-      implicit val formats: Formats = DefaultFormats
       Http
         .request(
           method = "GET",
@@ -109,9 +128,9 @@ object Frinkiac extends Producer:
           body = None
         )
         .flatMap { case Response(200, _, body) =>
-          ZIO.attempt {
-            parse(body).extractOpt[Caption]
-          }
+          body.fromJson[Caption] match
+            case Right(c) => ZIO.succeed(Some(c))
+            case Left(_)  => ZIO.succeed(None)
         }
 
   private val frinkiac = """^@frinkiac\s+(.+)\s*$""".r

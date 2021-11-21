@@ -3,9 +3,6 @@ package sectery.producers
 import java.net.URLEncoder
 import java.text.NumberFormat
 import java.util.Locale
-import org.json4s.JsonDSL._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import sectery.Http
@@ -17,10 +14,37 @@ import sectery.Tx
 import zio.Clock
 import zio.RIO
 import zio.ZIO
+import zio.json._
+
+object CoindeskApi:
+
+  case class USD(
+      code: String,
+      symbol: String,
+      rate: String,
+      description: String,
+      rate_float: Float
+  )
+
+  object USD:
+    implicit val decoder: JsonDecoder[USD] =
+      DeriveJsonDecoder.gen[USD]
+
+  case class BPI(USD: USD)
+
+  object BPI:
+    implicit val decoder: JsonDecoder[BPI] =
+      DeriveJsonDecoder.gen[BPI]
+
+  case class CurrentPrice(bpi: BPI)
+
+  object CurrentPrice:
+    implicit val decoder: JsonDecoder[CurrentPrice] =
+      DeriveJsonDecoder.gen[CurrentPrice]
 
 object Btc extends Producer:
 
-  private val findRate: RIO[Http.Http, Option[Double]] =
+  private val findRate: RIO[Http.Http, Option[Float]] =
     Http
       .request(
         method = "GET",
@@ -29,17 +53,11 @@ object Btc extends Producer:
         body = None
       )
       .flatMap { case Response(200, _, body) =>
-        ZIO.attempt {
-          val json = parse(body)
-          json \ "bpi" \ "USD" \ "rate_float" match
-            case JDouble(rate) =>
-              Some(rate)
-            case r =>
-              LoggerFactory
-                .getLogger(this.getClass())
-                .error(s"unexpected response: ${r}")
-              None
-        }
+        body.fromJson[CoindeskApi.CurrentPrice] match
+          case Right(cp) =>
+            ZIO.succeed(Some(cp.bpi.USD.rate_float))
+          case Left(_) =>
+            ZIO.succeed(None)
       }
 
   override def help(): Iterable[Info] =
