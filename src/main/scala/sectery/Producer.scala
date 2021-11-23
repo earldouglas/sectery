@@ -87,7 +87,8 @@ object Producer:
         Config,
         Frinkiac,
         Blink,
-        Ascii
+        Ascii,
+        Morse
       )
     )
 
