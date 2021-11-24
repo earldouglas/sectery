@@ -16,7 +16,7 @@ import zio.ZIO
 
 object Blink extends Producer:
 
-  private val blink = """^@blink\s+(.+)$""".r
+  private val blink = """^@blink\s(.+)$""".r
 
   override def help(): Iterable[Info] =
     Some(Info("@blink", "@blink <text>"))

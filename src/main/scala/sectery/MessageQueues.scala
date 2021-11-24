@@ -46,10 +46,41 @@ object MessageQueues:
   ): URIO[Producer.Env, Unit] =
     for
       size <- inbox.size
-      message <- inbox.take
-      txs <- Producer(message)
+      rx <- inbox.take
+      txs <- produce_(
+        channel = rx.channel,
+        nick = rx.nick,
+        message = rx.message
+      )
       _ <- ZIO.collectAll(txs.map(outbox.offer))
     yield ()
+
+  private def produce_(
+      channel: String,
+      nick: String,
+      message: String
+  ): URIO[Producer.Env, Iterable[Tx]] =
+    message.split('|').toList match
+      case Nil =>
+        ZIO.succeed(Nil)
+      case m :: Nil =>
+        Producer(Rx(channel = channel, nick = nick, message = m))
+      case m1 :: m2 :: mt =>
+        for
+          txs1 <- produce_(channel = channel, nick = nick, message = m1)
+          txs2 <- ZIO
+            .collectAll(
+              txs1
+                .map(_.message)
+                .map(msg =>
+                  val rest =
+                    if mt.length > 0 then mt.mkString(" | ", " | ", "")
+                    else ""
+                  produce_(channel, nick, m2 + " " + msg + rest)
+                )
+            )
+            .map(_.flatten)
+        yield txs2
 
   val loop: RIO[Env, (Queue[Rx], Queue[Tx], Fiber[Nothing, Any])] =
     for
