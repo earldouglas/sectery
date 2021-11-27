@@ -35,6 +35,7 @@ object HelpSpec extends DefaultRunnableSpec:
                   "@frinkiac",
                   "@get",
                   "@grab",
+                  "@morse",
                   "@ping",
                   "@quote",
                   "@set",
