@@ -25,18 +25,13 @@ object Ascii extends Producer:
   private val height = 24
   private val base = 16
 
-  private val blink = """^@ascii\s+blink\s+(.+)$""".r
   private val ascii = """^@ascii\s+(.+)$""".r
 
   override def help(): Iterable[Info] =
-    Some(Info("@ascii", "@ascii [blink] <text>"))
+    Some(Info("@ascii", "@ascii <text>"))
 
   override def apply(m: Rx): RIO[Db.Db with Http.Http, Iterable[Tx]] =
     m match
-      case Rx(c, _, blink(text)) =>
-        ZIO.succeed(
-          ascii(text).map { line => Tx(c, s"\u0006${line}\u0006") }
-        )
       case Rx(c, _, ascii(text)) =>
         ZIO.succeed(
           ascii(text).map { line => Tx(c, line) }
@@ -51,9 +46,12 @@ object Ascii extends Producer:
     g.drawString(text, 0, base)
     (0 until height)
       .map { y =>
-        (0 until width).map { x =>
-          if i.getRGB(x, y) == -16777216 then " " else "#"
-        }.mkString
+        (0 until width)
+          .map { x =>
+            if i.getRGB(x, y) == -16777216 then " " else "#"
+          }
+          .mkString
+          .replaceAll("\\s*$", "")
       }
       .dropWhile(_.trim().length == 0)
       .reverse

@@ -12,16 +12,16 @@ object AsciiSpec extends DefaultRunnableSpec:
 
   private val asciiFoo =
     List(
-      "    ##                                                                          ",
-      "   #                                                                            ",
-      "   #                                                                            ",
-      " #####   ###    ###                                                             ",
-      "   #    #   #  #   #                                                            ",
-      "   #    #   #  #   #                                                            ",
-      "   #    #   #  #   #                                                            ",
-      "   #    #   #  #   #                                                            ",
-      "   #    #   #  #   #                                                            ",
-      "   #     ###    ###                                                             "
+      "    ##",
+      "   #",
+      "   #",
+      " #####   ###    ###",
+      "   #    #   #  #   #",
+      "   #    #   #  #   #",
+      "   #    #   #  #   #",
+      "   #    #   #  #   #",
+      "   #    #   #  #   #",
+      "   #     ###    ###"
     )
 
   private val asciiFooTx =
@@ -42,7 +42,7 @@ object AsciiSpec extends DefaultRunnableSpec:
           (inbox, outbox, _) <- MessageQueues.loop
             .inject_(TestDb(), TestHttp())
           _ <- inbox.offer(Rx("#foo", "bar", "@ascii foo"))
-          _ <- inbox.offer(Rx("#foo", "bar", "@ascii blink foo"))
+          _ <- inbox.offer(Rx("#foo", "bar", "@ascii foo | @blink"))
           _ <- TestClock.adjust(1.seconds)
           ms <- outbox.takeAll
         yield assert(ms)(equalTo(asciiFooTx ++ asciiBlinkFooTx))
