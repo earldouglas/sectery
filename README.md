@@ -29,3 +29,74 @@ $ export AIRNOW_API_KEY=my_airnow_api_key
 $ export DATABASE_URL=postgress://username:password@host:port/dbname
 $ sbt run
 ```
+
+## Development
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Architecture
+
+Sectery is organized as modules with both shared and disjoint
+compile-time visibility:
+
+```
+.--------------------------.
+| main                     |
+|                          |
+|    .--------.            |
+|    | shared |            |
+|    |        |            |
+|    |    .-----.          |
+|    |    | irc |          |
+|    |    '-----'          |
+|    |        |            |
+|    |    .-----------.    |
+|    |    | producers |    |
+|    |    '-----------'    |
+|    |        |            |
+|    '--------'            |
+|                          |
+'--------------------------'
+```
+
+Modules interact with each other via queues and hubs:
+
+```
+     .-----.
+.----| irc |<--------------.
+|    '-----'               |
+|                          |
+|      .---------.         |
+|     /         / \        |
+'--->|   inbox | ====..    |
+      \  (hub)  \ /  ||    |
+       '---------'   ||    |
+                     ||    |
+     .-----------.   ||    |
+.----| producers |<==''    |
+|    '-----------'         | 
+|                          |
+|      .-----------.       |
+|     /           / \      |
+'--->|   outbox  | --------'
+      \  (queue)  \ /
+       '-----------'
+```
+
+Modules access various external resources:
+
+```
+.-----.         .------------.
+| irc |-------->| IRC Server |
+'-----'         '------------'
+
+.-----------.         .----------------.
+| producers |-------->| 3rd party APIs |-.
+'-----------'         '----------------' |-.
+          |             '----------------' |
+          |               '----------------'
+          |
+          |           .-------.
+          '---------->| RDBMS |
+                      '-------'
+```

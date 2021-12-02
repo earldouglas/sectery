@@ -8,10 +8,11 @@
 ## Producer
 
 Message responses are coded in the [`Producer`][Producer.scala]
-implementations in the [`sectery.producers` package][sectery.producers].
+implementations in the [`sectery.producers` package][sectery.producers]
+of the `producers` module.
 
-[Producer.scala]: src/main/scala/sectery/Producer.scala
-[sectery.producers]: src/main/scala/sectery/producers/
+[Producer.scala]: modules/producers/src/main/scala/sectery/Producer.scala
+[sectery.producers]: modules/producers/src/main/scala/sectery/producers/
 
 To add support for a new message response:
 
@@ -21,9 +22,9 @@ To add support for a new message response:
 3. Add it to the list of producers in
    [`Producer.producers`][Producer.producers]
 
-[Count.scala]: https://github.com/earldouglas/sectery/blob/d96e9bcb85816d8793fc6c10547feb5117a82ed1/src/main/scala/sectery/producers/Count.scala
-[CountSpec.scala]: https://github.com/earldouglas/sectery/blob/d96e9bcb85816d8793fc6c10547feb5117a82ed1/src/test/scala/sectery/producers/CountSpec.scala
-[Producer.producers]: https://github.com/earldouglas/sectery/blob/d96e9bcb85816d8793fc6c10547feb5117a82ed1/src/main/scala/sectery/Producer.scala#L75
+[Count.scala]: modules/producers/src/main/scala/sectery/producers/Count.scala
+[CountSpec.scala]: modules/producers/src/test/scala/sectery/producers/CountSpec.scala
+[Producer.producers]: modules/producers/src/main/scala/sectery/Producer.scala
 
 ## Testing
 
