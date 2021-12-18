@@ -23,7 +23,7 @@ lazy val producers =
     .settings(
       libraryDependencies += "org.postgresql" % "postgresql" % "42.3.1",
       libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3",
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.7",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.9",
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
       libraryDependencies += "dev.zio" %% "zio-json" % "0.2.0-M3",
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
