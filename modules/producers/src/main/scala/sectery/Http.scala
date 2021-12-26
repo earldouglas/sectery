@@ -51,7 +51,7 @@ object Http:
       headers: Map[String, String],
       body: Option[String]
   ): ZIO[Http, Throwable, Response] =
-    ZIO.accessZIO(_.get.request(method, url, headers, body))
+    ZIO.environmentWithZIO(_.get.request(method, url, headers, body))
 
   def unsafeRequest(
       method: String,
