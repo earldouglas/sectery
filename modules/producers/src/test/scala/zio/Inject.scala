@@ -6,8 +6,8 @@ object Inject:
       z: ZIO[R0 with R1, E, A]
   )(implicit t: Tag[R1]):
     def inject_(r0: ULayer[R0]): ZIO[R1, E, A] =
-      ZIO.accessZIO { r =>
-        z.provideLayer(r0 ++ ZLayer.succeedMany(r))
+      ZIO.environmentWithZIO { r =>
+        z.provideLayer(r0 ++ ZLayer.succeedEnvironment(r))
       }
 
   implicit class Inject3[R0, R1, R2, E, A](
@@ -17,8 +17,8 @@ object Inject:
         r0: ULayer[R0],
         r1: ULayer[R1]
     ): ZIO[R2, E, A] =
-      ZIO.accessZIO { r =>
-        z.provideLayer(r0 ++ r1 ++ ZLayer.succeedMany(r))
+      ZIO.environmentWithZIO { r =>
+        z.provideLayer(r0 ++ r1 ++ ZLayer.succeedEnvironment(r))
       }
 
   implicit class Inject4[R0, R1, R2, R3, E, A](
@@ -29,6 +29,6 @@ object Inject:
         r1: ULayer[R1],
         r2: ULayer[R2]
     ): ZIO[R3, E, A] =
-      ZIO.accessZIO { r =>
-        z.provideLayer(r0 ++ r1 ++ r2 ++ ZLayer.succeedMany(r))
+      ZIO.environmentWithZIO { r =>
+        z.provideLayer(r0 ++ r1 ++ r2 ++ ZLayer.succeedEnvironment(r))
       }
