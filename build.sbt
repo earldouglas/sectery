@@ -1,6 +1,8 @@
 val zioVersion = "2.0.0-RC1"
 
 ThisBuild / scalaVersion := "3.1.0"
+ThisBuild / scalacOptions += "-deprecation"
+ThisBuild / scalacOptions += "-Xfatal-warnings"
 
 lazy val shared =
   project
