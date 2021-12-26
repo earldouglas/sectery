@@ -47,4 +47,4 @@ object Db:
     }
 
   def apply[A](k: Connection => A): ZIO[Db, Throwable, A] =
-    ZIO.accessZIO(_.get.apply(k))
+    ZIO.environmentWithZIO(_.get.apply(k))
