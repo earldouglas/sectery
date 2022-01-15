@@ -3,6 +3,7 @@ package sectery.producers
 import java.sql.Connection
 import java.sql.Timestamp
 import java.util.concurrent.TimeUnit
+import org.ocpsoft.prettytime.PrettyTime
 import sectery.Db
 import sectery.Producer
 import sectery.Rx
@@ -76,9 +77,10 @@ object Tell extends Producer:
             val from = rs.getString("_FROM_")
             val message = rs.getString("_MESSAGE_")
             val timestamp = rs.getDate("_TIMESTAMP_")
+            val prettytime = (new PrettyTime).format(timestamp)
             msgs = Tx(
               c,
-              s"${nick}: on ${timestamp}, ${from} said: ${message}"
+              s"${nick}: ${prettytime}, ${from} said: ${message}"
             ) :: msgs
           }
           stmt.close
