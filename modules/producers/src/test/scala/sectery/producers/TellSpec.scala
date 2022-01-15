@@ -29,8 +29,8 @@ object TellSpec extends ProducerSpec:
           List(
             Tx("#foo", "I will let them know."),
             Tx("#foo", "I will let them know."),
-            Tx("#foo", "user2: on 1970-02-11, user1 said: Howdy!"),
-            Tx("#foo", "user2: on 1970-02-12, user1 said: Hi there!")
+            Tx("#foo", "user2: 5 decades ago, user1 said: Howdy!"),
+            Tx("#foo", "user2: 5 decades ago, user1 said: Hi there!")
           )
         )
     )
