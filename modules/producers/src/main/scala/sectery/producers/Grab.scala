@@ -22,8 +22,7 @@ object Grab extends Producer:
     )
 
   override def init(): ZIO[Db.Db, Throwable, Unit] =
-    for
-      _ <- Db { conn =>
+    for _ <- Db { conn =>
         val s =
           """|CREATE TABLE IF NOT EXISTS
              |GRABBED_MESSAGES(

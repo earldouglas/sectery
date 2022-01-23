@@ -13,8 +13,7 @@ object Count extends Producer:
     Some(Info("@count", "@count"))
 
   override def init(): ZIO[Db.Db, Throwable, Unit] =
-    for
-      _ <- Db { conn =>
+    for _ <- Db { conn =>
         val s = "CREATE TABLE IF NOT EXISTS COUNTER(VALUE INT NOT NULL)"
         val stmt = conn.createStatement
         stmt.executeUpdate(s)
