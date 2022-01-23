@@ -1,7 +1,6 @@
 package sectery.producers
 
 import sectery._
-import sectery._
 import zio.Inject._
 import zio._
 import zio.test.Assertion.equalTo
@@ -11,12 +10,12 @@ import zio.test._
 
 trait ProducerSpec extends DefaultRunnableSpec:
 
-  def db: ULayer[Db.Service] = TestDb()
+  def testDb: ULayer[Db.Service] = TestDb()
   def http: ULayer[Http.Service] = TestHttp()
 
   def pre: Option[ZIO[TestClock, Nothing, Any]] = None
 
-  type ZStep = ZIO[TestClock, Nothing, Any]
+  type ZStep = ZIO[Db.Db with TestClock, Throwable, Any]
 
   def specs: Map[String, (List[Rx | ZStep], List[Tx])] =
     Map.empty
@@ -29,6 +28,7 @@ trait ProducerSpec extends DefaultRunnableSpec:
             inbox <- ZHub.sliding[Rx](100)
             outbox <- ZQueue.unbounded[Tx]
             _ <- pre.getOrElse(ZIO.succeed(()))
+            db = testDb
             fiber <- Producer
               .start(inbox, outbox)
               .inject_(db, http)
@@ -38,7 +38,8 @@ trait ProducerSpec extends DefaultRunnableSpec:
                   _ <- inbox.publish(rx)
                   _ <- TestClock.adjust(1.millisecond)
                 yield ()
-              case z: ZIO[_, _, _] => z.asInstanceOf[ZStep]
+              case z: ZIO[_, _, _] =>
+                z.asInstanceOf[ZStep].inject_(db)
             }
             result <- outbox.takeAll
           yield assert(result)(equalTo(txs))

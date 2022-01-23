@@ -11,7 +11,7 @@ object TestDb:
     ZLayer.succeed {
       new Db.Service:
         Class.forName("org.sqlite.JDBC");
-        lazy val conn: Connection =
+        val conn: Connection =
           DriverManager.getConnection(s"jdbc:sqlite::memory:")
         override def apply[A](
             k: Connection => A

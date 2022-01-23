@@ -26,6 +26,7 @@ object HelpSpec extends ProducerSpec:
                 "@frinkiac",
                 "@get",
                 "@grab",
+                "@hack",
                 "@morse",
                 "@ping",
                 "@quote",
