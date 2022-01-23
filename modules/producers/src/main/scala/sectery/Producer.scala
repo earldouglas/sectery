@@ -87,7 +87,8 @@ object Producer:
         Frinkiac,
         Blink,
         Ascii,
-        Morse
+        Morse,
+        Hack
       )
     )
 
