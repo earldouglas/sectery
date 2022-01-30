@@ -1,4 +1,4 @@
-val zioVersion = "2.0.0-RC1"
+val zioVersion = "2.0.0-RC2"
 
 ThisBuild / scalaVersion := "3.1.0"
 ThisBuild / scalacOptions += "-deprecation"
