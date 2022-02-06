@@ -24,7 +24,7 @@ lazy val producers =
     .enablePlugins(BuildInfoPlugin)
     .settings(
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.2.Final",
-      libraryDependencies += "org.postgresql" % "postgresql" % "42.3.1",
+      libraryDependencies += "org.postgresql" % "postgresql" % "42.3.2",
       libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.10",
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
