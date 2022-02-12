@@ -31,7 +31,7 @@ lazy val producers =
       libraryDependencies += "dev.zio" %% "zio-json" % "0.3.0-RC3",
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
-      libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.36.0.3" % "test",
+      libraryDependencies += "com.h2database" % "h2" % "2.1.210" % "test",
       testFrameworks += new TestFramework(
         "zio.test.sbt.ZTestFramework"
       ),

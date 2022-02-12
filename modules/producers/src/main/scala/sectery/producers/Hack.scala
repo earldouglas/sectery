@@ -61,7 +61,7 @@ object Hack extends Producer:
 
   private val getRandomWord: ZIO[Db.Db, Throwable, String] =
     Db { conn =>
-      val q = "SELECT WORD FROM HACK_WORDS ORDER BY RANDOM() LIMIT 1"
+      val q = "SELECT WORD FROM HACK_WORDS ORDER BY RAND() LIMIT 1"
       val stmt = conn.createStatement
       val rs = stmt.executeQuery(q)
       rs.next()
