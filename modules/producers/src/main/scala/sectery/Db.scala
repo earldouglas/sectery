@@ -21,7 +21,7 @@ object Db:
         val username = dbUri.getUserInfo().split(":")(0)
         val password = dbUri.getUserInfo().split(":")(1)
         val dbUrl =
-          s"jdbc:postgresql://${dbUri.getHost()}:${dbUri.getPort()}${dbUri.getPath()}?sslmode=require"
+          s"jdbc:mysql://${dbUri.getHost()}:${dbUri.getPort()}${dbUri.getPath()}?sslmode=require"
 
         override def apply[A](
             k: Connection => A

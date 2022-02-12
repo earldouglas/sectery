@@ -33,11 +33,11 @@ object Config extends Producer:
     for _ <- Db { conn =>
         val s =
           """|CREATE TABLE IF NOT EXISTS
-             |CONFIG(
-             |  NICK VARCHAR(256) NOT NULL,
-             |  KEY VARCHAR(256) NOT NULL,
-             |  VALUE VARCHAR(256) NOT NULL,
-             |  PRIMARY KEY (NICK, KEY)
+             |`CONFIG`(
+             |  `NICK` VARCHAR(256) NOT NULL,
+             |  `KEY` VARCHAR(256) NOT NULL,
+             |  `VALUE` VARCHAR(256) NOT NULL,
+             |  PRIMARY KEY (`NICK`, `KEY`)
              |)
              |""".stripMargin
         val stmt = conn.createStatement
@@ -52,10 +52,10 @@ object Config extends Producer:
   ): ZIO[Db.Db, Throwable, Option[String]] =
     Db { conn =>
       val s =
-        """|SELECT VALUE
-           |FROM CONFIG
-           |WHERE NICK = ?
-           |  AND KEY = ?
+        """|SELECT `VALUE`
+           |FROM `CONFIG`
+           |WHERE `NICK` = ?
+           |  AND `KEY` = ?
            |""".stripMargin
       val stmt = conn.prepareStatement(s)
       stmt.setString(1, nick)
@@ -77,9 +77,9 @@ object Config extends Producer:
 
     def dropConfig(conn: Connection): Unit =
       val s =
-        """|DELETE FROM CONFIG
-           |WHERE NICK = ?
-           |  AND KEY = ?
+        """|DELETE FROM `CONFIG`
+           |WHERE `NICK` = ?
+           |  AND `KEY` = ?
            |""".stripMargin
       val stmt = conn.prepareStatement(s)
       stmt.setString(1, nick)
@@ -89,7 +89,7 @@ object Config extends Producer:
 
     def addConfig(conn: Connection): Unit =
       val s =
-        """|INSERT INTO CONFIG (NICK, KEY, VALUE)
+        """|INSERT INTO `CONFIG` (`NICK`, `KEY`, `VALUE`)
            |VALUES (?, ?, ?)
            |""".stripMargin
       val stmt = conn.prepareStatement(s)
