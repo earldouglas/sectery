@@ -14,9 +14,9 @@ class Help(producers: List[Producer]) extends Producer:
 
   private val helpMessage: String =
     s"""${producers
-      .flatMap(p => p.help().map(_.name))
-      .sorted
-      .mkString(", ")}"""
+        .flatMap(p => p.help().map(_.name))
+        .sorted
+        .mkString(", ")}"""
 
   private val usageMap: Map[String, String] =
     producers.flatMap(_.help().map(i => i.name -> i.usage)).toMap
