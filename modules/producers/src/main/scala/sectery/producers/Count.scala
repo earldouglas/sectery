@@ -14,7 +14,8 @@ object Count extends Producer:
 
   override def init(): ZIO[Db.Db, Throwable, Unit] =
     for _ <- Db { conn =>
-        val s = "CREATE TABLE IF NOT EXISTS COUNTER(VALUE INT NOT NULL)"
+        val s =
+          "CREATE TABLE IF NOT EXISTS `COUNTER` (`VALUE` INT NOT NULL)"
         val stmt = conn.createStatement
         stmt.executeUpdate(s)
         stmt.close
@@ -25,7 +26,7 @@ object Count extends Producer:
     m match
       case Rx(channel, _, "@count") =>
         def getOldCount(conn: Connection): Int =
-          val q = "SELECT VALUE FROM COUNTER LIMIT 1"
+          val q = "SELECT `VALUE` FROM `COUNTER` LIMIT 1"
           val stmt = conn.createStatement
           val rs = stmt.executeQuery(q)
           val count =
@@ -42,7 +43,7 @@ object Count extends Producer:
 
         def addCount(oldCount: Int)(conn: Connection): Int =
           val count = oldCount + 1
-          val s = "INSERT INTO COUNTER (VALUE) VALUES (?)"
+          val s = "INSERT INTO `COUNTER` (`VALUE`) VALUES (?)"
           val stmt = conn.prepareStatement(s)
           stmt.setInt(1, count)
           stmt.executeUpdate

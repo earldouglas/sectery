@@ -25,11 +25,11 @@ object Grab extends Producer:
     for _ <- Db { conn =>
         val s =
           """|CREATE TABLE IF NOT EXISTS
-             |GRABBED_MESSAGES(
-             |  CHANNEL VARCHAR(256) NOT NULL,
-             |  NICK VARCHAR(256) NOT NULL,
-             |  MESSAGE TEXT NOT NULL,
-             |  TIMESTAMP TIMESTAMP NOT NULL
+             |`GRABBED_MESSAGES`(
+             |  `CHANNEL` VARCHAR(256) NOT NULL,
+             |  `NICK` VARCHAR(256) NOT NULL,
+             |  `MESSAGE` TEXT NOT NULL,
+             |  `TIMESTAMP` TIMESTAMP NOT NULL
              |)
              |""".stripMargin
         val stmt = conn.createStatement
@@ -54,8 +54,8 @@ object Grab extends Producer:
               LastMessage.lastMessage(c, nick)(conn) match
                 case Some(m) =>
                   val s =
-                    """|INSERT INTO GRABBED_MESSAGES (
-                       |  CHANNEL, NICK, MESSAGE, TIMESTAMP
+                    """|INSERT INTO `GRABBED_MESSAGES` (
+                       |  `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
                        |) VALUES (?, ?, ?, ?)
                        |""".stripMargin
                   val stmt = conn.prepareStatement(s)
@@ -95,13 +95,13 @@ object Grab extends Producer:
       conn: Connection
   ): Option[String] =
     val s =
-      """|SELECT NICK
+      """|SELECT `NICK`
          |FROM (
-         |  SELECT DISTINCT(NICK)
-         |  FROM GRABBED_MESSAGES
-         |  WHERE CHANNEL = ?
-         |) NICKS
-         |ORDER BY RANDOM()
+         |  SELECT DISTINCT(`NICK`)
+         |  FROM `GRABBED_MESSAGES`
+         |  WHERE `CHANNEL` = ?
+         |) `NICKS`
+         |ORDER BY RAND()
          |LIMIT 1
          |""".stripMargin
     val stmt = conn.prepareStatement(s)
@@ -118,11 +118,11 @@ object Grab extends Producer:
       conn: Connection
   ): Option[String] =
     val s =
-      """|SELECT MESSAGE
-         |FROM GRABBED_MESSAGES
-         |WHERE CHANNEL = ?
-         |  AND NICK = ?
-         |ORDER BY RANDOM()
+      """|SELECT `MESSAGE`
+         |FROM `GRABBED_MESSAGES`
+         |WHERE `CHANNEL` = ?
+         |  AND `NICK` = ?
+         |ORDER BY RAND()
          |LIMIT 1
          |""".stripMargin
     val stmt = conn.prepareStatement(s)

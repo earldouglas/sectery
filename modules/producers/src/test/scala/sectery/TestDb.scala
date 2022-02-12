@@ -2,6 +2,7 @@ package sectery
 
 import java.sql.Connection
 import java.sql.DriverManager
+import java.util.UUID
 import zio.ULayer
 import zio.ZIO
 import zio.ZLayer
@@ -10,9 +11,9 @@ object TestDb:
   def apply(): ULayer[Db.Service] =
     ZLayer.succeed {
       new Db.Service:
-        Class.forName("org.sqlite.JDBC");
+        Class.forName("org.h2.Driver");
         val conn: Connection =
-          DriverManager.getConnection(s"jdbc:sqlite::memory:")
+          DriverManager.getConnection(s"jdbc:h2:mem:;MODE=MYSQL")
         override def apply[A](
             k: Connection => A
         ): ZIO[Any, Throwable, A] =

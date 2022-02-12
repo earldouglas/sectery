@@ -29,12 +29,12 @@ object LastMessage extends Producer:
     def createLastMessage(conn: Connection): Unit =
       val s =
         """|CREATE TABLE IF NOT EXISTS
-           |LAST_MESSAGE(
-           |  CHANNEL VARCHAR(256) NOT NULL,
-           |  NICK VARCHAR(256) NOT NULL,
-           |  MESSAGE TEXT NOT NULL,
-           |  TIMESTAMP TIMESTAMP NOT NULL,
-           |  PRIMARY KEY (CHANNEL, NICK)
+           |`LAST_MESSAGE`(
+           |  `CHANNEL` VARCHAR(256) NOT NULL,
+           |  `NICK` VARCHAR(256) NOT NULL,
+           |  `MESSAGE` TEXT NOT NULL,
+           |  `TIMESTAMP` TIMESTAMP NOT NULL,
+           |  PRIMARY KEY (`CHANNEL`, `NICK`)
            |)
            |""".stripMargin
       val stmt = conn.createStatement
@@ -44,10 +44,10 @@ object LastMessage extends Producer:
     def createAutoquote(conn: Connection): Unit =
       val s =
         """|CREATE TABLE IF NOT EXISTS
-           |AUTOQUOTE(
-           |  CHANNEL VARCHAR(256) NOT NULL,
-           |  TIMESTAMP TIMESTAMP NOT NULL,
-           |  PRIMARY KEY (CHANNEL)
+           |`AUTOQUOTE`(
+           |  `CHANNEL` VARCHAR(256) NOT NULL,
+           |  `TIMESTAMP` TIMESTAMP NOT NULL,
+           |  PRIMARY KEY (`CHANNEL`)
            |)
            |""".stripMargin
       val stmt = conn.createStatement
@@ -70,7 +70,7 @@ object LastMessage extends Producer:
       case _ =>
         def deleteLastMessage(conn: Connection): Unit =
           val s =
-            "DELETE FROM LAST_MESSAGE WHERE CHANNEL = ? AND NICK = ?"
+            "DELETE FROM `LAST_MESSAGE` WHERE `CHANNEL` = ? AND `NICK` = ?"
           val stmt = conn.prepareStatement(s)
           stmt.setString(1, m.channel)
           stmt.setString(2, m.nick)
@@ -79,7 +79,7 @@ object LastMessage extends Producer:
 
         def addLastMessage(nowMillis: Long)(conn: Connection): Unit =
           val s =
-            "INSERT INTO LAST_MESSAGE (CHANNEL, NICK, MESSAGE, TIMESTAMP) VALUES (?, ?, ?, ?)"
+            "INSERT INTO `LAST_MESSAGE` (`CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`) VALUES (?, ?, ?, ?)"
           val stmt = conn.prepareStatement(s)
           stmt.setString(1, m.channel)
           stmt.setString(2, m.nick)
@@ -90,7 +90,7 @@ object LastMessage extends Producer:
 
         def deleteAutoquote(conn: Connection): Unit =
           val s =
-            "DELETE FROM AUTOQUOTE WHERE CHANNEL = ?"
+            "DELETE FROM `AUTOQUOTE` WHERE `CHANNEL` = ?"
           val stmt = conn.prepareStatement(s)
           stmt.setString(1, m.channel)
           stmt.executeUpdate
@@ -98,7 +98,7 @@ object LastMessage extends Producer:
 
         def addAutoquote(nowMillis: Long)(conn: Connection): Unit =
           val s =
-            "INSERT INTO AUTOQUOTE (CHANNEL, TIMESTAMP) VALUES (?, ?)"
+            "INSERT INTO `AUTOQUOTE` (`CHANNEL`, `TIMESTAMP`) VALUES (?, ?)"
           val stmt = conn.prepareStatement(s)
           stmt.setString(1, m.channel)
           stmt.setTimestamp(2, new Timestamp(nowMillis))
@@ -119,10 +119,10 @@ object LastMessage extends Producer:
       conn: Connection
   ): List[LastMessage] =
     val s =
-      """|SELECT NICK, MESSAGE, TIMESTAMP
-         |FROM LAST_MESSAGE
-         |WHERE CHANNEL = ?
-         |ORDER BY TIMESTAMP DESC
+      """|SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
+         |FROM `LAST_MESSAGE`
+         |WHERE `CHANNEL` = ?
+         |ORDER BY `TIMESTAMP` DESC
          |""".stripMargin
     val stmt = conn.prepareStatement(s)
     stmt.setString(1, channel)
@@ -146,11 +146,11 @@ object LastMessage extends Producer:
       conn: Connection
   ): Option[LastMessage] =
     val s =
-      """|SELECT MESSAGE, TIMESTAMP
-         |FROM LAST_MESSAGE
-         |WHERE CHANNEL = ?
-         |  AND NICK = ?
-         |ORDER BY TIMESTAMP DESC
+      """|SELECT `MESSAGE`, `TIMESTAMP`
+         |FROM `LAST_MESSAGE`
+         |WHERE `CHANNEL` = ?
+         |  AND `NICK` = ?
+         |ORDER BY `TIMESTAMP` DESC
          |""".stripMargin
     val stmt = conn.prepareStatement(s)
     stmt.setString(1, channel)
