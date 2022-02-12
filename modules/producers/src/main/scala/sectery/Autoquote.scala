@@ -4,6 +4,7 @@ import java.sql.Connection
 import java.sql.Timestamp
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import java.util.TimeZone
 import org.slf4j.LoggerFactory
 import sectery.Tx
 import sectery.Db
@@ -16,18 +17,18 @@ object Autoquote:
 
   private def timeForAutoquote(nowMillis: Long): Boolean =
 
+    val calendar: Calendar =
+      val tz = TimeZone.getTimeZone("America/Phoenix")
+      val c = Calendar.getInstance(tz)
+      c.setTimeInMillis(nowMillis)
+      c
+
     val eightToFive: Boolean =
-      val hourOfDay =
-        val c = Calendar.getInstance()
-        c.setTimeInMillis(nowMillis)
-        c.get(Calendar.HOUR_OF_DAY)
+      val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
       hourOfDay >= 8 && hourOfDay < 17
 
     val mondayThroughFriday: Boolean =
-      val dayOfWeek =
-        val c = Calendar.getInstance()
-        c.setTimeInMillis(nowMillis)
-        c.get(Calendar.DAY_OF_WEEK)
+      val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
       dayOfWeek == Calendar.MONDAY ||
       dayOfWeek == Calendar.TUESDAY ||
       dayOfWeek == Calendar.WEDNESDAY ||

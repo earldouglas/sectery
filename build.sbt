@@ -59,3 +59,5 @@ lazy val sectery =
     .dependsOn(irc)
     .dependsOn(producers)
     .aggregate(shared, irc, producers)
+
+Compile / packageBin / mainClass := Some("sectery.Main")

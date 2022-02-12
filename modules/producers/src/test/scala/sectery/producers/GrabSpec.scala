@@ -1,6 +1,7 @@
 package sectery.producers
 
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import sectery._
 import zio.Inject._
 import zio._
@@ -14,7 +15,7 @@ object GrabSpec extends ProducerSpec:
   override val pre =
     Some(
       TestClock.setDateTime {
-        val zo = OffsetDateTime.now().getOffset()
+        val zo = OffsetDateTime.now(ZoneId.of("UTC-7")).getOffset()
         OffsetDateTime.of(1970, 2, 11, 12, 0, 0, 0, zo)
       }
     )
