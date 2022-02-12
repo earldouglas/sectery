@@ -26,7 +26,7 @@ $ export IRC_CHANNELS=#my_channel
 $ export FINNHUB_API_TOKEN=my_finnhub_api_token
 $ export DARK_SKY_API_KEY=my_dark_sky_api_key
 $ export AIRNOW_API_KEY=my_airnow_api_key
-$ export DATABASE_URL=postgress://username:password@host:port/dbname
+$ export DATABASE_URL=mysql://username:password@host:port/dbname
 $ sbt run
 ```
 
