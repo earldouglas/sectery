@@ -47,7 +47,7 @@ object Time extends Producer:
                 Some(
                   Tx(
                     c,
-                    s"${nick}: Set default time zone with @set tz <zone>"
+                    s"${nick}: Set default time zone with `@set tz <zone>`
                   )
                 )
               )

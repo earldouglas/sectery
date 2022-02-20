@@ -382,7 +382,7 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
                 List(
                   Tx(
                     c,
-                    s"${nick}: Set default location with @set wx <location>"
+                    s"${nick}: Set default location with `@set wx <location>`"
                   )
                 )
               )

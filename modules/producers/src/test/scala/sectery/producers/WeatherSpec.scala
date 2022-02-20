@@ -88,7 +88,7 @@ object WeatherSpec extends ProducerSpec:
           List(
             Tx(
               "#foo",
-              "bar: Set default location with @set wx <location>"
+              "bar: Set default location with `@set wx <location>`"
             ),
             Tx("#foo", "bar: wx set to san francisco"),
             Tx(
