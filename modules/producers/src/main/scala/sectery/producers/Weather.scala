@@ -333,7 +333,10 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
   override def help(): Iterable[Info] =
     Some(Info("@wx", "@wx [location], e.g. @wx san francisco"))
 
-  private def findWx(c: String, q: String): ZIO[Http.Http, Throwable, Iterable[Tx]] =
+  private def findWx(
+      c: String,
+      q: String
+  ): ZIO[Http.Http, Throwable, Iterable[Tx]] =
     OSM.findPlace(q).flatMap {
       case Some(p @ OSM.Place(_, _, lat, lon)) =>
         findWx(lat, lon) flatMap {
@@ -364,7 +367,9 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
         ZIO.succeed(List(Tx(c, s"I have no idea where ${q} is.")))
     }
 
-  override def apply(m: Rx): ZIO[Db.Db with Http.Http, Throwable, Iterable[Tx]] =
+  override def apply(
+      m: Rx
+  ): ZIO[Db.Db with Http.Http, Throwable, Iterable[Tx]] =
     m match
       case Rx(c, nick, "@wx") =>
         for
@@ -373,7 +378,14 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
             case Some(l) =>
               findWx(c, l)
             case None =>
-              ZIO.succeed(List(Tx(c, s"${nick}: Set default location with @set wx <location>")))
+              ZIO.succeed(
+                List(
+                  Tx(
+                    c,
+                    s"${nick}: Set default location with @set wx <location>"
+                  )
+                )
+              )
         yield txs
       case Rx(c, _, wx(_, q)) =>
         findWx(c, q)
