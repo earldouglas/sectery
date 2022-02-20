@@ -43,7 +43,14 @@ object Time extends Producer:
             case Some(z) =>
               getTime(z).map(t => Some(Tx(c, t)))
             case None =>
-              getTime("America/Phoenix").map(t => Some(Tx(c, t)))
+              ZIO.succeed(
+                Some(
+                  Tx(
+                    c,
+                    s"${nick}: Set default time zone with @set tz <zone>"
+                  )
+                )
+              )
         yield t
       case Rx(c, _, time(_, zone)) =>
         getTime(zone).map(t => Some(Tx(c, t)))
