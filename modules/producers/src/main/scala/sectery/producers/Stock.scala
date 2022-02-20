@@ -141,7 +141,7 @@ class Stock(finnhubApiToken: String) extends Producer:
                   Some(
                     Tx(
                       c,
-                      "Set default symbols with `@set stock <symbol1> [symbol2] ... [symbolN]`"
+                      s"${nick}: Set default symbols with `@set stock <symbol1> [symbol2] ... [symbolN]`"
                     )
                   )
                 )
