@@ -10,11 +10,6 @@ object TimeSpec extends ProducerSpec:
 
   override val specs =
     Map(
-      "@time produces server time" ->
-        (
-          List(Rx("#foo", "bar", "@time")),
-          List(Tx("#foo", "Wed, 14 Jan 1970, 23:56 MST"))
-        ),
       "@time produces time in user-configured tz" ->
         (
           List(
@@ -23,7 +18,7 @@ object TimeSpec extends ProducerSpec:
             Rx("#foo", "bar", "@time")
           ),
           List(
-            Tx("#foo", "Wed, 14 Jan 1970, 23:56 MST"),
+            Tx("#foo", "bar: Set default time zone with @set tz <zone>"),
             Tx("#foo", "bar: tz set to PST"),
             Tx("#foo", "Wed, 14 Jan 1970, 22:56 PST")
           )
