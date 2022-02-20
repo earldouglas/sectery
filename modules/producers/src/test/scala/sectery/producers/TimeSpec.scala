@@ -18,7 +18,10 @@ object TimeSpec extends ProducerSpec:
             Rx("#foo", "bar", "@time")
           ),
           List(
-            Tx("#foo", "bar: Set default time zone with @set tz <zone>"),
+            Tx(
+              "#foo",
+              "bar: Set default time zone with @set tz <zone>"
+            ),
             Tx("#foo", "bar: tz set to PST"),
             Tx("#foo", "Wed, 14 Jan 1970, 22:56 PST")
           )
