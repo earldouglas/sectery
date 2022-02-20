@@ -77,5 +77,21 @@ object WeatherSpec extends ProducerSpec:
               "San Francisco: 60° (low 53°, high 63°), humidity 96%, wind 6 mph, UV 0, O3 15 (Good), PM2.5 0 (Good)"
             )
           )
+        ),
+      "@wx produces time in user-configured location" ->
+        (
+          List(
+            Rx("#foo", "bar", "@wx"),
+            Rx("#foo", "bar", "@set wx san francisco"),
+            Rx("#foo", "bar", "@wx")
+          ),
+          List(
+            Tx("#foo", "bar: Set default location with @set wx <location>"),
+            Tx("#foo", "bar: wx set to san francisco"),
+            Tx(
+              "#foo",
+              "San Francisco: 60° (low 53°, high 63°), humidity 96%, wind 6 mph, UV 0, O3 15 (Good), PM2.5 0 (Good)"
+            )
+          )
         )
     )

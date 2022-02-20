@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
+import sectery.Db
 import sectery.Http
 import sectery.Producer
 import sectery.Response
@@ -327,42 +328,54 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
         aqi = aqiMap.values.toList
       )
 
-  private val wx = """^@wx\s+(.+)\s*$""".r
+  private val wx = """^@wx(\s+(.+)\s*)?$""".r
 
   override def help(): Iterable[Info] =
-    Some(Info("@wx", "@wx <location>, e.g. @wx san francisco"))
+    Some(Info("@wx", "@wx [location], e.g. @wx san francisco"))
 
-  override def apply(m: Rx): ZIO[Http.Http, Throwable, Iterable[Tx]] =
-    m match
-      case Rx(c, _, wx(q)) =>
-        OSM.findPlace(q).flatMap {
-          case Some(p @ OSM.Place(_, _, lat, lon)) =>
-            findWx(lat, lon) flatMap {
-              case Some(wx) =>
-                ZIO.succeed(
-                  Some(
-                    Tx(
-                      c,
-                      (
-                        List(
-                          f"${p.shortName}: ${wx.forecast.temperature}%.0f° (low ${wx.forecast.temperatureLow}%.0f°, high ${wx.forecast.temperatureHigh}%.0f°)",
-                          f"humidity ${wx.forecast.humidity}%.0f%%",
-                          f"wind ${wx.forecast.wind}%.0f mph",
-                          f"UV ${wx.forecast.uvIndex}"
-                        ) ++ wx.aqi.map(p =>
-                          s"${p.name} ${p.value} (${p.category})"
-                        )
-                      ).mkString(", ")
+  private def findWx(c: String, q: String): ZIO[Http.Http, Throwable, Iterable[Tx]] =
+    OSM.findPlace(q).flatMap {
+      case Some(p @ OSM.Place(_, _, lat, lon)) =>
+        findWx(lat, lon) flatMap {
+          case Some(wx) =>
+            ZIO.succeed(
+              Some(
+                Tx(
+                  c,
+                  (
+                    List(
+                      f"${p.shortName}: ${wx.forecast.temperature}%.0f° (low ${wx.forecast.temperatureLow}%.0f°, high ${wx.forecast.temperatureHigh}%.0f°)",
+                      f"humidity ${wx.forecast.humidity}%.0f%%",
+                      f"wind ${wx.forecast.wind}%.0f mph",
+                      f"UV ${wx.forecast.uvIndex}"
+                    ) ++ wx.aqi.map(p =>
+                      s"${p.name} ${p.value} (${p.category})"
                     )
-                  )
+                  ).mkString(", ")
                 )
-              case None =>
-                ZIO.succeed(
-                  List(Tx(c, s"I can't find the weather for ${q}."))
-                )
-            }
+              )
+            )
           case None =>
-            ZIO.succeed(List(Tx(c, s"I have no idea where ${q} is.")))
+            ZIO.succeed(
+              List(Tx(c, s"I can't find the weather for ${q}."))
+            )
         }
+      case None =>
+        ZIO.succeed(List(Tx(c, s"I have no idea where ${q} is.")))
+    }
+
+  override def apply(m: Rx): ZIO[Db.Db with Http.Http, Throwable, Iterable[Tx]] =
+    m match
+      case Rx(c, nick, "@wx") =>
+        for
+          lo <- Config.getConfig(nick, "wx")
+          txs <- lo match
+            case Some(l) =>
+              findWx(c, l)
+            case None =>
+              ZIO.succeed(List(Tx(c, s"${nick}: Set default location with @set wx <location>")))
+        yield txs
+      case Rx(c, _, wx(_, q)) =>
+        findWx(c, q)
       case _ =>
         ZIO.succeed(None)
