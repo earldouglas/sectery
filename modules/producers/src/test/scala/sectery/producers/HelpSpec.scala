@@ -41,7 +41,7 @@ object HelpSpec extends ProducerSpec:
             ),
             Tx(
               "#foo",
-              "Usage: @wx <location>, e.g. @wx san francisco"
+              "Usage: @wx [location], e.g. @wx san francisco"
             ),
             Tx("#foo", "Usage: @count"),
             Tx("#foo", "I don't know anything about @foo")
