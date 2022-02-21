@@ -8,5 +8,5 @@
   <root level="${LOG_LEVEL_ROOT}">
     <appender-ref ref="STDOUT" />
   </root>
-  <logger name="sectery" level="DEBUG" />
+  <logger name="sectery" level="WARN" />
 </configuration>

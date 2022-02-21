@@ -41,7 +41,7 @@ object Bot:
                 _ <- ZIO.succeed(
                   LoggerFactory
                     .getLogger(this.getClass())
-                    .debug(s"publishing ${m} to sqsInbox")
+                    .debug(s"offering ${m} to sqsInbox")
                 )
                 _ <- sqsInbox.offer(Some(m))
               yield ()
