@@ -91,8 +91,10 @@ object Main extends App:
         outbox <- ZQueue.unbounded[Tx]
         sqsInboxFiber <- sqsInboxLoop(inbox)
         sqsOutboxFiber <- sqsOutboxLoop(outbox)
-        zFiber <- Producer.start(inbox, outbox)
-        _ <- Fiber.joinAll(List(sqsInboxFiber, sqsOutboxFiber, zFiber))
+        producerFiber <- Producer.start(inbox, outbox)
+        _ <- Fiber.joinAll(
+          List(sqsInboxFiber, sqsOutboxFiber, producerFiber)
+        )
       yield ExitCode.failure // should never exit
     }
       .provideLayer(ZEnv.any ++ Db.live ++ Http.live)

@@ -41,62 +41,11 @@ object Main extends App:
       "sectery-outbox"
     )(DeriveJsonCodec.gen[Tx])
 
-  def sqsOutboxLoop(
-      outbox: Queue[Tx]
-  ): ZIO[Any, Nothing, Fiber[Throwable, Nothing]] = {
-    for
-      _ <- ZIO.succeed(
-        LoggerFactory
-          .getLogger(this.getClass())
-          .debug(s"taking from SQS outbox")
-      )
-      txs <- sqsOutbox.take()
-      _ <- ZIO.succeed(
-        LoggerFactory
-          .getLogger(this.getClass())
-          .debug(s"offering ${txs} to outbox")
-      )
-      _ <- outbox.offerAll(txs)
-    yield ()
-  }.forever.fork
-
-  def sqsInboxLoop(
-      inbox: Hub[Rx]
-  ): ZIO[Any, Nothing, Fiber[Throwable, Nothing]] =
-    for
-      p <- zio.Promise.make[Nothing, Unit]
-      fiber <-
-        inbox.subscribe.use { case q =>
-          {
-            for
-              _ <- p.succeed(())
-              _ <- ZIO.succeed(
-                LoggerFactory
-                  .getLogger(this.getClass())
-                  .debug(s"taking from inbox")
-              )
-              rx <- q.take
-              _ <- ZIO.succeed(
-                LoggerFactory
-                  .getLogger(this.getClass())
-                  .debug(s"offering Some(${rx}) to SQS inbox")
-              )
-              _ <- sqsInbox.offer(Some(rx))
-            yield ()
-          }.forever
-        }.fork
-      _ <- p.await
-    yield fiber
-
   def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] =
     catchAndLog {
       for
-        inbox <- ZHub.sliding[Rx](100)
-        outbox <- ZQueue.unbounded[Tx]
-        sqsInboxFiber <- sqsInboxLoop(inbox)
-        sqsOutboxFiber <- sqsOutboxLoop(outbox)
-        zFiber <- Bot.start(inbox, outbox)
-        _ <- Fiber.joinAll(List(sqsInboxFiber, sqsOutboxFiber, zFiber))
+        botFiber <- Bot.start(sqsInbox, sqsOutbox)
+        _ <- botFiber.join
       yield ExitCode.failure // should never exit
     }
       .provideLayer(ZEnv.any)
