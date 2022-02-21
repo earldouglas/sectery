@@ -15,7 +15,7 @@ Sky](https://darksky.net/dev), and
 [AirNow](https://docs.airnowapi.org/).
 
 To start Sectery, first set a bunch of configuration variables, then run
-the main class with `sbt run`:
+the two main classes with `sbt run`:
 
 ```
 $ export IRC_HOST=irc.libera.chat
@@ -23,11 +23,23 @@ $ export IRC_PORT=7000
 $ export IRC_USER=my_nick
 $ export IRC_PASS=my_password
 $ export IRC_CHANNELS=#my_channel
+$ export SQS_INBOX_URL=https://example.com/inbox.fifo
+$ export SQS_OUTBOX_URL=https://example.com/outbox.fifo
+$ export AWS_ACCESS_KEY_ID=my_access_key
+$ export AWS_SECRET_ACCESS_KEY=my_secret_key
+$ sbt "project irc" run
+```
+
+```
+$ export DATABASE_URL=mysql://username:password@host:port/dbname
 $ export FINNHUB_API_TOKEN=my_finnhub_api_token
 $ export DARK_SKY_API_KEY=my_dark_sky_api_key
 $ export AIRNOW_API_KEY=my_airnow_api_key
-$ export DATABASE_URL=mysql://username:password@host:port/dbname
-$ sbt run
+$ export SQS_INBOX_URL=https://example.com/inbox.fifo
+$ export SQS_OUTBOX_URL=https://example.com/outbox.fifo
+$ export AWS_ACCESS_KEY_ID=my_access_key
+$ export AWS_SECRET_ACCESS_KEY=my_secret_key
+$ sbt "project producers" run
 ```
 
 ## Development
