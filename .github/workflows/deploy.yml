@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-      - μs
-
 
 jobs:
   build:
