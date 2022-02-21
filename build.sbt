@@ -4,17 +4,33 @@ ThisBuild / scalaVersion := "3.1.0"
 ThisBuild / scalacOptions += "-deprecation"
 ThisBuild / scalacOptions += "-Xfatal-warnings"
 
+ThisBuild / assembly / assemblyMergeStrategy := {
+  case "module-info.class" => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (assembly / assemblyMergeStrategy).value
+    oldStrategy(x)
+}
+
 lazy val shared =
   project
     .in(file("modules/shared"))
+    .settings(
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.10",
+      libraryDependencies += "com.amazonaws" % "aws-java-sdk-sqs" % "1.12.158",
+      libraryDependencies += "dev.zio" %% "zio" % zioVersion,
+      libraryDependencies += "dev.zio" %% "zio-json" % "0.3.0-RC3"
+    )
 
 lazy val irc =
   project
     .in(file("modules/irc"))
     .settings(
+      moduleName := "irc",
       resolvers += "jitpack" at "https://jitpack.io/", // needed for pircbotx
-      libraryDependencies += "dev.zio" %% "zio" % zioVersion,
-      libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.2"
+      libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.2",
+      assembly / mainClass := Some("sectery.irc.Main"),
+      assembly / assemblyJarName := s"${name.value}.jar",
+      Compile / run / fork := true
     )
     .dependsOn(shared)
 
@@ -23,15 +39,12 @@ lazy val producers =
     .in(file("modules/producers"))
     .enablePlugins(BuildInfoPlugin)
     .settings(
-      libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.2.Final",
-      libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.28",
-      libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3",
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.10",
-      libraryDependencies += "dev.zio" %% "zio" % zioVersion,
-      libraryDependencies += "dev.zio" %% "zio-json" % "0.3.0-RC3",
+      libraryDependencies += "com.h2database" % "h2" % "2.1.210" % "test",
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
-      libraryDependencies += "com.h2database" % "h2" % "2.1.210" % "test",
+      libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.28",
+      libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3",
+      libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.2.Final",
       testFrameworks += new TestFramework(
         "zio.test.sbt.ZTestFramework"
       ),
@@ -43,21 +56,15 @@ lazy val producers =
           "FINNHUB_API_TOKEN" -> "alligator3"
         ),
       buildInfoKeys := Seq[BuildInfoKey](version),
-      buildInfoPackage := "sectery"
-    )
-    .dependsOn(shared)
-
-lazy val sectery =
-  project
-    .in(file("."))
-    .enablePlugins(JavaAppPackaging)
-    .settings(
-      moduleName := "sectery",
+      buildInfoPackage := "sectery",
+      assembly / mainClass := Some("sectery.producers.Main"),
+      assembly / assemblyJarName := s"${name.value}.jar",
+      moduleName := "producers",
       Compile / run / fork := true
     )
     .dependsOn(shared)
-    .dependsOn(irc)
-    .dependsOn(producers)
-    .aggregate(shared, irc, producers)
 
-Compile / packageBin / mainClass := Some("sectery.Main")
+lazy val aggregator =
+  project
+    .in(file("."))
+    .aggregate(shared, irc, producers)

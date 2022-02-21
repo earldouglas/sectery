@@ -1,11 +1,11 @@
 package sectery
 
 import org.slf4j.LoggerFactory
-import org.slf4j.LoggerFactory
-import sectery.Rx
-import sectery.Tx
 import sectery.Producer.Env
 import sectery.producers._
+import sectery.Runtime.catchAndLog
+import sectery.Rx
+import sectery.Tx
 import zio.Clock
 import zio.durationInt
 import zio.Fiber
@@ -51,12 +51,7 @@ object Producer:
             for
               _ <- p.succeed(())
               rx <- q.take
-              txs <- producer(rx).catchAllCause { cause =>
-                LoggerFactory
-                  .getLogger(this.getClass())
-                  .error(cause.prettyPrint)
-                ZIO.succeed(List.empty[Tx])
-              }
+              txs <- catchAndLog(producer(rx), List.empty[Tx])
               _ <- outbox.offerAll(txs)
             yield ()
           }.forever

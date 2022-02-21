@@ -9,39 +9,72 @@ import org.pircbotx.hooks.ListenerAdapter
 import org.pircbotx.hooks.events.JoinEvent
 import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.types.GenericMessageEvent
+import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
+import sectery.Runtime.catchAndLog
 import sectery.Rx
+import sectery.SQSFifoQueue
 import sectery.Tx
 import zio.Clock
 import zio.Fiber
 import zio.Hub
 import zio.Queue
 import zio.Schedule
-import zio.ZIO
 import zio.durationInt
+import zio.ZIO
 
 object Bot:
 
   val messageDelayMs = 250
 
   def start(
-      inbox: Hub[Rx],
-      outbox: Queue[Tx]
+      sqsInbox: SQSFifoQueue[Rx],
+      sqsOutbox: SQSFifoQueue[Tx]
   ): ZIO[Clock, Throwable, Fiber[Throwable, Any]] =
     for
       runtime <- ZIO.runtime
       bot = Bot(
-        (m: Rx) => runtime.unsafeRunAsync(inbox.publish(m)),
-        (m: Tx) => runtime.unsafeRunAsync(outbox.offer(m))
+        (m: Rx) =>
+          runtime.unsafeRunAsync(
+            catchAndLog(
+              for
+                _ <- ZIO.succeed(
+                  LoggerFactory
+                    .getLogger(this.getClass())
+                    .debug(s"offering ${m} to sqsInbox")
+                )
+                _ <- sqsInbox.offer(Some(m))
+              yield ()
+            )
+          ),
+        (m: Tx) =>
+          runtime.unsafeRunAsync(
+            catchAndLog(
+              for
+                _ <- ZIO.succeed(
+                  LoggerFactory
+                    .getLogger(this.getClass())
+                    .debug(s"offering ${m} to sqsOutbox")
+                )
+                _ <- sqsOutbox.offer(Some(m))
+              yield ()
+            )
+          )
       )
       botFiber <- ZIO.attemptBlocking(bot.startBot()).fork
-      outboxFiber <- {
+      sqsOutboxFiber <- {
         for
-          m <- outbox.take
-          _ <- ZIO.attempt(bot.send(m))
+          txs <- sqsOutbox.take()
+          _ <- ZIO.collectAll {
+            txs.map { tx =>
+              ZIO
+                .attempt(bot.send(tx))
+                .delay(Bot.messageDelayMs.milliseconds)
+            }
+          }
         yield ()
       }.repeat(Schedule.spaced(Bot.messageDelayMs.milliseconds)).fork
-      fiber <- Fiber.joinAll(List(botFiber, outboxFiber)).fork
+      fiber <- Fiber.joinAll(List(botFiber, sqsOutboxFiber)).fork
     yield fiber
 
 class Bot(rx: Rx => Unit, tx: Tx => Unit)
@@ -80,6 +113,9 @@ class Bot(rx: Rx => Unit, tx: Tx => Unit)
                         nick = e.getUser().getNick(),
                         message = e.getMessage()
                       )
+                    LoggerFactory
+                      .getLogger(this.getClass())
+                      .debug(s"calling rx(${m})")
                     rx(m)
             override def onJoin(
                 event: JoinEvent
@@ -90,6 +126,9 @@ class Bot(rx: Rx => Unit, tx: Tx => Unit)
                     channel = event.getChannel().getName(),
                     message = s"Hi, ${event.getUser().getNick()}!"
                   )
+                LoggerFactory
+                  .getLogger(this.getClass())
+                  .debug(s"calling tx(${m})")
                 tx(m)
           }
         )

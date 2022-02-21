@@ -2,11 +2,7 @@ package sectery
 
 /** A message received from IRC.
   */
-class Rx(
-    val channel: String,
-    val nick: String,
-    val message: String
-)
+case class Rx(channel: String, nick: String, message: String)
 
 object Rx:
   def unapply(r: Rx): Option[(String, String, String)] =
