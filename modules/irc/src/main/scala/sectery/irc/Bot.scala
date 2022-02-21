@@ -10,6 +10,7 @@ import org.pircbotx.hooks.events.JoinEvent
 import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.types.GenericMessageEvent
 import scala.collection.JavaConverters._
+import sectery.Runtime.catchAndLog
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
@@ -31,8 +32,9 @@ object Bot:
     for
       runtime <- ZIO.runtime
       bot = Bot(
-        (m: Rx) => runtime.unsafeRunAsync(inbox.publish(m)),
-        (m: Tx) => runtime.unsafeRunAsync(outbox.offer(m))
+        (m: Rx) =>
+          runtime.unsafeRunAsync(catchAndLog(inbox.publish(m))),
+        (m: Tx) => runtime.unsafeRunAsync(catchAndLog(outbox.offer(m)))
       )
       botFiber <- ZIO.attemptBlocking(bot.startBot()).fork
       outboxFiber <- {

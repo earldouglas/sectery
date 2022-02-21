@@ -3,12 +3,13 @@ package sectery
 import java.sql.Connection
 import java.sql.Timestamp
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 import org.slf4j.LoggerFactory
-import sectery.Tx
 import sectery.Db
 import sectery.producers.Grab
+import sectery.Runtime.catchAndLog
+import sectery.Tx
 import zio.Clock
 import zio.Queue
 import zio.ZIO
@@ -117,10 +118,4 @@ object Autoquote:
     yield ()
 
   def apply(outbox: Queue[Tx]): ZIO[Clock with Db.Db, Nothing, Unit] =
-    unsafeAutoquote(outbox)
-      .catchAllCause { cause =>
-        LoggerFactory
-          .getLogger(this.getClass())
-          .error(cause.prettyPrint)
-        ZIO.succeed(())
-      }
+    catchAndLog(unsafeAutoquote(outbox))

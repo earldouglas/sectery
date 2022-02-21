@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+      - μs
+
 
 jobs:
   build:
@@ -19,7 +21,16 @@ jobs:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: sectery
-        environment_name: sectery-env-worker
+        environment_name: irc-env
         version_label: ${{ github.SHA }}
         region: us-east-2
-        deployment_package: target/scala-3.1.0/sectery-assembly-0.1.0-SNAPSHOT.jar
+        deployment_package: target/scala-3.1.0/irc.jar
+    - uses: einaregilsson/beanstalk-deploy@v20
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: sectery
+        environment_name: producers-env
+        version_label: ${{ github.SHA }}
+        region: us-east-2
+        deployment_package: target/scala-3.1.0/producers.jar
