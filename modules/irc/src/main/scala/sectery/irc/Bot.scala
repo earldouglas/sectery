@@ -1,25 +1,26 @@
 package sectery.irc
 
 import javax.net.ssl.SSLSocketFactory
-import org.pircbotx.Configuration
-import org.pircbotx.PircBotX
 import org.pircbotx.cap.SASLCapHandler
+import org.pircbotx.Configuration
 import org.pircbotx.delay.StaticDelay
-import org.pircbotx.hooks.ListenerAdapter
 import org.pircbotx.hooks.events.JoinEvent
 import org.pircbotx.hooks.events.MessageEvent
+import org.pircbotx.hooks.ListenerAdapter
 import org.pircbotx.hooks.types.GenericMessageEvent
+import org.pircbotx.PircBotX
+import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import sectery.Runtime.catchAndLog
 import sectery.Rx
 import sectery.Tx
 import zio.Clock
+import zio.durationInt
 import zio.Fiber
 import zio.Hub
 import zio.Queue
 import zio.Schedule
 import zio.ZIO
-import zio.durationInt
 
 object Bot:
 
@@ -33,8 +34,31 @@ object Bot:
       runtime <- ZIO.runtime
       bot = Bot(
         (m: Rx) =>
-          runtime.unsafeRunAsync(catchAndLog(inbox.publish(m))),
-        (m: Tx) => runtime.unsafeRunAsync(catchAndLog(outbox.offer(m)))
+          runtime.unsafeRunAsync(
+            catchAndLog(
+              for
+                _ <- ZIO.succeed(
+                  LoggerFactory
+                    .getLogger(this.getClass())
+                    .debug(s"publishing ${m} to inbox")
+                )
+                _ <- inbox.publish(m)
+              yield ()
+            )
+          ),
+        (m: Tx) =>
+          runtime.unsafeRunAsync(
+            catchAndLog(
+              for
+                _ <- ZIO.succeed(
+                  LoggerFactory
+                    .getLogger(this.getClass())
+                    .debug(s"offering ${m} to outbox")
+                )
+                _ <- outbox.offer(m)
+              yield ()
+            )
+          )
       )
       botFiber <- ZIO.attemptBlocking(bot.startBot()).fork
       outboxFiber <- {
@@ -82,6 +106,9 @@ class Bot(rx: Rx => Unit, tx: Tx => Unit)
                         nick = e.getUser().getNick(),
                         message = e.getMessage()
                       )
+                    LoggerFactory
+                      .getLogger(this.getClass())
+                      .debug(s"calling rx(${m})")
                     rx(m)
             override def onJoin(
                 event: JoinEvent
@@ -92,6 +119,9 @@ class Bot(rx: Rx => Unit, tx: Tx => Unit)
                     channel = event.getChannel().getName(),
                     message = s"Hi, ${event.getUser().getNick()}!"
                   )
+                LoggerFactory
+                  .getLogger(this.getClass())
+                  .debug(s"calling tx(${m})")
                 tx(m)
           }
         )
