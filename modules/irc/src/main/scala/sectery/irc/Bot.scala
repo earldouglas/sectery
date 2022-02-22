@@ -65,9 +65,7 @@ object Bot:
       sqsOutboxFiber <- {
         for
           tx <- sqsOutbox.take
-          _ <- ZIO
-            .attempt(bot.send(tx))
-            .delay(Bot.messageDelayMs.milliseconds)
+          _ <- ZIO.attempt(bot.send(tx))
         yield ()
       }.repeat(Schedule.spaced(Bot.messageDelayMs.milliseconds)).fork
       fiber <- Fiber.joinAll(List(botFiber, sqsOutboxFiber)).fork
