@@ -25,8 +25,8 @@ trait ProducerSpec extends DefaultRunnableSpec:
       .map { case (label, (rxs, txs)) =>
         test(label) {
           for
-            inbox <- ZHub.sliding[Rx](100)
-            outbox <- ZQueue.unbounded[Tx]
+            inbox <- ZQueue.unbounded[Rx].map(new TestQueue(_))
+            outbox <- ZQueue.unbounded[Tx].map(new TestQueue(_))
             _ <- pre.getOrElse(ZIO.succeed(()))
             db = testDb
             fiber <- Producer
@@ -35,13 +35,13 @@ trait ProducerSpec extends DefaultRunnableSpec:
             _ <- ZIO.foreachDiscard(rxs) {
               case rx: Rx =>
                 for
-                  _ <- inbox.publish(rx)
+                  _ <- inbox.offer(Some(rx))
                   _ <- TestClock.adjust(1.millisecond)
                 yield ()
               case z: ZIO[_, _, _] =>
                 z.asInstanceOf[ZStep].inject_(db)
             }
-            result <- outbox.takeAll
+            result <- outbox.q.takeAll
           yield assert(result)(equalTo(txs))
         } @@ timeout(2.seconds)
       }

@@ -19,7 +19,7 @@ class SQSFifoQueue[A: JsonCodec](
     region: Regions,
     fifoQueueUrl: String,
     messageGroupId: String
-) {
+) extends Queue[A]:
 
   private val codec = implicitly[JsonCodec[A]]
 
@@ -38,7 +38,7 @@ class SQSFifoQueue[A: JsonCodec](
     entry.setMessageBody(codec.encodeJson(a, None).toString())
     entry
 
-  def offer(as: Iterable[A]): Task[Boolean] =
+  override def offer(as: Iterable[A]): Task[Boolean] =
     if (as.isEmpty) then ZIO.succeed(false)
     else
       val sendMessageBatchRequest: SendMessageBatchRequest =
@@ -57,11 +57,11 @@ class SQSFifoQueue[A: JsonCodec](
       .map(_.toOption)
       .flatten
 
-  def take(): Task[List[A]] =
+  override def take: Task[A] =
     val receiveMessageRequest: ReceiveMessageRequest =
       new ReceiveMessageRequest(fifoQueueUrl)
         .withWaitTimeSeconds(20)
-        .withMaxNumberOfMessages(10)
+        .withMaxNumberOfMessages(1)
     for
       messages <- ZIO
         .attempt(sqs.receiveMessage(receiveMessageRequest))
@@ -75,5 +75,4 @@ class SQSFifoQueue[A: JsonCodec](
         }
       }
       as = decode(messages)
-    yield as
-}
+    yield as.head
