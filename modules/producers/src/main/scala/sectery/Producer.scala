@@ -9,8 +9,6 @@ import sectery.Tx
 import zio.Clock
 import zio.durationInt
 import zio.Fiber
-import zio.Hub
-import zio.Queue
 import zio.Schedule
 import zio.ZHub
 import zio.ZIO
@@ -38,6 +36,7 @@ object Producer:
 
   type Env = Db.Db with Http.Http with Clock
 
+  /*
   private def subscribe(
       producer: Producer,
       inbox: Hub[Rx],
@@ -58,6 +57,7 @@ object Producer:
         }.fork
       _ <- p.await
     yield fiber
+   */
 
   private val producers: List[Producer] =
     Help(
@@ -88,18 +88,26 @@ object Producer:
     )
 
   def start(
-      inbox: Hub[Rx],
+      inbox: Queue[Rx],
       outbox: Queue[Tx]
-  ): ZIO[Env, Throwable, Fiber[Nothing, Any]] =
+  ): ZIO[Env, Throwable, Fiber[Throwable, Unit]] =
     for
       _ <- ZIO.foreach(producers)(_.init())
       autoquoteFiber <- Autoquote(outbox)
         .repeat(Schedule.spaced(5.minutes))
         .fork
-      fibers <- ZIO.collectAll(
-        producers.map { p =>
-          subscribe(p, inbox, outbox)
-        }
-      )
-      fiber <- Fiber.joinAll(autoquoteFiber :: fibers).fork
+      producerFiber <- {
+        for
+          rx <- inbox.take
+          _ <- ZIO.collectAll {
+            producers.map { producer =>
+              for
+                txs <- catchAndLog(producer(rx), List.empty[Tx])
+                _ <- outbox.offer(txs)
+              yield ()
+            }
+          }
+        yield ()
+      }.forever.fork
+      fiber <- Fiber.joinAll(List(autoquoteFiber, producerFiber)).fork
     yield fiber

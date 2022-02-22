@@ -11,7 +11,6 @@ import sectery.producers.Grab
 import sectery.Runtime.catchAndLog
 import sectery.Tx
 import zio.Clock
-import zio.Queue
 import zio.ZIO
 
 object Autoquote:
@@ -112,7 +111,7 @@ object Autoquote:
           for
             channels <- getAutoquoteChannels(nowMillis)
             messages <- getAutoquoteMessages(channels)
-            _ <- ZIO.collectAll(messages.map(outbox.offer))
+            _ <- outbox.offer(messages)
           yield ()
         else ZIO.succeed(())
     yield ()
