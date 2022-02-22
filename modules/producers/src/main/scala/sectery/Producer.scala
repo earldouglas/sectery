@@ -36,29 +36,6 @@ object Producer:
 
   type Env = Db.Db with Http.Http with Clock
 
-  /*
-  private def subscribe(
-      producer: Producer,
-      inbox: Hub[Rx],
-      outbox: Queue[Tx]
-  ): ZIO[Producer.Env, Nothing, Fiber[Nothing, Any]] =
-    for
-      p <- zio.Promise.make[Nothing, Unit]
-      fiber <-
-        inbox.subscribe.use { case q =>
-          {
-            for
-              _ <- p.succeed(())
-              rx <- q.take
-              txs <- catchAndLog(producer(rx), List.empty[Tx])
-              _ <- outbox.offerAll(txs)
-            yield ()
-          }.forever
-        }.fork
-      _ <- p.await
-    yield fiber
-   */
-
   private val producers: List[Producer] =
     Help(
       List(
