@@ -74,5 +74,8 @@ class SQSFifoQueue[A: JsonCodec](
           )
         }
       }
-      as = decode(messages)
-    yield as.head
+      a <-
+        val decoded = decode(messages)
+        if (decoded.isEmpty) then take
+        else ZIO.succeed(decoded.head)
+    yield a
