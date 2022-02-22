@@ -76,7 +76,7 @@ object Producer:
       producerFiber <- {
         for
           rx <- inbox.take
-          _ <- ZIO.collectAll {
+          _ <- ZIO.collectAllPar {
             producers.map { producer =>
               for
                 txs <- catchAndLog(producer(rx), List.empty[Tx])
