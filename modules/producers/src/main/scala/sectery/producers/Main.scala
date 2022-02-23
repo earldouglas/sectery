@@ -1,13 +1,12 @@
 package sectery.producers
 
-import com.amazonaws.regions.Regions
 import org.slf4j.LoggerFactory
 import sectery.Db
 import sectery.Http
 import sectery.Producer
 import sectery.Runtime.catchAndLog
 import sectery.Rx
-import sectery.SQSFifoQueue
+import sectery.SqsQueue
 import sectery.Tx
 import zio.App
 import zio.Clock
@@ -28,17 +27,15 @@ import zio.json._
 object Main extends App:
 
   val sqsInbox =
-    new SQSFifoQueue[Rx](
-      Regions.US_EAST_2,
-      sys.env("SQS_INBOX_URL"),
-      "sectery-inbox"
+    new SqsQueue[Rx](
+      queueUrl = sys.env("SQS_INBOX_URL"),
+      messageGroupId = "sectery-inbox"
     )(DeriveJsonCodec.gen[Rx])
 
   val sqsOutbox =
-    new SQSFifoQueue[Tx](
-      Regions.US_EAST_2,
-      sys.env("SQS_OUTBOX_URL"),
-      "sectery-outbox"
+    new SqsQueue[Tx](
+      queueUrl = sys.env("SQS_OUTBOX_URL"),
+      messageGroupId = "sectery-outbox"
     )(DeriveJsonCodec.gen[Tx])
 
   def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] =

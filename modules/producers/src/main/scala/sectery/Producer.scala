@@ -73,18 +73,19 @@ object Producer:
       autoquoteFiber <- Autoquote(outbox)
         .repeat(Schedule.spaced(5.minutes))
         .fork
-      producerFiber <- {
-        for
-          rx <- inbox.take
-          _ <- ZIO.collectAllPar {
-            producers.map { producer =>
-              for
-                txs <- catchAndLog(producer(rx), List.empty[Tx])
-                _ <- outbox.offer(txs)
-              yield ()
+      producerFiber <-
+        inbox.take
+          .mapZIO { rx =>
+            ZIO.collectAllPar {
+              producers.map { producer =>
+                for
+                  txs <- catchAndLog(producer(rx), List.empty[Tx])
+                  _ <- outbox.offer(txs)
+                yield ()
+              }
             }
           }
-        yield ()
-      }.forever.fork
+          .runDrain
+          .fork
       fiber <- Fiber.joinAll(List(autoquoteFiber, producerFiber)).fork
     yield fiber
