@@ -28,7 +28,7 @@ class SqsQueue[A: JsonCodec](
     NettyHttpClient.default ++
       ZLayer.succeed(
         CommonAwsConfig(
-          region = Some(Region.of("us-east-2")),
+          region = Some(Region.US_EAST_2),
           credentialsProvider = DefaultCredentialsProvider.create(),
           endpointOverride = None,
           commonClientConfig = None
