@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import sectery.Runtime.catchAndLog
 import sectery.Rx
-import sectery.SQSFifoQueue
+import sectery.SqsQueue
 import sectery.Tx
 import zio.Clock
 import zio.Fiber
@@ -28,8 +28,8 @@ object Bot:
   val messageDelayMs = 250
 
   def start(
-      sqsInbox: SQSFifoQueue[Rx],
-      sqsOutbox: SQSFifoQueue[Tx]
+      sqsInbox: SqsQueue[Rx],
+      sqsOutbox: SqsQueue[Tx]
   ): ZIO[Clock, Throwable, Fiber[Throwable, Any]] =
     for
       runtime <- ZIO.runtime
@@ -62,12 +62,17 @@ object Bot:
           )
       )
       botFiber <- ZIO.attemptBlocking(bot.startBot()).fork
-      sqsOutboxFiber <- {
-        for
-          tx <- sqsOutbox.take
-          _ <- ZIO.attempt(bot.send(tx))
-        yield ()
-      }.repeat(Schedule.spaced(Bot.messageDelayMs.milliseconds)).fork
+      sqsOutboxFiber <- sqsOutbox.take
+        .throttleEnforce(
+          units = 1,
+          duration = Bot.messageDelayMs.milliseconds
+        )(_ => 1)
+        .mapZIO(tx =>
+          ZIO
+            .attempt(bot.send(tx))
+        )
+        .runDrain
+        .fork
       fiber <- Fiber.joinAll(List(botFiber, sqsOutboxFiber)).fork
     yield fiber
 

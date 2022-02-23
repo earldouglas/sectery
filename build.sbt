@@ -1,11 +1,13 @@
 val zioVersion = "2.0.0-RC2"
+val zioAwsVersion = "5.17.130.2"
 
 ThisBuild / scalaVersion := "3.1.0"
 ThisBuild / scalacOptions += "-deprecation"
 ThisBuild / scalacOptions += "-Xfatal-warnings"
 
 ThisBuild / assembly / assemblyMergeStrategy := {
-  case "module-info.class" => MergeStrategy.discard
+  case "module-info.class" => MergeStrategy.first
+  case "META-INF/io.netty.versions.properties" => MergeStrategy.first
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
@@ -16,7 +18,8 @@ lazy val shared =
     .in(file("modules/shared"))
     .settings(
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.10",
-      libraryDependencies += "com.amazonaws" % "aws-java-sdk-sqs" % "1.12.158",
+      libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion,
+      libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion,
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
       libraryDependencies += "dev.zio" %% "zio-json" % "0.3.0-RC3"
     )
