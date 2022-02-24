@@ -75,11 +75,22 @@ object Producer:
         .fork
       producerFiber <-
         inbox.take
+          .tap(rx =>
+            ZIO.succeed(
+              LoggerFactory
+                .getLogger(this.getClass())
+                .debug(s"took ${rx} from inbox")
+            )
+          )
           .mapZIO { rx =>
             ZIO.collectAllPar {
               producers.map { producer =>
                 for
                   txs <- catchAndLog(producer(rx), List.empty[Tx])
+                  _ = if (!txs.isEmpty) then
+                    LoggerFactory
+                      .getLogger(this.getClass())
+                      .debug(s"offering ${txs} to outbox")
                   _ <- outbox.offer(txs)
                 yield ()
               }
