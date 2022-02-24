@@ -63,10 +63,20 @@ object Bot:
       )
       botFiber <- ZIO.attemptBlocking(bot.startBot()).fork
       sqsOutboxFiber <- sqsOutbox.take
-        .throttleEnforce(
-          units = 1,
-          duration = Bot.messageDelayMs.milliseconds
-        )(_ => 1)
+        .tap(tx =>
+          ZIO.succeed(
+            LoggerFactory
+              .getLogger(this.getClass())
+              .debug(s"took ${tx} from sqsOutbox")
+          )
+        )
+        .tap(tx =>
+          ZIO.succeed(
+            LoggerFactory
+              .getLogger(this.getClass())
+              .debug(s"sending ${tx} to IRC")
+          )
+        )
         .mapZIO(tx =>
           ZIO
             .attempt(bot.send(tx))
