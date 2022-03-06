@@ -1,12 +1,12 @@
 val zioVersion = "2.0.0-RC2"
-val zioAwsVersion = "5.17.130.2"
+val zioAwsVersion = "5.17.130.7"
 
 ThisBuild / scalaVersion := "3.1.0"
 ThisBuild / scalacOptions += "-deprecation"
 ThisBuild / scalacOptions += "-Xfatal-warnings"
 
 ThisBuild / assembly / assemblyMergeStrategy := {
-  case "module-info.class" => MergeStrategy.first
+  case "module-info.class"                     => MergeStrategy.first
   case "META-INF/io.netty.versions.properties" => MergeStrategy.first
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
