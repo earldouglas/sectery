@@ -6,7 +6,7 @@ ThisBuild / scalacOptions += "-deprecation"
 ThisBuild / scalacOptions += "-Xfatal-warnings"
 
 ThisBuild / assembly / assemblyMergeStrategy := {
-  case "module-info.class" => MergeStrategy.first
+  case "module-info.class"                     => MergeStrategy.first
   case "META-INF/io.netty.versions.properties" => MergeStrategy.first
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
@@ -17,7 +17,7 @@ lazy val shared =
   project
     .in(file("modules/shared"))
     .settings(
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.10",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11",
       libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion,
       libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion,
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
