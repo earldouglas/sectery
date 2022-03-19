@@ -153,14 +153,11 @@ object Hack extends Producer:
   override def apply(m: Rx): ZIO[Db.Db, Throwable, Iterable[Tx]] =
     m match
       case Rx(c, _, "@hack") =>
-        for
-          game <- getOrStartGame(c)
-          (word, guessCount) = game
+        for (word, guessCount) <- getOrStartGame(c)
         yield Some(Tx(c, s"Guess a word with ${word.length} letters."))
       case Rx(c, _, hack(guess)) =>
         for
-          game <- getOrStartGame(c)
-          (word, guessCount) = game
+          (word, guessCount) <- getOrStartGame(c)
           found <- isAWord(guess)
           tx <-
             if guess.length != word.length then
