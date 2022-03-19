@@ -1,9 +1,13 @@
-name: deploy
+name: deploy producers
 
 on:
   push:
     branches:
       - master
+    paths:
+      - '*'
+      - modules/shared/**
+      - modules/producers/**
 
 jobs:
   build:
@@ -16,7 +20,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 8
-    - run: sbt assembly
+    - run: sbt producers/assembly
     - uses: einaregilsson/beanstalk-deploy@v20
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -26,12 +30,3 @@ jobs:
         version_label: producers-${{ github.SHA }}
         region: us-east-2
         deployment_package: modules/producers/target/scala-3.1.1/producers.jar
-    - uses: einaregilsson/beanstalk-deploy@v20
-      with:
-        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        application_name: sectery
-        environment_name: irc-env
-        version_label: irc-${{ github.SHA }}
-        region: us-east-2
-        deployment_package: modules/irc/target/scala-3.1.1/irc.jar
