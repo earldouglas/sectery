@@ -14,9 +14,9 @@ trait ProducerSpec extends ZIOSpecDefault:
   def testDb: ULayer[Db.Service] = TestDb()
   def http: ULayer[Http.Service] = TestHttp()
 
-  def pre: Option[ZIO[Clock, Nothing, Any]] = None
+  def pre: Option[ZIO[TestClock, Nothing, Any]] = None
 
-  type ZStep = ZIO[Db.Db, Throwable, Any]
+  type ZStep = ZIO[Db.Db & TestClock, Throwable, Any]
 
   def specs: Map[String, (List[Rx | ZStep], List[Tx])] =
     Map.empty
