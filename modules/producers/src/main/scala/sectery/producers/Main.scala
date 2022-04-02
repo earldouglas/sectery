@@ -38,12 +38,13 @@ object Main extends App:
       messageGroupId = "sectery-outbox"
     )(DeriveJsonCodec.gen[Tx])
 
-  def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] =
+  def run(args: List[String]): ZIO[Any, Nothing, ExitCode] =
     catchAndLog {
       for
         producerFiber <- Producer.start(sqsInbox, sqsOutbox)
         _ <- producerFiber.join
-      yield ExitCode.failure // should never exit
+      yield ()
     }
-      .provideLayer(ZEnv.any ++ Db.live ++ Http.live)
+      .provideLayer(ZEnv.live ++ Db.live ++ Http.live)
       .forever
+      .map(_ => ExitCode.failure) // should never exit
