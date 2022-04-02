@@ -21,7 +21,7 @@ lazy val shared =
       libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion,
       libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion,
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
-      libraryDependencies += "dev.zio" %% "zio-json" % "0.3.0-RC3"
+      libraryDependencies += "dev.zio" %% "zio-json" % "0.3.0-RC5"
     )
 
 lazy val irc =
