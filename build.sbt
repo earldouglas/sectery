@@ -1,5 +1,5 @@
-val zioVersion = "2.0.0-RC2"
-val zioAwsVersion = "5.17.151.2"
+val zioVersion = "2.0.0-RC4"
+val zioAwsVersion = "5.17.162.1"
 
 ThisBuild / scalaVersion := "3.1.1"
 ThisBuild / scalacOptions += "-deprecation"
@@ -21,7 +21,7 @@ lazy val shared =
       libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion,
       libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion,
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
-      libraryDependencies += "dev.zio" %% "zio-json" % "0.3.0-RC3"
+      libraryDependencies += "dev.zio" %% "zio-json" % "0.3.0-RC5"
     )
 
 lazy val irc =

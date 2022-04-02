@@ -14,10 +14,8 @@ import zio.Hub
 import zio.Queue
 import zio.Schedule
 import zio.ZEnv
-import zio.ZHub
 import zio.ZIO
 import zio.ZLayer
-import zio.ZQueue
 import zio.durationInt
 import zio.json._
 
@@ -38,12 +36,13 @@ object Main extends App:
       messageGroupId = "sectery-outbox"
     )(DeriveJsonCodec.gen[Tx])
 
-  def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] =
+  def run(args: List[String]): ZIO[Any, Nothing, ExitCode] =
     catchAndLog {
       for
         botFiber <- Bot.start(sqsInbox, sqsOutbox)
         _ <- botFiber.join
-      yield ExitCode.failure // should never exit
+      yield ()
     }
-      .provideLayer(ZEnv.any)
+      .provideLayer(ZEnv.live)
       .forever
+      .map(_ => ExitCode.failure) // should never exit

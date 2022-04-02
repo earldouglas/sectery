@@ -10,9 +10,7 @@ import zio.Clock
 import zio.durationInt
 import zio.Fiber
 import zio.Schedule
-import zio.ZHub
 import zio.ZIO
-import zio.ZQueue
 
 /** A [[Producer]] takes an incoming message and produces any number of
   * responses based on implementation-specific logic.
