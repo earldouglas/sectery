@@ -26,12 +26,10 @@ object SqsStream {
             MessageAttributeName.apply(_)
           )
         ),
-        maxNumberOfMessages =
-          Some(Integer(settings.maxNumberOfMessages)),
+        maxNumberOfMessages = Some(settings.maxNumberOfMessages),
         visibilityTimeout =
-          Some(Integer(settings.visibilityTimeout.getOrElse(30))),
-        waitTimeSeconds =
-          Some(Integer(settings.waitTimeSeconds.getOrElse(20)))
+          Some(settings.visibilityTimeout.getOrElse(30)),
+        waitTimeSeconds = Some(settings.waitTimeSeconds.getOrElse(20))
       )
 
     ZStream
@@ -105,12 +103,10 @@ object SqsStream {
             MessageAttributeName.apply(_)
           )
         ),
-        maxNumberOfMessages =
-          Some(Integer(settings.maxNumberOfMessages)),
+        maxNumberOfMessages = Some(settings.maxNumberOfMessages),
         visibilityTimeout =
-          Some(Integer(settings.visibilityTimeout.getOrElse(30))),
-        waitTimeSeconds =
-          Some(Integer(settings.waitTimeSeconds.getOrElse(20)))
+          Some(settings.visibilityTimeout.getOrElse(30)),
+        waitTimeSeconds = Some(settings.waitTimeSeconds.getOrElse(20))
       )
 
     zio.aws.sqs.Sqs
