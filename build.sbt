@@ -1,5 +1,5 @@
 val zioVersion = "2.0.0-RC3"
-val zioAwsVersion = "5.17.162.1"
+val zioAwsVersion = "5.17.162.3"
 
 ThisBuild / scalaVersion := "3.1.1"
 ThisBuild / scalacOptions += "-deprecation"
