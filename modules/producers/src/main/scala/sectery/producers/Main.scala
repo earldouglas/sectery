@@ -8,7 +8,6 @@ import sectery.Runtime.catchAndLog
 import sectery.Rx
 import sectery.SqsQueue
 import sectery.Tx
-import zio.App
 import zio.Clock
 import zio.ExitCode
 import zio.Fiber
@@ -17,6 +16,7 @@ import zio.Queue
 import zio.Schedule
 import zio.ZEnv
 import zio.ZIO
+import zio.ZIOAppDefault
 import zio.ZLayer
 import zio.durationInt
 import zio.json._
@@ -24,7 +24,7 @@ import zio.json._
 /** This is the main entry point for the module. Set your env vars, then
   * run the `main` method.
   */
-object Main extends App:
+object Main extends ZIOAppDefault:
 
   val sqsInbox =
     new SqsQueue[Rx](
@@ -38,7 +38,7 @@ object Main extends App:
       messageGroupId = "sectery-outbox"
     )(DeriveJsonCodec.gen[Tx])
 
-  def run(args: List[String]): ZIO[Any, Nothing, ExitCode] =
+  override def run: ZIO[Any, Nothing, ExitCode] =
     catchAndLog {
       for
         producerFiber <- Producer.start(sqsInbox, sqsOutbox)
