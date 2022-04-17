@@ -105,7 +105,7 @@ class Bot(rx: Rx => Unit, tx: Tx => Unit)
             .env("IRC_CHANNELS")
             .split(",")
             .map(_.trim)
-            .toIterable
+            .toSeq
             .asJava
         )
         .addListener(
