@@ -3,7 +3,7 @@ val zioAwsVersion = "5.17.162.1"
 
 ThisBuild / scalaVersion := "3.1.2"
 ThisBuild / scalacOptions += "-deprecation"
-ThisBuild / scalacOptions += "-Xfatal-warnings"
+ThisBuild / scalacOptions += "-Xfatal-warnings" Vi
 
 ThisBuild / assembly / assemblyMergeStrategy := {
   case "module-info.class"                     => MergeStrategy.first
@@ -45,8 +45,8 @@ lazy val producers =
       libraryDependencies += "com.h2database" % "h2" % "2.1.212" % "test",
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
-      libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.28",
-      libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3",
+      libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.29",
+      libraryDependencies += "org.jsoup" % "jsoup" % "1.15.1",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.3.Final",
       testFrameworks += new TestFramework(
         "zio.test.sbt.ZTestFramework"
