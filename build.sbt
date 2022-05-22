@@ -3,7 +3,7 @@ val zioAwsVersion = "5.17.162.1"
 
 ThisBuild / scalaVersion := "3.1.2"
 ThisBuild / scalacOptions += "-deprecation"
-ThisBuild / scalacOptions += "-Xfatal-warnings" Vi
+ThisBuild / scalacOptions += "-Xfatal-warnings"
 
 ThisBuild / assembly / assemblyMergeStrategy := {
   case "module-info.class"                     => MergeStrategy.first
