@@ -9,7 +9,7 @@ import zio.ZLayer
 
 object TestDb:
   def apply(): ULayer[Db.Service] =
-    ZLayer.succeed {
+    val db: Db.Service =
       new Db.Service:
         Class.forName("org.h2.Driver");
         val conn: Connection =
@@ -18,4 +18,4 @@ object TestDb:
             k: Connection => A
         ): ZIO[Any, Throwable, A] =
           ZIO.attempt(k(conn))
-    }
+    ZLayer.succeed(db)

@@ -1,12 +1,14 @@
 package sectery.producers
 
+import java.time.Instant
 import sectery._
 import zio._
 import zio.test.TestClock
 
 object TimeSpec extends ProducerSpec:
 
-  override val pre = Some(TestClock.setTime(1234567890.millis))
+  override val pre =
+    Some(TestClock.setTime(Instant.ofEpochMilli(1234567890)))
 
   override val specs =
     Map(

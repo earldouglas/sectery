@@ -21,7 +21,7 @@ trait ProducerSpec extends ZIOSpecDefault:
   def specs: Map[String, (List[Rx | ZStep], List[Tx])] =
     Map.empty
 
-  private def _specs: List[ZSpec[Live & Annotations, Throwable]] =
+  private def _specs: List[Spec[Live & Annotations, Throwable]] =
     specs.toList
       .map { case (label, (rxs, txs)) =>
         test(label) {
