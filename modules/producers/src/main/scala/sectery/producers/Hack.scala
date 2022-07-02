@@ -19,10 +19,10 @@ object Hack extends Producer:
       _ <- Db { conn =>
         val s =
           """|CREATE TABLE IF NOT EXISTS
-               |HACK_WORDS (
-               |  WORD VARCHAR(24) NOT NULL
-               |)
-               |""".stripMargin
+             |HACK_WORDS (
+             |  WORD VARCHAR(24) NOT NULL
+             |)
+             |""".stripMargin
         val stmt = conn.createStatement
         stmt.executeUpdate(s)
         stmt.close
@@ -30,13 +30,13 @@ object Hack extends Producer:
       _ <- Db { conn =>
         val s =
           """|CREATE TABLE IF NOT EXISTS
-               |HACK_GAMES (
-               |  CHANNEL VARCHAR(256) NOT NULL,
-               |  WORD VARCHAR(24) NOT NULL,
-               |  COUNT INT NOT NULL,
-               |  PRIMARY KEY (CHANNEL)
-               |)
-               |""".stripMargin
+             |HACK_GAMES (
+             |  CHANNEL VARCHAR(256) NOT NULL,
+             |  WORD VARCHAR(24) NOT NULL,
+             |  COUNT INT NOT NULL,
+             |  PRIMARY KEY (CHANNEL)
+             |)
+             |""".stripMargin
         val stmt = conn.createStatement
         stmt.executeUpdate(s)
         stmt.close

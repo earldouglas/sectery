@@ -9,9 +9,9 @@ object TellSpec extends ProducerSpec:
 
   override val pre =
     Some(
-      TestClock.setDateTime {
+      TestClock.setTime {
         val zo = OffsetDateTime.now().getOffset()
-        OffsetDateTime.of(1970, 2, 11, 23, 59, 59, 0, zo)
+        OffsetDateTime.of(1970, 2, 11, 23, 59, 59, 0, zo).toInstant()
       }
     )
 

@@ -14,9 +14,9 @@ object GrabSpec extends ProducerSpec:
 
   override val pre =
     Some(
-      TestClock.setDateTime {
+      TestClock.setTime {
         val zo = OffsetDateTime.now(ZoneId.of("UTC-7")).getOffset()
-        OffsetDateTime.of(1970, 2, 11, 12, 0, 0, 0, zo)
+        OffsetDateTime.of(1970, 2, 11, 12, 0, 0, 0, zo).toInstant()
       }
     )
 

@@ -20,8 +20,9 @@ import zio.Fiber
 import zio.Hub
 import zio.Queue
 import zio.Schedule
-import zio.durationInt
+import zio.Unsafe
 import zio.ZIO
+import zio.durationInt
 
 object Bot:
 
@@ -35,31 +36,35 @@ object Bot:
       runtime <- ZIO.runtime
       bot = Bot(
         (m: Rx) =>
-          runtime.unsafeRunAsync(
-            catchAndLog(
-              for
-                _ <- ZIO.succeed(
-                  LoggerFactory
-                    .getLogger(this.getClass())
-                    .debug(s"offering ${m} to sqsInbox")
-                )
-                _ <- sqsInbox.offer(Some(m))
-              yield ()
-            )
-          ),
+          Unsafe.unsafe {
+            runtime.unsafe.run {
+              catchAndLog(
+                for
+                  _ <- ZIO.succeed(
+                    LoggerFactory
+                      .getLogger(this.getClass())
+                      .debug(s"offering ${m} to sqsInbox")
+                  )
+                  _ <- sqsInbox.offer(Some(m))
+                yield ()
+              )
+            }.getOrThrowFiberFailure()
+          },
         (m: Tx) =>
-          runtime.unsafeRunAsync(
-            catchAndLog(
-              for
-                _ <- ZIO.succeed(
-                  LoggerFactory
-                    .getLogger(this.getClass())
-                    .debug(s"offering ${m} to sqsOutbox")
-                )
-                _ <- sqsOutbox.offer(Some(m))
-              yield ()
-            )
-          )
+          Unsafe.unsafe { implicit u: Unsafe =>
+            runtime.unsafe.run {
+              catchAndLog(
+                for
+                  _ <- ZIO.succeed(
+                    LoggerFactory
+                      .getLogger(this.getClass())
+                      .debug(s"offering ${m} to sqsOutbox")
+                  )
+                  _ <- sqsOutbox.offer(Some(m))
+                yield ()
+              )
+            }.getOrThrowFiberFailure()
+          }
       )
       botFiber <- ZIO.attemptBlocking(bot.startBot()).fork
       sqsOutboxFiber <- sqsOutbox.take

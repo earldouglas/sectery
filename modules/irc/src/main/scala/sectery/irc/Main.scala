@@ -12,7 +12,7 @@ import zio.Fiber
 import zio.Hub
 import zio.Queue
 import zio.Schedule
-import zio.ZEnv
+import zio.DefaultServices
 import zio.ZIO
 import zio.ZIOAppDefault
 import zio.ZLayer
@@ -43,6 +43,6 @@ object Main extends ZIOAppDefault:
         _ <- botFiber.join
       yield ()
     }
-      .provideLayer(ZEnv.live)
+      .provide(ZLayer.succeed(Clock.ClockLive))
       .forever
       .map(_ => ExitCode.failure) // should never exit

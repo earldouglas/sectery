@@ -14,7 +14,6 @@ import zio.Fiber
 import zio.Hub
 import zio.Queue
 import zio.Schedule
-import zio.ZEnv
 import zio.ZIO
 import zio.ZIOAppDefault
 import zio.ZLayer
@@ -45,6 +44,6 @@ object Main extends ZIOAppDefault:
         _ <- producerFiber.join
       yield ()
     }
-      .provideLayer(ZEnv.live ++ Db.live ++ Http.live)
+      .provide(ZLayer.succeed(Clock.ClockLive) ++ Db.live ++ Http.live)
       .forever
       .map(_ => ExitCode.failure) // should never exit
