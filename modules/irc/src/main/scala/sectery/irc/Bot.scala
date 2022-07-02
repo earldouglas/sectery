@@ -37,33 +37,37 @@ object Bot:
       bot = Bot(
         (m: Rx) =>
           Unsafe.unsafe {
-            runtime.unsafe.run {
-              catchAndLog(
-                for
-                  _ <- ZIO.succeed(
-                    LoggerFactory
-                      .getLogger(this.getClass())
-                      .debug(s"offering ${m} to sqsInbox")
-                  )
-                  _ <- sqsInbox.offer(Some(m))
-                yield ()
-              )
-            }.getOrThrowFiberFailure()
+            runtime.unsafe
+              .run {
+                catchAndLog(
+                  for
+                    _ <- ZIO.succeed(
+                      LoggerFactory
+                        .getLogger(this.getClass())
+                        .debug(s"offering ${m} to sqsInbox")
+                    )
+                    _ <- sqsInbox.offer(Some(m))
+                  yield ()
+                )
+              }
+              .getOrThrowFiberFailure()
           },
         (m: Tx) =>
           Unsafe.unsafe { implicit u: Unsafe =>
-            runtime.unsafe.run {
-              catchAndLog(
-                for
-                  _ <- ZIO.succeed(
-                    LoggerFactory
-                      .getLogger(this.getClass())
-                      .debug(s"offering ${m} to sqsOutbox")
-                  )
-                  _ <- sqsOutbox.offer(Some(m))
-                yield ()
-              )
-            }.getOrThrowFiberFailure()
+            runtime.unsafe
+              .run {
+                catchAndLog(
+                  for
+                    _ <- ZIO.succeed(
+                      LoggerFactory
+                        .getLogger(this.getClass())
+                        .debug(s"offering ${m} to sqsOutbox")
+                    )
+                    _ <- sqsOutbox.offer(Some(m))
+                  yield ()
+                )
+              }
+              .getOrThrowFiberFailure()
           }
       )
       botFiber <- ZIO.attemptBlocking(bot.startBot()).fork
