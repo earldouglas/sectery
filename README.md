@@ -25,6 +25,7 @@ $ export IRC_PASS=my_password
 $ export IRC_CHANNELS=#my_channel
 $ export SQS_INBOX_URL=https://example.com/inbox.fifo
 $ export SQS_OUTBOX_URL=https://example.com/outbox.fifo
+$ export AWS_REGION=my_aws_region
 $ export AWS_ACCESS_KEY_ID=my_access_key
 $ export AWS_SECRET_ACCESS_KEY=my_secret_key
 $ sbt "project irc" run
@@ -37,6 +38,7 @@ $ export DARK_SKY_API_KEY=my_dark_sky_api_key
 $ export AIRNOW_API_KEY=my_airnow_api_key
 $ export SQS_INBOX_URL=https://example.com/inbox.fifo
 $ export SQS_OUTBOX_URL=https://example.com/outbox.fifo
+$ export AWS_REGION=my_aws_region
 $ export AWS_ACCESS_KEY_ID=my_access_key
 $ export AWS_SECRET_ACCESS_KEY=my_secret_key
 $ sbt "project producers" run

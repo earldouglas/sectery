@@ -6,13 +6,14 @@ import sectery.Rx
 import sectery.SqsQueue
 import sectery.Tx
 import sectery.irc.Bot
+import software.amazon.awssdk.regions.Region
 import zio.Clock
+import zio.DefaultServices
 import zio.ExitCode
 import zio.Fiber
 import zio.Hub
 import zio.Queue
 import zio.Schedule
-import zio.DefaultServices
 import zio.ZIO
 import zio.ZIOAppDefault
 import zio.ZLayer
@@ -26,12 +27,14 @@ object Main extends ZIOAppDefault:
 
   val sqsInbox =
     new SqsQueue[Rx](
+      region = Region.of(sys.env("AWS_REGION")),
       queueUrl = sys.env("SQS_INBOX_URL"),
       messageGroupId = "sectery-inbox"
     )(DeriveJsonCodec.gen[Rx])
 
   val sqsOutbox =
     new SqsQueue[Tx](
+      region = Region.of(sys.env("AWS_REGION")),
       queueUrl = sys.env("SQS_OUTBOX_URL"),
       messageGroupId = "sectery-outbox"
     )(DeriveJsonCodec.gen[Tx])

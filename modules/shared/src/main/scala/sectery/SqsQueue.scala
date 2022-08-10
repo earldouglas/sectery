@@ -17,6 +17,7 @@ import zio.sqs.SqsStreamSettings
 import zio.stream.ZStream
 
 class SqsQueue[A: JsonCodec](
+    region: Region,
     queueUrl: String,
     messageGroupId: String
 ) extends Queue[A]:
@@ -28,7 +29,7 @@ class SqsQueue[A: JsonCodec](
     NettyHttpClient.default ++
       ZLayer.succeed(
         CommonAwsConfig(
-          region = Some(Region.US_EAST_2),
+          region = Some(region),
           credentialsProvider = DefaultCredentialsProvider.create(),
           endpointOverride = None,
           commonClientConfig = None

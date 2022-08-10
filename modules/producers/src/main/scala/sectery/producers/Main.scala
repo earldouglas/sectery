@@ -8,6 +8,7 @@ import sectery.Runtime.catchAndLog
 import sectery.Rx
 import sectery.SqsQueue
 import sectery.Tx
+import software.amazon.awssdk.regions.Region
 import zio.Clock
 import zio.ExitCode
 import zio.Fiber
@@ -27,12 +28,14 @@ object Main extends ZIOAppDefault:
 
   val sqsInbox =
     new SqsQueue[Rx](
+      region = Region.of(sys.env("AWS_REGION")),
       queueUrl = sys.env("SQS_INBOX_URL"),
       messageGroupId = "sectery-inbox"
     )(DeriveJsonCodec.gen[Rx])
 
   val sqsOutbox =
     new SqsQueue[Tx](
+      region = Region.of(sys.env("AWS_REGION")),
       queueUrl = sys.env("SQS_OUTBOX_URL"),
       messageGroupId = "sectery-outbox"
     )(DeriveJsonCodec.gen[Tx])
