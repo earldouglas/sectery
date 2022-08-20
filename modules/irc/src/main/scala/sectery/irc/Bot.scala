@@ -36,7 +36,7 @@ object Bot:
       runtime <- ZIO.runtime
       bot = Bot(
         (m: Rx) =>
-          Unsafe.unsafe {
+          Unsafe.unsafe { implicit u: Unsafe =>
             runtime.unsafe
               .run {
                 catchAndLog(
