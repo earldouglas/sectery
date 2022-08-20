@@ -1,6 +1,6 @@
-val zioVersion = "2.0.0"
-val zioAwsVersion = "5.17.224.2"
-val zioJsonVersion = "0.3.0-RC9"
+val zioVersion = "2.0.1"
+val zioAwsVersion = "5.17.224.4"
+val zioJsonVersion = "0.3.0-RC11"
 
 ThisBuild / scalaVersion := "3.1.2"
 ThisBuild / scalacOptions += "-deprecation"
@@ -46,7 +46,7 @@ lazy val producers =
       libraryDependencies += "com.h2database" % "h2" % "2.1.214" % "test",
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
-      libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.29",
+      libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.30",
       libraryDependencies += "org.jsoup" % "jsoup" % "1.15.2",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.3.Final",
       testFrameworks += new TestFramework(
