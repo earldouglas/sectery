@@ -19,10 +19,10 @@ lazy val shared =
     .in(file("modules/shared"))
     .settings(
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11",
-      libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion exclude("dev.zio", "zio"),
-      libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion exclude("dev.zio", "zio"),
+      libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion exclude ("dev.zio", "zio"),
+      libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
-      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude("dev.zio", "zio")
+      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude ("dev.zio", "zio")
     )
 
 lazy val irc =
@@ -47,9 +47,11 @@ lazy val producers =
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
       libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.29",
-      libraryDependencies += "org.jsoup" % "jsoup" % "1.15.1",
+      libraryDependencies += "org.jsoup" % "jsoup" % "1.15.2",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.3.Final",
-      testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+      testFrameworks += new TestFramework(
+        "zio.test.sbt.ZTestFramework"
+      ),
       Test / fork := true,
       Test / envVars :=
         Map(
