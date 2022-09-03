@@ -1,6 +1,5 @@
 package sectery.producers
 
-import org.slf4j.LoggerFactory
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx

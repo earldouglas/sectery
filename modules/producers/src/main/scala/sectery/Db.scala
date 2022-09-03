@@ -2,7 +2,6 @@ package sectery
 
 import java.net.URI
 import java.sql._
-import org.slf4j.LoggerFactory
 import zio._
 
 object Db:
@@ -37,12 +36,12 @@ object Db:
               result
             }
             .catchAll { e =>
-              LoggerFactory
-                .getLogger(this.getClass())
-                .error("rolling back transaction")
-              conn.rollback()
-              conn.close()
-              ZIO.fail(e)
+              for
+                _ <- ZIO.logError("rolling back transaction")
+                _ = conn.rollback()
+                _ = conn.close()
+                f <- ZIO.fail(e)
+              yield f
             }
     }
 
