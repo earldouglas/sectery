@@ -4,7 +4,6 @@ import java.net.URLEncoder
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import sectery.Db
 import sectery.Http

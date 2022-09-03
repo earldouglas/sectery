@@ -1,6 +1,5 @@
 package sectery.irc
 
-import org.slf4j.LoggerFactory
 import sectery.Runtime.catchAndLog
 import sectery.Rx
 import sectery.SqsQueue

@@ -5,7 +5,6 @@ import java.sql.Timestamp
 import java.util.Calendar
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
-import org.slf4j.LoggerFactory
 import sectery.Db
 import sectery.producers.Grab
 import sectery.Runtime.catchAndLog

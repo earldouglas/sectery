@@ -3,7 +3,6 @@ package sectery.producers
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import sectery.Http
 import sectery.Producer
@@ -30,7 +29,7 @@ object Html extends Producer:
             headers = Map("User-Agent" -> "bot"),
             body = None
           )
-          .map {
+          .flatMap {
             case Response(200, _, body) =>
               val doc: Document = Jsoup.parse(body)
               val title: Option[String] = getTitle(doc)
@@ -42,12 +41,11 @@ object Html extends Producer:
                   case (None, Some(d)) => Some(d)
                   case (Some(t), Some(d)) =>
                     Some(List(t, ": ", d).mkString)
-              titleDesc.map(m => Tx(c, shorten(m)))
+              ZIO.attempt(titleDesc.map(m => Tx(c, shorten(m))))
             case r =>
-              LoggerFactory
-                .getLogger(this.getClass())
-                .error(s"unexpected response: ${r}")
-              None
+              for
+                _ <- ZIO.logError(s"unexpected response: ${r}")
+              yield None
           }
       case _ =>
         ZIO.succeed(None)

@@ -3,7 +3,6 @@ package sectery.producers
 import java.net.URLEncoder
 import java.text.NumberFormat
 import java.util.Locale
-import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import sectery.Http
 import sectery.Producer

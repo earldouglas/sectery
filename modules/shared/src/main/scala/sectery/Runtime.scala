@@ -1,6 +1,5 @@
 package sectery
 
-import org.slf4j.LoggerFactory
 import zio.ZIO
 
 object Runtime:
@@ -10,10 +9,9 @@ object Runtime:
       orElse: => A
   ): ZIO[R, Nothing, A] =
     z.catchAllCause { cause =>
-      LoggerFactory
-        .getLogger(this.getClass())
-        .error(cause.prettyPrint)
-      ZIO.succeed(orElse)
+      for
+        _ <- ZIO.logError(cause.prettyPrint)
+      yield orElse
     }
 
   def catchAndLog[R, E](z: ZIO[R, E, Any]): ZIO[R, Nothing, Unit] =

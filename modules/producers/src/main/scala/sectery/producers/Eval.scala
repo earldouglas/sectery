@@ -1,7 +1,6 @@
 package sectery.producers
 
 import java.net.URLEncoder
-import org.slf4j.LoggerFactory
 import sectery.Http
 import sectery.Producer
 import sectery.Response
@@ -29,14 +28,13 @@ object Eval extends Producer:
             headers = Map.empty,
             body = None
           )
-          .map {
+          .flatMap {
             case Response(200, _, body) =>
-              Some(Tx(c, body))
+              ZIO.succeed(Some(Tx(c, body)))
             case r =>
-              LoggerFactory
-                .getLogger(this.getClass())
-                .error(s"unexpected response: ${r}")
-              None
+              for
+                _ <- ZIO.logError(s"unexpected response: ${r}")
+              yield None
           }
       case _ =>
         ZIO.succeed(None)
