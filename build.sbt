@@ -19,7 +19,7 @@ lazy val shared =
   project
     .in(file("modules/shared"))
     .settings(
-      libraryDependencies += "dev.zio" %% "zio-logging" % zioJsonVersion exclude ("dev.zio", "zio"),
+      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
