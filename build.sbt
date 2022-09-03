@@ -1,5 +1,5 @@
 val zioVersion = "2.0.1"
-val zioAwsVersion = "5.17.224.4"
+val zioAwsVersion = "5.17.267.1"
 val zioJsonVersion = "0.3.0-RC11"
 
 ThisBuild / scalaVersion := "3.1.2"
