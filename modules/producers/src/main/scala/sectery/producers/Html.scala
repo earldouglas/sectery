@@ -43,8 +43,7 @@ object Html extends Producer:
                     Some(List(t, ": ", d).mkString)
               ZIO.attempt(titleDesc.map(m => Tx(c, shorten(m))))
             case r =>
-              for
-                _ <- ZIO.logError(s"unexpected response: ${r}")
+              for _ <- ZIO.logError(s"unexpected response: ${r}")
               yield None
           }
       case _ =>

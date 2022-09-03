@@ -32,8 +32,7 @@ object Eval extends Producer:
             case Response(200, _, body) =>
               ZIO.succeed(Some(Tx(c, body)))
             case r =>
-              for
-                _ <- ZIO.logError(s"unexpected response: ${r}")
+              for _ <- ZIO.logError(s"unexpected response: ${r}")
               yield None
           }
       case _ =>

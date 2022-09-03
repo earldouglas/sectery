@@ -9,8 +9,7 @@ object Runtime:
       orElse: => A
   ): ZIO[R, Nothing, A] =
     z.catchAllCause { cause =>
-      for
-        _ <- ZIO.logError(cause.prettyPrint)
+      for _ <- ZIO.logError(cause.prettyPrint)
       yield orElse
     }
 
