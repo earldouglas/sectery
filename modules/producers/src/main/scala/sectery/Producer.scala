@@ -1,6 +1,5 @@
 package sectery
 
-import org.slf4j.LoggerFactory
 import sectery.Producer.Env
 import sectery.producers._
 import sectery.Runtime.catchAndLog
@@ -73,22 +72,16 @@ object Producer:
         .fork
       producerFiber <-
         inbox.take
-          .tap(rx =>
-            ZIO.succeed(
-              LoggerFactory
-                .getLogger(this.getClass())
-                .debug(s"took ${rx} from inbox")
-            )
-          )
+          .tap(rx => ZIO.logDebug(s"took ${rx} from inbox"))
           .mapZIO { rx =>
             ZIO.collectAllPar {
               producers.map { producer =>
                 for
                   txs <- catchAndLog(producer(rx), List.empty[Tx])
-                  _ = if (!txs.isEmpty) then
-                    LoggerFactory
-                      .getLogger(this.getClass())
-                      .debug(s"offering ${txs} to outbox")
+                  _ <-
+                    if (!txs.isEmpty)
+                    then ZIO.logDebug(s"offering ${txs} to outbox")
+                    else ZIO.succeed(())
                   _ <- outbox.offer(txs)
                 yield ()
               }
