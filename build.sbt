@@ -1,6 +1,7 @@
-val zioVersion = "2.0.1"
-val zioAwsVersion = "5.17.224.4"
+val zioVersion = "2.0.2"
+val zioAwsVersion = "5.17.267.1"
 val zioJsonVersion = "0.3.0-RC11"
+val zioLoggingVersion = "2.1.0"
 
 ThisBuild / scalaVersion := "3.1.2"
 ThisBuild / scalacOptions += "-deprecation"
@@ -18,7 +19,7 @@ lazy val shared =
   project
     .in(file("modules/shared"))
     .settings(
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11",
+      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
@@ -47,7 +48,7 @@ lazy val producers =
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
       libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.30",
-      libraryDependencies += "org.jsoup" % "jsoup" % "1.15.2",
+      libraryDependencies += "org.jsoup" % "jsoup" % "1.15.3",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.4.Final",
       testFrameworks += new TestFramework(
         "zio.test.sbt.ZTestFramework"

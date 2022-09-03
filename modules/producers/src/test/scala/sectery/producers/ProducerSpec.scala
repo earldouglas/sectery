@@ -7,7 +7,6 @@ import zio.test.Assertion.equalTo
 import zio.test.TestAspect._
 import zio.test.TestClock
 import zio.test._
-import java.security.spec.InvalidKeySpecException
 
 trait ProducerSpec extends ZIOSpecDefault:
 
