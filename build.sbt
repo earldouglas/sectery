@@ -48,7 +48,7 @@ lazy val producers =
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
       libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.30",
-      libraryDependencies += "org.jsoup" % "jsoup" % "1.15.2",
+      libraryDependencies += "org.jsoup" % "jsoup" % "1.15.3",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.3.Final",
       testFrameworks += new TestFramework(
         "zio.test.sbt.ZTestFramework"
