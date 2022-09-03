@@ -18,7 +18,7 @@ lazy val shared =
   project
     .in(file("modules/shared"))
     .settings(
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.4.0",
       libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
