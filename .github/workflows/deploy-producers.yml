@@ -29,4 +29,4 @@ jobs:
         environment_name: producers-env
         version_label: producers-${{ github.SHA }}
         region: us-east-2
-        deployment_package: modules/producers/target/scala-3.1.3/producers.jar
+        deployment_package: modules/producers/target/scala-3.2.0/producers.jar
