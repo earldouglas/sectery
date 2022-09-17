@@ -29,4 +29,4 @@ jobs:
         environment_name: irc-env
         version_label: irc-${{ github.SHA }}
         region: us-east-2
-        deployment_package: modules/irc/target/scala-3.1.2/irc.jar
+        deployment_package: modules/irc/target/scala-3.2.0/irc.jar
