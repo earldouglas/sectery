@@ -3,7 +3,7 @@ val zioAwsVersion = "5.17.295.1"
 val zioJsonVersion = "0.3.0"
 val zioLoggingVersion = "2.1.3"
 
-ThisBuild / scalaVersion := "3.2.0"
+ThisBuild / scalaVersion := "3.2.1"
 ThisBuild / scalacOptions += "-deprecation"
 ThisBuild / scalacOptions += "-Xfatal-warnings"
 
