@@ -3,7 +3,7 @@ package sectery.producers
 import java.net.URLEncoder
 import java.text.NumberFormat
 import java.util.Locale
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import sectery.Http
 import sectery.Producer
 import sectery.Response

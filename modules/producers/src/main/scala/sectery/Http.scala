@@ -2,7 +2,7 @@ package sectery
 
 import java.net.HttpURLConnection
 import java.net.URL
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.io.Source
 import zio.ULayer
 import zio.ZIO
