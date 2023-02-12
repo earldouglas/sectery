@@ -4,8 +4,6 @@ val zioJsonVersion = "0.4.2"
 val zioLoggingVersion = "2.1.8"
 
 ThisBuild / scalaVersion := "3.2.1"
-ThisBuild / scalacOptions += "-deprecation"
-ThisBuild / scalacOptions += "-Xfatal-warnings"
 
 ThisBuild / assembly / assemblyMergeStrategy := {
   case "module-info.class"                     => MergeStrategy.first
