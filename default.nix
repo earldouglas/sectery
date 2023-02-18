@@ -1,16 +1,21 @@
 let
-  sbt-derivation = import (builtins.fetchTarball {
-    url =
-      "https://github.com/zaninime/sbt-derivation/archive/1ef212261cf7ad878c253192a1c8171de4d75b6d.tar.gz";
-    sha256 = "1mz2s4hajc9cnrfs26d99ap4gswcidxcq441hg3aplnrmzrxbqbp";
-  });
-in { pkgs ? import <nixpkgs> { overlays = [ sbt-derivation ]; } }:
-pkgs.sbt.mkDerivation {
+  repository = builtins.fetchTarball {
+    url = "https://github.com/zaninime/sbt-derivation/archive/92d6d6d.tar.gz";
+    sha256 = "0hlpq1qzzvmswal3x02sv8hkl53bs9zrb62smwj3gnjm5a2qbi7s";
+  };
+
+  sbt-derivation = import "${repository}/overlay.nix";
+in {
+  pkgs ? import <nixpkgs> {
+    overlays = [ sbt-derivation ];
+  }
+}:
+pkgs.mkSbtDerivation {
 
   pname = "sectery";
   version = "1.0.0";
 
-  depsSha256 = "sha256-u1mkXkykpNmmTmANctGD/G3plkh29ybzEvI6H5OlaWg=";
+  depsSha256 = "sha256-QR8Jr+YFDEpMdp1UrcqYyzQvqXMkZ9AeUNB31YzuqVc=";
 
   src = ./.;
 
