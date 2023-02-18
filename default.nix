@@ -5,9 +5,17 @@ let
   };
 
   sbt-derivation = import "${repository}/overlay.nix";
+
+  sbt-overlay =
+    final: prev: {
+      sbt = prev.sbt.override {
+        jre = prev.jdk17_headless;
+      };
+    };
+
 in {
   pkgs ? import <nixpkgs> {
-    overlays = [ sbt-derivation ];
+    overlays = [ sbt-derivation sbt-overlay ];
   }
 }:
 pkgs.mkSbtDerivation {
