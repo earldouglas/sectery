@@ -6,8 +6,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-java@v1
+    - uses: actions/checkout@v3
+    - uses: cachix/install-nix-action@v18
       with:
-        java-version: 8
-    - run: sbt test scalafmtCheckAll
+        nix_path: nixpkgs=channel:nixos-22.11
+    - uses: workflow/nix-shell-action@v3
+      with:
+        script: |
+          nix-collect-garbage
+          nix-shell --run 'sbt scalafmtCheckAll test'
