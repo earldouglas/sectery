@@ -7,22 +7,21 @@ object AsciiSpec extends ProducerSpec:
 
   private val asciiFoo =
     List(
-      "    ##",
-      "   #",
-      "   #",
-      " #####   ###    ###",
-      "   #    #   #  #   #",
-      "   #    #   #  #   #",
-      "   #    #   #  #   #",
-      "   #    #   #  #   #",
-      "   #    #   #  #   #",
-      "   #     ###    ###"
+      "  ##",
+      " #",
+      " #",
+      "####  ####    ####",
+      " #   ##  ##  ##  ##",
+      " #   #    #  #    #",
+      " #   #    #  #    #",
+      " #   #    #  #    #",
+      " #   ##  ##  ##  ##",
+      " #    ####    ####"
     )
 
   private val asciiFooTx =
     asciiFoo.map { line =>
       Tx("#foo", line)
-
     }
 
   private val asciiBlinkFooTx =
