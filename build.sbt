@@ -55,7 +55,7 @@ lazy val producers =
       Test / envVars :=
         Map(
           "AIRNOW_API_KEY" -> "alligator3",
-          "DARK_SKY_API_KEY" -> "alligator3",
+          "OPEN_WEATHER_MAP_API_KEY" -> "alligator3",
           "FINNHUB_API_TOKEN" -> "alligator3"
         ),
       buildInfoKeys := Seq[BuildInfoKey](version),
