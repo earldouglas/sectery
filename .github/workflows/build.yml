@@ -12,6 +12,4 @@ jobs:
         nix_path: nixpkgs=channel:nixos-22.11
     - uses: workflow/nix-shell-action@v3
       with:
-        script: |
-          cd examples/http4s
-          nix-shell --run 'sbt scalafmtCheckAll test'
+        script: nix-shell --run 'sbt scalafmtCheckAll test'
