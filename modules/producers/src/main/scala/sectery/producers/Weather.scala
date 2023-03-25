@@ -14,6 +14,7 @@ import sectery.Tx
 import zio.Clock
 import zio.ZIO
 import zio.json._
+import java.lang.module.ModuleDescriptor.Opens
 
 object OSM:
 
@@ -147,6 +148,47 @@ object DarkSky:
             ZIO.succeed(None)
       }
 
+object OpenWeatherMap:
+
+  case class OneCall(
+      current: Current
+  )
+
+  object OneCall:
+    implicit val decoder: JsonDecoder[OneCall] =
+      DeriveJsonDecoder.gen[OneCall]
+
+  case class Current(
+      temp: Float,
+      humidity: Float,
+      wind_speed: Float,
+      uvi: Float
+  )
+
+  object Current:
+    implicit val decoder: JsonDecoder[Current] =
+      DeriveJsonDecoder.gen[Current]
+
+  def findCurrent(
+      apiKey: String,
+      lat: Double,
+      lon: Double
+  ): ZIO[Http.Http, Throwable, Option[Current]] =
+    Http
+      .request(
+        method = "GET",
+        url =
+          s"""https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,daily,alerts&units=imperial&appid=${apiKey}""",
+        headers =
+          Map("User-Agent" -> "bot", "Accept" -> "application/json"),
+        body = None
+      )
+      .flatMap { case Response(200, _, body) =>
+        body.fromJson[OneCall] match
+          case Right(x) => ZIO.succeed(Some(x.current))
+          case Left(e)  => ZIO.succeed(None)
+      }
+
 object AirNowObservation:
 
   case class Category(
@@ -270,13 +312,13 @@ object AirNowForecast:
             ZIO.succeed(None)
       }
 
-class Weather(darkSkyApiKey: String, airNowApiKey: String)
+class Weather(openWeatherMapApiKey: String, airNowApiKey: String)
     extends Producer:
 
   case class AqiParameter(name: String, value: Int, category: String)
 
   case class Wx(
-      forecast: DarkSky.Forecast,
+      current: OpenWeatherMap.Current,
       aqi: List[AqiParameter]
   )
 
@@ -285,8 +327,8 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
       lon: Double
   ): ZIO[Http.Http, Throwable, Option[Wx]] =
     for
-      forecastO <- DarkSky.findForecast(
-        apiKey = darkSkyApiKey,
+      currentO <- OpenWeatherMap.findCurrent(
+        apiKey = openWeatherMapApiKey,
         lat = lat,
         lon = lon
       )
@@ -301,7 +343,7 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
         lon = lon
       )
     yield for
-      forecast <- forecastO
+      current <- currentO
       aqiObservation <- aqiObservationO
       aqiForecast <- aqiForecastO
     yield
@@ -323,7 +365,7 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
           ))
       }
       Wx(
-        forecast = forecast,
+        current = current,
         aqi = aqiMap.values.toList
       )
 
@@ -346,10 +388,10 @@ class Weather(darkSkyApiKey: String, airNowApiKey: String)
                   c,
                   (
                     List(
-                      f"${p.shortName}: ${wx.forecast.temperature}%.0f° (low ${wx.forecast.temperatureLow}%.0f°, high ${wx.forecast.temperatureHigh}%.0f°)",
-                      f"humidity ${wx.forecast.humidity}%.0f%%",
-                      f"wind ${wx.forecast.wind}%.0f mph",
-                      f"UV ${wx.forecast.uvIndex}"
+                      f"${p.shortName}: ${wx.current.temp}%.0f°",
+                      f"humidity ${wx.current.humidity}%.0f%%",
+                      f"wind ${wx.current.wind_speed}%.0f mph",
+                      f"UV ${wx.current.uvi.toInt}"
                     ) ++ wx.aqi.map(p =>
                       s"${p.name} ${p.value} (${p.category})"
                     )
