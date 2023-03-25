@@ -1,21 +1,23 @@
 let
 
-  pkgs =
-    import (
-      builtins.fetchTarball {
-        url = "https://github.com/NixOS/nixpkgs/archive/a7ecde8.tar.gz";
-        sha256 = "162dywda2dvfj1248afxc45kcrg83appjd0nmdb541hl7rnncf02";
-      }
-    ) {
+  nixpkgs-src =
+    builtins.fetchTarball {
+      url = "https://github.com/NixOS/nixpkgs/archive/a7ecde8.tar.gz";
+      sha256 = "162dywda2dvfj1248afxc45kcrg83appjd0nmdb541hl7rnncf02";
+    };
+
+  nixpkgs =
+    (import nixpkgs-src) {
       overlays = [ sbt-derivation sbt-overlay ];
     };
 
-  repository = builtins.fetchTarball {
-    url = "https://github.com/zaninime/sbt-derivation/archive/92d6d6d.tar.gz";
-    sha256 = "0hlpq1qzzvmswal3x02sv8hkl53bs9zrb62smwj3gnjm5a2qbi7s";
-  };
+  sbt-derivation-src =
+    builtins.fetchTarball {
+      url = "https://github.com/zaninime/sbt-derivation/archive/92d6d6d.tar.gz";
+      sha256 = "0hlpq1qzzvmswal3x02sv8hkl53bs9zrb62smwj3gnjm5a2qbi7s";
+    };
 
-  sbt-derivation = import "${repository}/overlay.nix";
+  sbt-derivation = import "${sbt-derivation-src}/overlay.nix";
 
   sbt-overlay =
     final: prev: {
@@ -26,12 +28,12 @@ let
 
 in
 
-  pkgs.mkSbtDerivation {
+  nixpkgs.mkSbtDerivation {
 
     pname = "sectery";
     version = "1.0.0";
 
-    depsSha256 = "sha256-4OauFPL+PY0kT04VvVzTj98aKdOzg3RuXF4OrfzZ0+k=";
+    depsSha256 = "sha256-YqB8oXCL3eKZBxCPpKKM/A0AjWQahtzHpZ6CzCUtmGM";
 
     src = ./.;
 
