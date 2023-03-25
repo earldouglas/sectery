@@ -9,7 +9,7 @@ let
   sbt-overlay =
     final: prev: {
       sbt = prev.sbt.override {
-        jre = prev.jdk17_headless;
+        jre = prev.jdk17;
       };
     };
 
@@ -23,7 +23,7 @@ pkgs.mkSbtDerivation {
   pname = "sectery";
   version = "1.0.0";
 
-  depsSha256 = "sha256-QR8Jr+YFDEpMdp1UrcqYyzQvqXMkZ9AeUNB31YzuqVc=";
+  depsSha256 = "sha256-4OauFPL+PY0kT04VvVzTj98aKdOzg3RuXF4OrfzZ0+k=";
 
   src = ./.;
 
