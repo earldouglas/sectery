@@ -7,9 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: cachix/install-nix-action@v18
+    - uses: cachix/install-nix-action@v20
       with:
         nix_path: nixpkgs=channel:nixos-22.11
-    - uses: workflow/nix-shell-action@v3
-      with:
-        script: nix-shell --run 'sbt scalafmtCheckAll test'
+    - run: nix-build

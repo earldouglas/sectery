@@ -1,7 +1,6 @@
 package sectery.producers
 
 import sectery._
-import sectery._
 import zio._
 
 object WeatherSpec extends ProducerSpec:
@@ -14,7 +13,7 @@ object WeatherSpec extends ProducerSpec:
             url: String,
             headers: Map[String, String],
             body: Option[String]
-        ): ZIO[Any, Nothing, Response] =
+        ): ZIO[Any, Exception, Response] =
           url match
             case "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=san+francisco" =>
               ZIO.succeed {
@@ -67,13 +66,7 @@ object WeatherSpec extends ProducerSpec:
                 )
               }
             case u =>
-              ZIO.succeed {
-                Response(
-                  status = 404,
-                  headers = Map.empty,
-                  body = ""
-                )
-              }
+              ZIO.fail(new Exception(s"Unmocked URL: ${u}"))
     }
 
   override val specs =

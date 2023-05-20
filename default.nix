@@ -26,6 +26,8 @@ let
       };
     };
 
+  buildCmd = "sbt scalafmtCheckAll test assembly";
+
 in
 
   nixpkgs.mkSbtDerivation {
@@ -33,13 +35,13 @@ in
     pname = "sectery";
     version = "1.0.0";
 
-    depsSha256 = "sha256-Z/KRECCuZUu4r8sJmzbujP26Sw29AKHYGVX3GdUsdTM=";
+    depsSha256 = "sha256-fLkUkawfzM7/EBtGjv0azugwQ90gX5DIzPrvkHbNPgs=";
 
     src = ./.;
 
-    buildPhase = ''
-      sbt assembly
-    '';
+    depsWarmupCommand = buildCmd;
+
+    buildPhase = buildCmd;
 
     installPhase = ''
       mkdir -p $out/
