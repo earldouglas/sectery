@@ -30,7 +30,7 @@ lazy val irc =
     .settings(
       moduleName := "irc",
       resolvers += "jitpack" at "https://jitpack.io/", // needed for pircbotx
-      libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.2",
+      libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.3.1",
       assembly / mainClass := Some("sectery.irc.Main"),
       assembly / assemblyJarName := s"${name.value}.jar",
       Compile / run / fork := true
