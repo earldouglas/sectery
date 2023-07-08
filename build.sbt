@@ -42,7 +42,7 @@ lazy val producers =
     .in(file("modules/producers"))
     .enablePlugins(BuildInfoPlugin)
     .settings(
-      libraryDependencies += "com.h2database" % "h2" % "2.1.214" % "test",
+      libraryDependencies += "com.h2database" % "h2" % "2.2.220" % "test",
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
       libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.33",
