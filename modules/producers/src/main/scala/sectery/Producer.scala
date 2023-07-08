@@ -3,8 +3,6 @@ package sectery
 import sectery.Producer.Env
 import sectery.producers._
 import sectery.Runtime.catchAndLog
-import sectery.Rx
-import sectery.Tx
 import zio.Clock
 import zio.durationInt
 import zio.Fiber

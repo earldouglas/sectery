@@ -3,8 +3,6 @@ package sectery.producers
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
-import zio.Clock
-import zio.Queue
 import zio.ZIO
 
 class Help(producers: List[Producer]) extends Producer:

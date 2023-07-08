@@ -2,16 +2,12 @@ package sectery.producers
 
 import java.awt.Font
 import java.awt.Graphics2D
-import java.awt.RenderingHints
 import java.awt.image.BufferedImage
-import java.io.IOException
 import sectery.Db
 import sectery.Http
 import sectery.Producer
-import sectery.Response
 import sectery.Rx
 import sectery.Tx
-import zio.Clock
 import zio.ZIO
 
 object Ascii extends Producer:

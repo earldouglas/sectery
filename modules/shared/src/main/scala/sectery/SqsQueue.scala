@@ -10,7 +10,6 @@ import zio.aws.core.config.AwsConfig
 import zio.aws.core.config.CommonAwsConfig
 import zio.aws.netty.NettyHttpClient
 import zio.aws.sqs.Sqs
-import zio.aws.sqs.model.Message
 import zio.json.JsonCodec
 import zio.sqs.SqsStream
 import zio.sqs.SqsStreamSettings

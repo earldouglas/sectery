@@ -4,7 +4,6 @@ import java.util.UUID
 import zio.aws.core.AwsError
 import zio.aws.sqs._
 import zio.aws.sqs.model._
-import zio.aws.sqs.model.primitives.Integer
 import zio.aws.sqs.model.primitives.MessageAttributeName
 import zio.json.JsonCodec
 import zio.stream.ZStream

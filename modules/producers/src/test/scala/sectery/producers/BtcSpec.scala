@@ -1,7 +1,6 @@
 package sectery.producers
 
 import sectery._
-import sectery._
 import zio._
 
 object BtcSpec extends ProducerSpec:
