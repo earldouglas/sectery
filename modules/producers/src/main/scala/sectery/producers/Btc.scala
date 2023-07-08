@@ -1,6 +1,5 @@
 package sectery.producers
 
-import java.net.URLEncoder
 import java.text.NumberFormat
 import java.util.Locale
 import scala.jdk.CollectionConverters._
@@ -9,7 +8,6 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
-import zio.Clock
 import zio.ZIO
 import zio.json._
 

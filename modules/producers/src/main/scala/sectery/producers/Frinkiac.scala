@@ -1,16 +1,12 @@
 package sectery.producers
 
 import java.net.URLEncoder
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
 import scala.jdk.CollectionConverters._
 import sectery.Http
 import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
-import zio.Clock
 import zio.ZIO
 import zio.json._
 

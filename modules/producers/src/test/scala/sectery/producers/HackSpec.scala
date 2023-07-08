@@ -1,7 +1,6 @@
 package sectery.producers
 
 import sectery._
-import zio.Inject._
 
 object HackSpec extends ProducerSpec:
 

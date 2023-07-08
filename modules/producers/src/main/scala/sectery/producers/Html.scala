@@ -9,7 +9,6 @@ import sectery.Producer
 import sectery.Response
 import sectery.Rx
 import sectery.Tx
-import zio.Clock
 import zio.ZIO
 
 object Html extends Producer:

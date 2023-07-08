@@ -1,6 +1,5 @@
 package sectery.producers
 
-import java.sql.Connection
 import sectery.Db
 import sectery.Producer
 import sectery.Rx

@@ -3,10 +3,7 @@ package sectery.producers
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import sectery._
-import zio.Inject._
 import zio._
-import zio.test.Assertion.equalTo
-import zio.test.TestAspect._
 import zio.test.TestClock
 import zio.test._
 

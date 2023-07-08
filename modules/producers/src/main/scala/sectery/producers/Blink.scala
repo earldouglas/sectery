@@ -3,10 +3,8 @@ package sectery.producers
 import sectery.Db
 import sectery.Http
 import sectery.Producer
-import sectery.Response
 import sectery.Rx
 import sectery.Tx
-import zio.Clock
 import zio.ZIO
 
 object Blink extends Producer:

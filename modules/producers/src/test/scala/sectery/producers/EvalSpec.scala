@@ -1,7 +1,6 @@
 package sectery.producers
 
 import sectery._
-import sectery._
 
 object EvalSpec extends ProducerSpec:
 

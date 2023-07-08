@@ -16,12 +16,8 @@ import sectery.SqsQueue
 import sectery.Tx
 import zio.Clock
 import zio.Fiber
-import zio.Hub
-import zio.Queue
-import zio.Schedule
 import zio.Unsafe
 import zio.ZIO
-import zio.durationInt
 
 object Bot:
 

@@ -5,10 +5,8 @@ import java.sql.Timestamp
 import java.util.Calendar
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
-import sectery.Db
 import sectery.producers.Grab
 import sectery.Runtime.catchAndLog
-import sectery.Tx
 import zio.Clock
 import zio.ZIO
 

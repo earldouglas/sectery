@@ -1,15 +1,10 @@
 package sectery.producers
 
 import java.sql.Connection
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.TimeZone
-import java.util.concurrent.TimeUnit
 import sectery.Db
 import sectery.Producer
 import sectery.Rx
 import sectery.Tx
-import zio.Clock
 import zio.ZIO
 
 object Config extends Producer:

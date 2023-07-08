@@ -2,7 +2,6 @@ package sectery
 
 import java.sql.Connection
 import java.sql.DriverManager
-import java.util.UUID
 import zio.ULayer
 import zio.ZIO
 import zio.ZLayer

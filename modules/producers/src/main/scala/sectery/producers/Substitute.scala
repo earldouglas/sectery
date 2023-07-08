@@ -1,11 +1,8 @@
 package sectery.producers
 
-import java.sql.Timestamp
-import java.util.concurrent.TimeUnit
 import scala.util.matching.Regex
 import sectery.Db
 import sectery.Producer
-import sectery.Response
 import sectery.Rx
 import sectery.Tx
 import zio.Clock

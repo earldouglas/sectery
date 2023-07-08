@@ -25,10 +25,12 @@ object AsciiSpec extends ProducerSpec:
 
     }
 
+  /*
   private val asciiBlinkFooTx =
     asciiFoo.map { line =>
       Tx("#foo", s"\u0006${line}\u0006")
     }
+   */
 
   override val specs =
     Map(
