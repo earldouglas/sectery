@@ -81,7 +81,7 @@ object WeatherSpec extends ProducerSpec:
             )
           )
         ),
-      "@wx produces time in user-configured location" ->
+      "@wx produces weather in user-configured location" ->
         (
           List(
             Rx("#foo", "bar", "@wx"),
