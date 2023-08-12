@@ -23,11 +23,10 @@ $ export IRC_PORT=7000
 $ export IRC_USER=my_nick
 $ export IRC_PASS=my_password
 $ export IRC_CHANNELS=#my_channel
-$ export SQS_INBOX_URL=https://example.com/inbox.fifo
-$ export SQS_OUTBOX_URL=https://example.com/outbox.fifo
-$ export AWS_REGION=my_aws_region
-$ export AWS_ACCESS_KEY_ID=my_access_key
-$ export AWS_SECRET_ACCESS_KEY=my_secret_key
+$ export RABBIT_MQ_HOSTNAME=localhost
+$ export RABBIT_MQ_PORT=5672
+$ export RABBIT_MQ_USERNAME=guest
+$ export RABBIT_MQ_PASSWORD=guest
 $ sbt "project irc" run
 ```
 
@@ -36,11 +35,10 @@ $ export DATABASE_URL=mysql://username:password@host:port/dbname
 $ export FINNHUB_API_TOKEN=my_finnhub_api_token
 $ export OPEN_WEATHER_MAP_API_KEY=my_open_weather_map_api_key
 $ export AIRNOW_API_KEY=my_airnow_api_key
-$ export SQS_INBOX_URL=https://example.com/inbox.fifo
-$ export SQS_OUTBOX_URL=https://example.com/outbox.fifo
-$ export AWS_REGION=my_aws_region
-$ export AWS_ACCESS_KEY_ID=my_access_key
-$ export AWS_SECRET_ACCESS_KEY=my_secret_key
+$ export RABBIT_MQ_HOSTNAME=localhost
+$ export RABBIT_MQ_PORT=5672
+$ export RABBIT_MQ_USERNAME=guest
+$ export RABBIT_MQ_PASSWORD=guest
 $ sbt "project producers" run
 ```
 
@@ -68,7 +66,7 @@ compile-time visibility:
 '--------'
 ```
 
-Modules interact with each other via SQS:
+Modules interact with each other via RabbitMQ:
 
 ```
                       .------------.
