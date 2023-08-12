@@ -26,7 +26,7 @@ let
       };
     };
 
-  buildCmd = "sbt scalafmtCheckAll test assembly";
+  buildCmd = "sbt scalafmtCheckAll scalafmtSbtCheck test assembly";
 
 in
 
