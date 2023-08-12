@@ -28,8 +28,24 @@ To add support for a new message response:
 
 ## Testing
 
-For operational convenience, tests use SQLite.  Production uses
-PostgreSQL, so SQL queries need to be portable between the two.
+For operational convenience, tests use H2.  Production uses MySQL, so
+SQL queries need to be portable between the two.
+
+To test with RabbitMQ, first run a local instance with Docker:
+
+```
+$ docker run -p 5672:5672 --rm rabbitmq:3
+```
+
+Then provide the configuration env vars to the sbt process:
+
+```
+$ RABBIT_MQ_HOSTNAME=localhost \
+  RABBIT_MQ_PORT=5672 \
+  RABBIT_MQ_USERNAME=guest \
+  RABBIT_MQ_PASSWORD=guest \
+  sbt test
+```
 
 ## References
 

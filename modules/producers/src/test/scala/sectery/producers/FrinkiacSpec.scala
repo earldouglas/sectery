@@ -47,7 +47,7 @@ object FrinkiacSpec extends ProducerSpec:
 
   override val specs =
     Map(
-      "@count produces count" ->
+      "@frinkiac produces quote" ->
         (
           List(
             Rx("#foo", "bar", "@frinkiac i got to think of a lie fast")

@@ -1,6 +1,5 @@
 package sectery
 
-import sectery.Producer.Env
 import sectery.producers._
 import sectery.Runtime.catchAndLog
 import zio.Clock
@@ -29,7 +28,7 @@ trait Producer:
 
 object Producer:
 
-  type Env = Db.Db with Http.Http with Clock
+  type Env = MessageQueue with Db.Db with Http.Http with Clock
 
   private val producers: List[Producer] =
     Help(
@@ -59,12 +58,11 @@ object Producer:
       )
     )
 
-  def start(
-      inbox: Queue[Rx],
-      outbox: Queue[Tx]
-  ): ZIO[Env, Throwable, Fiber[Throwable, Unit]] =
+  def start: ZIO[Env, Throwable, Fiber[Throwable, Unit]] =
     for
       _ <- ZIO.foreach(producers)(_.init())
+      inbox <- MessageQueue.inbox
+      outbox <- MessageQueue.outbox
       autoquoteFiber <- Autoquote(outbox)
         .repeat(Schedule.spaced(5.minutes))
         .fork

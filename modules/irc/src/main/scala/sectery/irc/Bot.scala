@@ -10,9 +10,9 @@ import org.pircbotx.hooks.events.JoinEvent
 import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.types.GenericMessageEvent
 import scala.jdk.CollectionConverters._
+import sectery.MessageQueue
 import sectery.Runtime.catchAndLog
 import sectery.Rx
-import sectery.SqsQueue
 import sectery.Tx
 import zio.Clock
 import zio.Fiber
@@ -23,12 +23,13 @@ object Bot:
 
   val messageDelayMs = 250
 
-  def start(
-      sqsInbox: SqsQueue[Rx],
-      sqsOutbox: SqsQueue[Tx]
-  ): ZIO[Clock, Throwable, Fiber[Throwable, Any]] =
+  type Env = MessageQueue with Clock
+
+  def start: ZIO[Env, Throwable, Fiber[Throwable, Any]] =
     for
       runtime <- ZIO.runtime
+      inbox <- MessageQueue.inbox
+      outbox <- MessageQueue.outbox
       bot = Bot(
         (m: Rx) =>
           Unsafe.unsafe { implicit u: Unsafe =>
@@ -36,8 +37,8 @@ object Bot:
               .run {
                 catchAndLog(
                   for
-                    _ <- ZIO.logDebug(s"offering ${m} to sqsInbox")
-                    _ <- sqsInbox.offer(Some(m))
+                    _ <- ZIO.logDebug(s"offering ${m} to inbox")
+                    _ <- inbox.offer(Some(m))
                   yield ()
                 )
               }
@@ -49,8 +50,8 @@ object Bot:
               .run {
                 catchAndLog(
                   for
-                    _ <- ZIO.logDebug(s"offering ${m} to sqsOutbox")
-                    _ <- sqsOutbox.offer(Some(m))
+                    _ <- ZIO.logDebug(s"offering ${m} to outbox")
+                    _ <- outbox.offer(Some(m))
                   yield ()
                 )
               }
@@ -58,8 +59,8 @@ object Bot:
           }
       )
       botFiber <- ZIO.attemptBlocking(bot.startBot()).fork
-      sqsOutboxFiber <- sqsOutbox.take
-        .tap(tx => ZIO.logDebug(s"took ${tx} from sqsOutbox"))
+      outboxFiber <- outbox.take
+        .tap(tx => ZIO.logDebug(s"took ${tx} from outbox"))
         .tap(tx => ZIO.logDebug(s"sending ${tx} to IRC"))
         .mapZIO(tx =>
           ZIO
@@ -67,7 +68,7 @@ object Bot:
         )
         .runDrain
         .fork
-      fiber <- Fiber.joinAll(List(botFiber, sqsOutboxFiber)).fork
+      fiber <- Fiber.joinAll(List(botFiber, outboxFiber)).fork
     yield fiber
 
 class Bot(rx: Rx => Unit, tx: Tx => Unit)

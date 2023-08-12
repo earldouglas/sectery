@@ -1,5 +1,4 @@
 val zioVersion = "2.0.15"
-val zioAwsVersion = "6.20.103.1"
 val zioJsonVersion = "0.6.0"
 val zioLoggingVersion = "2.1.13"
 
@@ -8,8 +7,6 @@ ThisBuild / scalaVersion := "3.3.0"
 ThisBuild / assembly / assemblyMergeStrategy := {
   case "module-info.class"                     => MergeStrategy.first
   case "META-INF/io.netty.versions.properties" => MergeStrategy.first
-  case x if x.startsWith("org/apache/commons/logging/") => MergeStrategy.first
-  case "META-INF/versions/9/module-info.class" => MergeStrategy.first
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
@@ -20,10 +17,9 @@ lazy val shared =
     .in(file("modules/shared"))
     .settings(
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
-      libraryDependencies += "dev.zio" %% "zio-aws-netty" % zioAwsVersion exclude ("dev.zio", "zio"),
-      libraryDependencies += "dev.zio" %% "zio-aws-sqs" % zioAwsVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
-      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude ("dev.zio", "zio")
+      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude ("dev.zio", "zio"),
+      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.14.2"
     )
 
 lazy val irc =
