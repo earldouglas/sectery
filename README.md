@@ -31,7 +31,7 @@ $ sbt "project irc" run
 ```
 
 ```
-$ export DATABASE_URL=mysql://username:password@host:port/dbname
+$ export DATABASE_URL=jdbc:mysql://username:password@host:port/dbname
 $ export FINNHUB_API_TOKEN=my_finnhub_api_token
 $ export OPEN_WEATHER_MAP_API_KEY=my_open_weather_map_api_key
 $ export AIRNOW_API_KEY=my_airnow_api_key
