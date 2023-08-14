@@ -7,7 +7,7 @@ in {
 
   network.description = "Sectery";
 
-  resources.ec2KeyPairs.my-key-pair = {
+  resources.ec2KeyPairs.sectery-key-pair = {
       inherit region accessKeyId;
     };
 
@@ -40,7 +40,7 @@ in {
           accessKeyId = accessKeyId;
           region = region;
           instanceType = "t4g.micro";
-          keyPair = resources.ec2KeyPairs.my-key-pair;
+          keyPair = resources.ec2KeyPairs.sectery-key-pair;
           ami = "ami-033ff64078c59f378";
           ebsInitialRootDiskSize = 12;
         };
