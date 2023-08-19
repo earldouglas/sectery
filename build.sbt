@@ -19,7 +19,7 @@ lazy val shared =
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude ("dev.zio", "zio"),
-      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.14.3"
+      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.18.0"
     )
 
 lazy val irc =
