@@ -2,7 +2,7 @@ val zioVersion = "2.0.16"
 val zioJsonVersion = "0.6.2"
 val zioLoggingVersion = "2.1.14"
 
-ThisBuild / scalaVersion := "3.3.0"
+ThisBuild / scalaVersion := "3.3.1"
 
 ThisBuild / assembly / assemblyMergeStrategy := {
   case "module-info.class"                     => MergeStrategy.first
