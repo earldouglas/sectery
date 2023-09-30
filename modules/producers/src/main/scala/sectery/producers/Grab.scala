@@ -73,8 +73,8 @@ object Grab extends Producer:
       case Rx(c, _, quoteNick(nick)) =>
         Db { conn =>
           randomGrabbedMessage(c, nick)(conn) match {
-            case Some(m) =>
-              Some(Tx(c, s"<${nick}> ${m}"))
+            case Some(gm) =>
+              Some(Tx(c, s"<${gm.nick}> ${gm.message}"))
             case None =>
               Some(Tx(c, s"${nick} hasn't said anything."))
           }
@@ -91,34 +91,32 @@ object Grab extends Producer:
 
   case class GrabbedMessage(nick: String, message: String)
 
-  private def randomGrabbedNick(channel: String)(
+  private def randomGrabbedMessage(channel: String)(
       conn: Connection
-  ): Option[String] =
+  ): Option[GrabbedMessage] =
     val s =
-      """|SELECT `NICK`
-         |FROM (
-         |  SELECT DISTINCT(`NICK`)
-         |  FROM `GRABBED_MESSAGES`
-         |  WHERE `CHANNEL` = ?
-         |) `NICKS`
+      """|SELECT `NICK`, `MESSAGE`
+         |FROM `GRABBED_MESSAGES`
+         |WHERE `CHANNEL` = ?
          |ORDER BY RAND()
          |LIMIT 1
          |""".stripMargin
     val stmt = conn.prepareStatement(s)
     stmt.setString(1, channel)
     val rs = stmt.executeQuery
-    var no: Option[String] = None
+    var gmo: Option[GrabbedMessage] = None
     if rs.next() then
       val nick = rs.getString("NICK")
-      no = Some(nick)
+      val message = rs.getString("MESSAGE")
+      gmo = Some(GrabbedMessage(nick = nick, message = message))
     stmt.close
-    no
+    gmo
 
   private def randomGrabbedMessage(channel: String, nick: String)(
       conn: Connection
-  ): Option[String] =
+  ): Option[GrabbedMessage] =
     val s =
-      """|SELECT `MESSAGE`
+      """|SELECT `NICK`, `MESSAGE`
          |FROM `GRABBED_MESSAGES`
          |WHERE `CHANNEL` = ?
          |  AND `NICK` = ?
@@ -129,21 +127,17 @@ object Grab extends Producer:
     stmt.setString(1, channel)
     stmt.setString(2, nick)
     val rs = stmt.executeQuery
-    var mo: Option[String] = None
+    var gmo: Option[GrabbedMessage] = None
     if rs.next() then
+      val nick = rs.getString("NICK")
       val message = rs.getString("MESSAGE")
-      mo = Some(message)
+      gmo = Some(GrabbedMessage(nick = nick, message = message))
     stmt.close
-    mo
+    gmo
 
   def randomGrabbedMessage(
       channel: String
   ): ZIO[Db.Db, Throwable, Option[GrabbedMessage]] =
     Db { conn =>
-      for
-        nick <- randomGrabbedNick(channel)(conn)
-        message <- randomGrabbedMessage(channel = channel, nick = nick)(
-          conn
-        )
-      yield GrabbedMessage(nick = nick, message = message)
+      randomGrabbedMessage(channel)(conn)
     }
