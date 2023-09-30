@@ -76,6 +76,8 @@ object RabbitMQ:
         connectionFactory.setPort(port)
         connectionFactory.setUsername(username)
         connectionFactory.setPassword(password)
+        connectionFactory.setAutomaticRecoveryEnabled(true)
+        connectionFactory.setNetworkRecoveryInterval(1000)
         val connection: Connection = connectionFactory.newConnection()
 
         val channel: Channel = connection.createChannel()
