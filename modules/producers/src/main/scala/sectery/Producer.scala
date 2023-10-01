@@ -54,7 +54,8 @@ object Producer:
         Blink,
         Ascii,
         Morse,
-        Hack
+        Hack,
+        Points
       )
     )
 
