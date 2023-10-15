@@ -45,8 +45,8 @@ object Autoquote:
            |WHERE TIMESTAMP <= ?
            |""".stripMargin
       val stmt = conn.prepareStatement(s)
-      val twentyMinutesAgoMillis = nowMillis - 20L * 60L * 1000L
-      stmt.setTimestamp(1, new Timestamp(twentyMinutesAgoMillis))
+      val fourtyFiveMinutesAgoMillis = nowMillis - 45L * 60L * 1000L
+      stmt.setTimestamp(1, new Timestamp(fourtyFiveMinutesAgoMillis))
       val rs = stmt.executeQuery
       var cs: List[String] = Nil
       if rs.next() then
