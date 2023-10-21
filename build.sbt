@@ -44,7 +44,7 @@ lazy val producers =
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
       libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.2.0",
-      libraryDependencies += "org.jsoup" % "jsoup" % "1.16.1",
+      libraryDependencies += "org.jsoup" % "jsoup" % "1.16.2",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.7.Final",
       testFrameworks += new TestFramework(
         "zio.test.sbt.ZTestFramework"
