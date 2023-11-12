@@ -7,6 +7,7 @@ ThisBuild / scalaVersion := "3.3.1"
 ThisBuild / assembly / assemblyMergeStrategy := {
   case "module-info.class"                     => MergeStrategy.first
   case "META-INF/io.netty.versions.properties" => MergeStrategy.first
+  case "META-INF/versions/9/module-info.class" => MergeStrategy.first
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
@@ -43,7 +44,7 @@ lazy val producers =
       libraryDependencies += "com.h2database" % "h2" % "2.2.224" % "test",
       libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
       libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
-      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.2.0",
+      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.3.0",
       libraryDependencies += "org.jsoup" % "jsoup" % "1.16.2",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.7.Final",
       testFrameworks += new TestFramework(
