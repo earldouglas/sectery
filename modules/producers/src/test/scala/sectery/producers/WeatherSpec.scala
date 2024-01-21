@@ -77,7 +77,7 @@ object WeatherSpec extends ProducerSpec:
           List(
             Tx(
               "#foo",
-              "San Francisco: 44°, humidity 65%, wind 10 mph, UV 0, O3 15 (Good), PM2.5 0 (Good)"
+              "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 0, o3 15, pm2.5 0"
             )
           )
         ),
@@ -96,7 +96,7 @@ object WeatherSpec extends ProducerSpec:
             Tx("#foo", "bar: wx set to san francisco"),
             Tx(
               "#foo",
-              "San Francisco: 44°, humidity 65%, wind 10 mph, UV 0, O3 15 (Good), PM2.5 0 (Good)"
+              "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 0, o3 15, pm2.5 0"
             )
           )
         )

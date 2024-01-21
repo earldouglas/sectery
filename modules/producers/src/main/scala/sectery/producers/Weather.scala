@@ -153,11 +153,21 @@ object OpenWeatherMap:
     implicit val decoder: JsonDecoder[OneCall] =
       DeriveJsonDecoder.gen[OneCall]
 
+  case class Weather(
+      main: String,
+      description: String
+  )
+
+  object Weather:
+    implicit val decoder: JsonDecoder[Weather] =
+      DeriveJsonDecoder.gen[Weather]
+
   case class Current(
       temp: Float,
       humidity: Float,
       wind_speed: Float,
-      uvi: Float
+      uvi: Float,
+      weather: List[Weather]
   )
 
   object Current:
@@ -384,12 +394,15 @@ class Weather(openWeatherMapApiKey: String, airNowApiKey: String)
                   (
                     List(
                       f"${p.shortName}: ${wx.current.temp}%.0f°",
-                      f"humidity ${wx.current.humidity}%.0f%%",
-                      f"wind ${wx.current.wind_speed}%.0f mph",
-                      f"UV ${wx.current.uvi.toInt}"
-                    ) ++ wx.aqi.map(p =>
-                      s"${p.name} ${p.value} (${p.category})"
-                    )
+                      f"hum ${wx.current.humidity}%.0f%%",
+                      f"wnd ${wx.current.wind_speed}%.0f mph"
+                    ) ++ wx.current.weather.map { w =>
+                      w.description
+                    } ++ List(
+                      f"uv ${wx.current.uvi.toInt}"
+                    ) ++ wx.aqi.map { p =>
+                      s"${p.name.toLowerCase} ${p.value}"
+                    }
                   ).mkString(", ")
                 )
               )
