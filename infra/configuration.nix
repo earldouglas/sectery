@@ -19,8 +19,8 @@ in {
         import (pkgs.fetchFromGitHub {
           owner = "earldouglas";
           repo = "sectery";
-          rev = "83106fd0f56d840d0a0d8dafb211610c08f2c296";
-          sha256 = "19a1c10q5psizk2pq4pb4rz14w8imp23m9x78jqfpmaqxwaxwx0i";
+          rev = "882ce49e506cdc10dd0b6f95e87ece8a60403af5";
+          sha256 = "sha256-rMsAZGkIi79Dcp2SD7RW+OhJX+vJ+GxoHmcVuBAkqOo=";
         });
 
       slf4jSimple =
