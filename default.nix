@@ -13,8 +13,8 @@ let
 
   sbt-derivation-src =
     builtins.fetchTarball {
-      url = "https://github.com/zaninime/sbt-derivation/archive/92d6d6d.tar.gz";
-      sha256 = "0hlpq1qzzvmswal3x02sv8hkl53bs9zrb62smwj3gnjm5a2qbi7s";
+      url = "https://github.com/zaninime/sbt-derivation/archive/6762cf2.tar.gz";
+      sha256 = "0g9dzw734k4qhvc4h88zjbrxdiz6g8kgq7qgbac8jgj8cvns6xry";
     };
 
   sbt-derivation = import "${sbt-derivation-src}/overlay.nix";
