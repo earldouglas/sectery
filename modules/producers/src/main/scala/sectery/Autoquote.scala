@@ -67,9 +67,10 @@ object Autoquote:
               |""".stripMargin
         val stmt = conn.prepareStatement(s)
         stmt.setTimestamp(1, new Timestamp(nowMillis))
-        channels.zipWithIndex.map { case (channel, index) =>
-          stmt.setString(2 + index, channel)
-        }
+        channels.zipWithIndex
+          .foreach { case (channel, index) =>
+            stmt.setString(2 + index, channel)
+          }
         stmt.execute()
         stmt.close()
       else ()
