@@ -39,6 +39,7 @@ $ export RABBIT_MQ_HOSTNAME=localhost
 $ export RABBIT_MQ_PORT=5672
 $ export RABBIT_MQ_USERNAME=guest
 $ export RABBIT_MQ_PASSWORD=guest
+$ export OPENAI_APIKEY=my_openai_api_key
 $ sbt "project producers" run
 ```
 
