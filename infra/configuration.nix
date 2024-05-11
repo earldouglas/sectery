@@ -19,8 +19,8 @@ in {
         import (pkgs.fetchFromGitHub {
           owner = "earldouglas";
           repo = "sectery";
-          rev = "5c29d863e71fa689635ac0c3c9471af75b911287";
-          sha256 = "0c6bjizjcyyij7qq7xmayb3y1w2gz15n4sqw9mdg6zdbr0alh5xv";
+          rev = "efc540ebbfe72c036ce41f22326d0af693baf273";
+          sha256 = "1zgdxy64s63mrchhdxig9m6fkni300ayy9spmw95fx9h52qn97f9";
         });
 
       slf4jSimple =
@@ -149,6 +149,7 @@ in {
           RABBIT_MQ_PORT = builtins.getEnv "RABBIT_MQ_PORT";
           RABBIT_MQ_USERNAME = builtins.getEnv "RABBIT_MQ_USERNAME";
           RABBIT_MQ_PASSWORD = builtins.getEnv "RABBIT_MQ_PASSWORD";
+          OPENAI_APIKEY = builtins.getEnv "OPENAI_APIKEY";
         };
       };
     };
