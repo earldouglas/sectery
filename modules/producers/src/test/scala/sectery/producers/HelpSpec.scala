@@ -18,6 +18,7 @@ object HelpSpec extends ProducerSpec:
             Tx(
               "#foo",
               List(
+                "@ai",
                 "@ascii",
                 "@blink",
                 "@btc",

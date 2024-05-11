@@ -3,7 +3,12 @@ package sectery.producers
 import sectery._
 import zio.Inject._
 import zio._
+import zio.openai.Completions
+import zio.openai.model.CreateCompletionRequest
+import zio.openai.model.CreateCompletionResponse
+import zio.openai.model.OpenAIFailure
 import zio.stream.ZSink
+import zio.stream.ZStream
 import zio.test.Assertion.equalTo
 import zio.test.TestAspect._
 import zio.test.TestClock
@@ -35,6 +40,27 @@ trait ProducerSpec extends ZIOSpecDefault:
   def specs: Map[String, (List[Rx | ZStep], List[Tx])] =
     Map.empty
 
+  def completions: ZLayer[Any, Throwable, Completions] =
+    ZLayer.succeed(
+      new Completions {
+        def createCompletion(
+            body: zio.openai.model.CreateCompletionRequest
+        ): zio.ZIO[
+          Any,
+          zio.openai.model.OpenAIFailure,
+          zio.openai.model.CreateCompletionResponse
+        ] = ???
+
+        def createCompletionStreaming(
+            body: zio.openai.model.CreateCompletionRequest
+        ): zio.stream.ZStream[
+          Any,
+          zio.openai.model.OpenAIFailure,
+          zio.openai.model.CreateCompletionResponse
+        ] = ???
+      }
+    )
+
   private def _specs: List[Spec[Live & Annotations, Throwable]] =
     specs.toList
       .map { case (label, (rxs, txs)) =>
@@ -48,7 +74,7 @@ trait ProducerSpec extends ZIOSpecDefault:
                 else TestMQ()
               db = testDb
               fiber <- Producer.start
-                .inject_(mq, db, http)
+                .inject_(mq, db, http, completions)
               _ <- ZIO.foreachDiscard(rxs) {
                 case rx: Rx =>
                   for

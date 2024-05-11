@@ -10,13 +10,14 @@ import zio.ExitCode
 import zio.ZIO
 import zio.ZIOAppDefault
 import zio.ZLayer
+import zio.openai.Completions
 
 /** This is the main entry point for the module. Set your env vars, then
   * run the `main` method.
   */
 object Main extends ZIOAppDefault:
 
-  override def run: ZIO[Any, Nothing, ExitCode] =
+  override def run: ZIO[Any, Throwable, ExitCode] =
     catchAndLog {
       for
         producerFiber <- Producer.start
@@ -26,7 +27,7 @@ object Main extends ZIOAppDefault:
       .provide(
         ZLayer.succeed(
           Clock.ClockLive
-        ) ++ RabbitMQ.live ++ Db.live ++ Http.live
+        ) ++ RabbitMQ.live ++ Db.live ++ Http.live ++ Completions.default
       )
       .forever
       .map(_ => ExitCode.failure) // should never exit

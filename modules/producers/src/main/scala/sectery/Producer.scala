@@ -1,12 +1,13 @@
 package sectery
 
-import sectery.producers._
 import sectery.Runtime.catchAndLog
+import sectery.producers._
 import zio.Clock
-import zio.durationInt
 import zio.Fiber
 import zio.Schedule
 import zio.ZIO
+import zio.durationInt
+import zio.openai.Completions
 
 /** A [[Producer]] takes an incoming message and produces any number of
   * responses based on implementation-specific logic.
@@ -28,7 +29,11 @@ trait Producer:
 
 object Producer:
 
-  type Env = MessageQueue with Db.Db with Http.Http with Clock
+  type Env = MessageQueue
+    with Db.Db
+    with Http.Http
+    with Clock
+    with Completions
 
   private val producers: List[Producer] =
     Help(
@@ -55,7 +60,8 @@ object Producer:
         Ascii,
         Morse,
         Hack,
-        Points
+        Points,
+        OpenAI
       )
     )
 
