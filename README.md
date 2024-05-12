@@ -11,8 +11,8 @@ Sectery is an digital assistant IRC bot.
 
 To run Sectery, you'll need API keys for
 [Finnhub](https://finnhub.io/docs/api), [Dark
-Sky](https://darksky.net/dev), and
-[AirNow](https://docs.airnowapi.org/).
+Sky](https://darksky.net/dev), [AirNow](https://docs.airnowapi.org/),
+and [OpenAI](https://platform.openai.com/docs/quickstart/api-keys).
 
 To start Sectery, first set a bunch of configuration variables, then run
 the two main classes with `sbt run`:
