@@ -7,9 +7,10 @@ import zio.Chunk
 import zio.ZIO
 
 import zio.openai._
+import zio.openai.model.CreateCompletionRequest.MaxTokens
 import zio.openai.model.CreateCompletionRequest.Model
-import zio.openai.model.CreateCompletionRequest.Prompt
 import zio.openai.model.CreateCompletionRequest.Model.Models
+import zio.openai.model.CreateCompletionRequest.Prompt
 import zio.openai.model.Temperature
 
 import zio.openai.model.OpenAIFailure
@@ -23,7 +24,8 @@ object OpenAI extends Producer:
       result <- Completions.createCompletion(
         model = Model.Predefined(Models.`Gpt-3.5-turbo-instruct`),
         prompt = Prompt.String(prompt),
-        temperature = Temperature(0.6)
+        temperature = Temperature(0.6),
+        maxTokens = MaxTokens(256)
       )
     } yield result.choices.map(_.text)
 
