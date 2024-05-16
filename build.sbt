@@ -1,8 +1,11 @@
 val zioVersion = "2.0.22"
 val zioJsonVersion = "0.6.2"
 val zioLoggingVersion = "2.2.2"
+val testcontainersVersion = "0.41.3"
 
-ThisBuild / scalaVersion := "3.3.3"
+ThisBuild / scalaVersion := "3.4.2"
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 ThisBuild / assembly / assemblyMergeStrategy := {
   case "module-info.class"                     => MergeStrategy.first
@@ -13,61 +16,99 @@ ThisBuild / assembly / assemblyMergeStrategy := {
     oldStrategy(x)
 }
 
+lazy val domain =
+  project
+    .in(file("modules/1-domain"))
+    .settings(
+      libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
+    )
+
+lazy val effects =
+  project
+    .in(file("modules/2-effects"))
+    .dependsOn(domain)
+    .settings(
+      libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
+    )
+
+lazy val use_cases =
+  project
+    .in(file("modules/3-use-cases"))
+    .enablePlugins(BuildInfoPlugin)
+    .settings(
+      buildInfoKeys := Seq[BuildInfoKey](version),
+      buildInfoPackage := "sectery",
+      libraryDependencies += "org.jsoup" % "jsoup" % "1.17.2",
+      libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.7.Final",
+      libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test,
+      libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "0.7.29" % Test
+    )
+    .dependsOn(domain, effects)
+
+lazy val adaptors =
+  project
+    .in(file("modules/4-adaptors"))
+    .settings(
+      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.3.3",
+      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude ("dev.zio", "zio"),
+      libraryDependencies += "com.h2database" % "h2" % "2.2.224" % Test,
+      libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
+    )
+    .dependsOn(effects)
+
 lazy val shared =
   project
-    .in(file("modules/shared"))
+    .in(file("modules/5-shared"))
     .settings(
+      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.21.0",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
-      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude ("dev.zio", "zio"),
-      libraryDependencies += "dev.zio" %% "zio-openai" % "0.4.1",
-      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.21.0"
+      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude ("dev.zio", "zio")
     )
+    .dependsOn(domain)
 
 lazy val irc =
   project
-    .in(file("modules/irc"))
+    .in(file("modules/5-irc"))
     .settings(
       moduleName := "irc",
       resolvers += "jitpack" at "https://jitpack.io/", // needed for pircbotx
       libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.3.1",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.3.14",
       assembly / mainClass := Some("sectery.irc.Main"),
       assembly / assemblyJarName := s"${name.value}.jar",
       Compile / run / fork := true
     )
-    .dependsOn(shared)
+    .dependsOn(shared, use_cases, adaptors)
 
 lazy val producers =
   project
-    .in(file("modules/producers"))
-    .enablePlugins(BuildInfoPlugin)
+    .in(file("modules/5-producers"))
     .settings(
-      libraryDependencies += "com.h2database" % "h2" % "2.2.224" % "test",
-      libraryDependencies += "dev.zio" %% "zio-test" % zioVersion % "test",
-      libraryDependencies += "dev.zio" %% "zio-test-sbt" % zioVersion % "test",
+      moduleName := "producers",
       libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.3.3",
-      libraryDependencies += "org.jsoup" % "jsoup" % "1.17.2",
-      libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.7.Final",
-      testFrameworks += new TestFramework(
-        "zio.test.sbt.ZTestFramework"
-      ),
-      Test / fork := true,
-      Test / envVars :=
-        Map(
-          "AIRNOW_API_KEY" -> "alligator3",
-          "OPEN_WEATHER_MAP_API_KEY" -> "alligator3",
-          "FINNHUB_API_TOKEN" -> "alligator3"
-        ),
-      buildInfoKeys := Seq[BuildInfoKey](version),
-      buildInfoPackage := "sectery",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.3.14",
       assembly / mainClass := Some("sectery.producers.Main"),
       assembly / assemblyJarName := s"${name.value}.jar",
-      moduleName := "producers",
       Compile / run / fork := true
     )
-    .dependsOn(shared)
+    .dependsOn(shared, use_cases, adaptors)
 
-lazy val aggregator =
+lazy val root =
   project
     .in(file("."))
-    .aggregate(shared, irc, producers)
+    .settings(
+      libraryDependencies += "com.dimafeng" %% "testcontainers-scala-rabbitmq" % testcontainersVersion % Test,
+      libraryDependencies += "com.dimafeng" %% "testcontainers-scala-mariadb" % testcontainersVersion % Test,
+      Test / run / fork := true
+    )
+    .dependsOn(irc, producers)
+    .aggregate(
+      producers,
+      irc,
+      shared,
+      adaptors,
+      use_cases,
+      effects,
+      domain
+    )

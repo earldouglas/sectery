@@ -31,21 +31,29 @@ To add support for a new message response:
 For operational convenience, tests use H2.  Production uses MySQL, so
 SQL queries need to be portable between the two.
 
-To test with RabbitMQ, first run a local instance with Docker:
-
 ```
-$ docker run -p 5672:5672 --rm rabbitmq:3
+$ sbt test
 ```
 
-Then provide the configuration env vars to the sbt process:
+## Integration testing
+
+To test against a real IRC server, export the necessary env vars and
+run the test main method:
 
 ```
-$ RABBIT_MQ_HOSTNAME=localhost \
-  RABBIT_MQ_PORT=5672 \
-  RABBIT_MQ_USERNAME=guest \
-  RABBIT_MQ_PASSWORD=guest \
-  sbt test
+$ IRC_USER=redacted \
+  IRC_PASS=redacted \
+  IRC_HOST=redacted \
+  IRC_PORT=redacted \
+  OPEN_WEATHER_MAP_API_KEY=redacted \
+  AIRNOW_API_KEY=redacted \
+  FINNHUB_API_TOKEN=redacted \
+  OPENAI_APIKEY=redacted \
+  sbt Test/run
 ```
+
+This uses Testcontainers to run the necessary RabbitMQ and MariaDB
+dependencies within local Docker containers.
 
 ## References
 

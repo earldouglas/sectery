@@ -1,9 +1,11 @@
 let
 
+  nixpkgs-hash = "057f9ae"; # 23.11
+
   nixpkgs-src =
     builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/5863c27.tar.gz";
-      sha256 = "0hcqikq9hm7kqklgr9w7djw7m8y5yvq1yajps2v0v04mgg97ykwj";
+      url = "https://github.com/NixOS/nixpkgs/archive/${nixpkgs-hash}.tar.gz";
+      sha256 = "1ndiv385w1qyb3b18vw13991fzb9wg4cl21wglk89grsfsnra41k";
     };
 
   nixpkgs =
@@ -35,7 +37,7 @@ in
     pname = "sectery";
     version = "1.0.0";
 
-    depsSha256 = "sha256-0KVBmqj6DPZaqJqUJWNyIuDjuruXAmYT+nq4jBz7sTQ=";
+    depsSha256 = "sha256-Jhnk30aSthHAHvzsYiqowPTHQKdrqm2prOZ9S+nQv6U=";
 
     src = ./.;
 
@@ -45,7 +47,7 @@ in
 
     installPhase = ''
       mkdir -p $out/
-      cp modules/irc/target/scala-*/irc.jar $out/
-      cp modules/producers/target/scala-*/producers.jar $out/
+      cp modules/5-irc/target/scala-*/irc.jar $out/
+      cp modules/5-producers/target/scala-*/producers.jar $out/
     '';
   }
