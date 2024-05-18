@@ -39,7 +39,7 @@ lazy val use_cases =
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "sectery",
       libraryDependencies += "org.jsoup" % "jsoup" % "1.17.2",
-      libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.7.Final",
+      libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.8.Final",
       libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test,
       libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "0.7.29" % Test
     )
