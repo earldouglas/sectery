@@ -49,7 +49,6 @@ lazy val adaptors =
   project
     .in(file("modules/4-adaptors"))
     .settings(
-      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.3.3",
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "com.h2database" % "h2" % "2.2.224" % Test,
       libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
@@ -86,7 +85,7 @@ lazy val producers =
     .in(file("modules/5-producers"))
     .settings(
       moduleName := "producers",
-      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.3.3",
+      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.4.0",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.3.14",
       assembly / mainClass := Some("sectery.producers.Main"),
       assembly / assemblyJarName := s"${name.value}.jar",
