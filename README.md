@@ -52,7 +52,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 ### Layers
 
 Sectery's code is organized as layered modules with both shared and
-disjoint compile-time visibility.
+disjoint compile-time visibility.  Each layer has access to the layers
+beneath.
 
 ```
 .----------------------------------------------------------------------.
