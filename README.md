@@ -49,23 +49,64 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Architecture
 
-Sectery is organized as modules with both shared and disjoint
-compile-time visibility:
+### Layers
+
+Sectery's code is organized as layered modules with both shared and
+disjoint compile-time visibility.  Each layer has access to the layers
+beneath.
 
 ```
-.--------.
-| shared |
-|        |
-|    .-----.
-|    | irc |
-|    '-----'
-|        |
-|    .-----------.
-|    | producers |
-|    '-----------'
-|        |
-'--------'
+.----------------------------------------------------------------------.
+|                                Layer 5                           ZIO |
+|                                                                      |
+|                irc ----------> shared <---------- producers          |
+| o                                                                    |
+'-|--------------------------------------------------------------------'
+  |
+.-|--------------------------------------------------------------------.
+| v                              Layer 4                               |
+| |                                                                    |
+| |                             adaptors (implement L2 effects)        |
+| | o                                                                  |
+'-|-|------------------------------------------------------------------'
+  | |
+  | |                                                             impure
+==|=|===================================================================
+  | |                                                               pure
+  | |
+.-|-|------------------------------------------------------------------.
+| v v                            Layer 3                               |
+| | |                                                                  |
+| | |                           use cases                              |
+| | |                             |   |                                |
+| | |        responders <---------'   '---------> announcers           |
+| | | o                                                                |
+'-|-|-|----------------------------------------------------------------'
+  | | |
+.-|-|-|----------------------------------------------------------------.
+| v v v                          Layer 2                               |
+| | | |                                                                |
+| | | |                          effects                               |
+| | | | o                                                              |
+'-|-|-|-|--------------------------------------------------------------'
+  | | | |
+.-|-|-|-|--------------------------------------------------------------.
+| v v v v                        Layer 1                               |
+|                                                                      |
+|                                domain                                |
+|                                 |  |                                 |
+|              entities <---------'  '---------> operations            |
+|                                                                      |
+'----------------------------------------------------------------------'
 ```
+
+Layers 1 through 3 are all pure functions and data structures modelling
+the domain, business rules, and effects.
+
+Layers 4 and 5 both impure, with effects implementations underneath ZIO
+to wire everything together.
+
+### Message queue
 
 Modules interact with each other via RabbitMQ:
 
@@ -86,6 +127,8 @@ Modules interact with each other via RabbitMQ:
                      \            \ /
                       '------------'
 ```
+
+### External dependencies
 
 Modules access various internal and external resources:
 
