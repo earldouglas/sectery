@@ -95,6 +95,9 @@ class Producer(
   given hack: Hack[XIO] =
     LiveHack(unsafeGetConnection())
 
+  given krypto: Krypto[XIO] =
+    LiveKrypto(unsafeGetConnection())
+
   given lastMessage: LastMessage[XIO] =
     grabQuoteSubstitute
 

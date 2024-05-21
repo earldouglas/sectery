@@ -40,6 +40,7 @@ lazy val use_cases =
       buildInfoPackage := "sectery",
       libraryDependencies += "org.jsoup" % "jsoup" % "1.17.2",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.8.Final",
+      libraryDependencies += "net.objecthunter" % "exp4j" % "0.4.8",
       libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test,
       libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "0.7.29" % Test
     )

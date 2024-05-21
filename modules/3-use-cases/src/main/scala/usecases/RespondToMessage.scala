@@ -18,6 +18,7 @@ class RespondToMessage[
     : Grab //
     : Hack //
     : HttpClient //
+    : Krypto //
     : LastMessage //
     : Monad //
     : Now //
@@ -28,7 +29,6 @@ class RespondToMessage[
     : Stock //
     : Tell //
     : Traversable //
-    // : ReceiveMessage //
     : SendMessage //
 ] extends ReceiveMessage[F]:
 
@@ -45,6 +45,7 @@ class RespondToMessage[
         new GrabResponder,
         new HackResponder,
         new HtmlResponder,
+        new KryptoResponder,
         new MorseResponder,
         new OpenAIResponder,
         new PingResponder,
@@ -59,27 +60,6 @@ class RespondToMessage[
         new WxResponder
       )
     new HelpResponder(allExceptHelp) :: allExceptHelp
-
-    /*
-  def apply(): F[Unit] =
-    summon[ReceiveMessage[F]]
-      .receiveMessage()
-      .flatMap { rx =>
-        summon[Traversable[F]]
-          .traverse(responders)(_.respondToMessage(rx))
-          .map(_.flatten)
-      }
-      .flatMap { txs =>
-        summon[Traversable[F]]
-          .traverse(txs) { tx =>
-            summon[SendMessage[F]]
-              .sendMessage(tx)
-          }
-      }
-      .map { xs =>
-        xs.fold(())((_, _) => ())
-      }
-     */
 
   override def receiveMessage(rx: Rx): F[Unit] =
     summon[Traversable[F]]
