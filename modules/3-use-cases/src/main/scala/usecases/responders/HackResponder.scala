@@ -8,9 +8,9 @@ import sectery.usecases.Responder
 
 class HackResponder[F[_]: Monad: Hack] extends Responder[F]:
 
-  override def name = "@ping"
+  override def name = "@hack"
 
-  override def usage = "@ping"
+  override def usage = "@hack"
 
   private val hack = """^@hack\s+([^\s]+)\s*$""".r
 

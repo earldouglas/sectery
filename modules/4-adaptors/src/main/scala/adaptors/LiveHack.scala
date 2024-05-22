@@ -66,20 +66,17 @@ object LiveHack:
       channel: String,
       word: String
   )(c: Connection): Unit =
-    val s1 = "DELETE FROM HACK_GAMES WHERE CHANNEL = ?"
-    val stmt1 = c.prepareStatement(s1)
-    stmt1.setString(1, channel)
-    stmt1.executeUpdate
-    stmt1.close
 
-    val s2 =
+    unsafeDeleteGame(channel)(c)
+
+    val s =
       "INSERT INTO HACK_GAMES (CHANNEL, WORD, COUNT) VALUES (?, ?, ?)"
-    val stmt2 = c.prepareStatement(s2)
-    stmt2.setString(1, channel)
-    stmt2.setString(2, word)
-    stmt2.setInt(3, 0)
-    stmt2.executeUpdate
-    stmt2.close
+    val stmt = c.prepareStatement(s)
+    stmt.setString(1, channel)
+    stmt.setString(2, word)
+    stmt.setInt(3, 0)
+    stmt.executeUpdate
+    stmt.close
 
   private def unsafeGetOrStartGame(channel: String)(
       c: Connection
