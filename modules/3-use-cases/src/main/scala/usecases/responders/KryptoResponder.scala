@@ -43,8 +43,11 @@ class KryptoResponder[F[_]: Monad: Krypto] extends Responder[F]:
     val allowed = """^[0-9()+*/\s-]*$""".r
     expr match
       case allowed() =>
-        val expression = new ExpressionBuilder(expr).build()
-        Option(expression.evaluate())
+        try
+          val expression = new ExpressionBuilder(expr).build()
+          Option(expression.evaluate())
+        catch
+          case e: IllegalArgumentException => None
       case _ => None
 
   def show(game: Krypto.Game): String =

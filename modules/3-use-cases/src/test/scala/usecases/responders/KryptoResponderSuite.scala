@@ -144,7 +144,7 @@ class KryptoResponderSuite extends FunSuite:
     assertEquals(
       obtained = new KryptoResponder[Id]
         .respondToMessage(
-          Rx("#foo", "bar", "@krypto purple monkey dishwasher")
+          Rx("#foo", "bar", "@krypto (2 + 3) * **2 ** 1 * 1*")
         ),
       expected = List(Tx("#foo", "Can't parse that."))
     )
