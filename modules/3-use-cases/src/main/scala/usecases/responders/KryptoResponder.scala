@@ -46,8 +46,7 @@ class KryptoResponder[F[_]: Monad: Krypto] extends Responder[F]:
         try
           val expression = new ExpressionBuilder(expr).build()
           Option(expression.evaluate())
-        catch
-          case e: IllegalArgumentException => None
+        catch case e: IllegalArgumentException => None
       case _ => None
 
   def show(game: Krypto.Game): String =
