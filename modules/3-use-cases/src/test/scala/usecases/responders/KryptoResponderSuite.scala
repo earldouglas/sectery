@@ -65,7 +65,7 @@ class KryptoResponderSuite extends FunSuite:
         .respondToMessage(
           Rx("#foo", "bar", "@krypto 9 * 16 + 1 * (18 - 3)")
         ),
-      expected = List(Tx("#foo", "Try again."))
+      expected = List(Tx("#foo", "Try again.  1 try so far."))
     )
 
     assertEquals(
@@ -98,7 +98,7 @@ class KryptoResponderSuite extends FunSuite:
         .respondToMessage(
           Rx("#foo", "bar", "@krypto 9 - 16 + 1 * (18 - 3)")
         ),
-      expected = List(Tx("#foo", "Krypto!"))
+      expected = List(Tx("#foo", "Krypto!  Got it in 1 try."))
     )
 
     assert(deleted)

@@ -46,13 +46,21 @@ class KryptoResponder[F[_]: Monad: Krypto] extends Responder[F]:
                 if (game.objective == result) then
                   summon[Krypto[F]]
                     .deleteGame(c)
-                    .map(_ => Tx(c, s"Krypto!"))
+                    .map(_ =>
+                      Tx(
+                        c,
+                        s"Krypto!  Got it in ${tries(game.guessCount + 1)}."
+                      )
+                    )
                 else
                   val newGuessCount = game.guessCount + 1
                   summon[Krypto[F]]
                     .setGuessCount(c, newGuessCount)
                     .map { _ =>
-                      Tx(c, s"Try again.")
+                      Tx(
+                        c,
+                        s"Try again.  ${tries(newGuessCount)} so far."
+                      )
                     }
               case None =>
                 summon[Monad[F]].pure(Tx(c, "Can't parse that."))
