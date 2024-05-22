@@ -63,7 +63,7 @@ class KryptoResponderSuite extends FunSuite:
     assertEquals(
       obtained = new KryptoResponder[Id]
         .respondToMessage(
-          Rx("#foo", "bar", "@krypto 9 * 16 + 1 * (18 - 3)")
+          Rx("#foo", "bar", "@krypto 9 * 16 + 1 / (18 - 3)")
         ),
       expected = List(Tx("#foo", "Try again.  1 try so far."))
     )

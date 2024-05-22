@@ -11,7 +11,7 @@ class KryptoResponder[F[_]: Monad: Krypto] extends Responder[F]:
 
   override def name = "@krypto"
 
-  override def usage = "@krypto"
+  override def usage = "@krypto [guess]"
 
   private val krypto = """^@krypto\s+(.+)$""".r
 
@@ -40,7 +40,7 @@ class KryptoResponder[F[_]: Monad: Krypto] extends Responder[F]:
     gameCards == guessCards
 
   def calc(expr: String): Option[Double] =
-    val allowed = """^[0-9()+*\s-]*$""".r
+    val allowed = """^[0-9()+*/\s-]*$""".r
     expr match
       case allowed() =>
         val expression = new ExpressionBuilder(expr).build()
