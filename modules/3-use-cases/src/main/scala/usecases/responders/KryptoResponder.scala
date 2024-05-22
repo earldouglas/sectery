@@ -18,6 +18,27 @@ class KryptoResponder[F[_]: Monad: Krypto] extends Responder[F]:
   private def tries(count: Int): String =
     if count == 1 then s"${count} try" else s"${count} tries"
 
+  def checkCards(game: Krypto.Game, expr: String): Boolean =
+
+    val guessCards: List[Int] =
+      expr
+        .split("[^0-9]")
+        .toList
+        .filter(_.length > 0)
+        .map(_.toInt)
+        .sorted
+
+    val gameCards: List[Int] =
+      List(
+        game.cards._1,
+        game.cards._2,
+        game.cards._3,
+        game.cards._4,
+        game.cards._5
+      ).sorted
+
+    gameCards == guessCards
+
   def calc(expr: String): Option[Double] =
     val allowed = """^[0-9()+*\s-]*$""".r
     expr match
@@ -38,31 +59,39 @@ class KryptoResponder[F[_]: Monad: Krypto] extends Responder[F]:
           .map(game => List(Tx(c, show(game))))
 
       case Rx(c, _, krypto(guess)) =>
-        for
-          game <- summon[Krypto[F]].getOrStartGame(c)
-          tx <-
+        summon[Krypto[F]]
+          .getOrStartGame(c)
+          .flatMap { game =>
             calc(guess) match
               case Some(result) =>
-                if (game.objective == result) then
-                  summon[Krypto[F]]
-                    .deleteGame(c)
-                    .map { _ =>
-                      val message =
-                        s"Krypto!  Got it in ${tries(game.guessCount + 1)}."
-                      Tx(c, message)
-                    }
-                else
-                  val newGuessCount = game.guessCount + 1
-                  summon[Krypto[F]]
-                    .setGuessCount(c, newGuessCount)
-                    .map { _ =>
-                      val message =
-                        s"Try again.  ${tries(newGuessCount)} so far."
-                      Tx(c, message)
-                    }
+                checkCards(game, guess) match
+                  case false =>
+                    summon[Monad[F]].pure(
+                      List(Tx(c, "Gotta play the cards as dealt."))
+                    )
+                  case true =>
+                    if (game.objective == result) then
+                      summon[Krypto[F]]
+                        .deleteGame(c)
+                        .map { _ =>
+                          val message =
+                            s"Krypto!  Got it in ${tries(game.guessCount + 1)}."
+                          List(Tx(c, message))
+                        }
+                    else
+                      val newGuessCount = game.guessCount + 1
+                      summon[Krypto[F]]
+                        .setGuessCount(c, newGuessCount)
+                        .map { _ =>
+                          val message =
+                            s"Try again.  ${tries(newGuessCount)} so far."
+                          List(Tx(c, message))
+                        }
               case None =>
-                summon[Monad[F]].pure(Tx(c, "Can't parse that."))
-        yield List(tx)
+                summon[Monad[F]].pure(
+                  List(Tx(c, "Can't parse that."))
+                )
+          }
 
       case _ =>
         summon[Monad[F]].pure(Nil)

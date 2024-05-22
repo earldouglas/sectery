@@ -104,6 +104,29 @@ class KryptoResponderSuite extends FunSuite:
     assert(deleted)
   }
 
+  test("@krypto: guess with the wrong cards") {
+    given krypto: Krypto[Id] =
+      new KryptoStub:
+        override def deleteGame(channel: String) = ???
+        override def setGuessCount(channel: String, guessCount: Int) =
+          ???
+        override def getOrStartGame(channel: String) =
+          channel match
+            case "#foo" =>
+              Krypto.Game(
+                guessCount = 0,
+                objective = 8,
+                cards = (9, 16, 1, 3, 18)
+              )
+    assertEquals(
+      obtained = new KryptoResponder[Id]
+        .respondToMessage(
+          Rx("#foo", "bar", "@krypto 8 - 16 + 1 * (18 - 3)")
+        ),
+      expected = List(Tx("#foo", "Gotta play the cards as dealt."))
+    )
+  }
+
   test("@krypto: guess a non-parseable solution") {
     given krypto: Krypto[Id] =
       new KryptoStub:
