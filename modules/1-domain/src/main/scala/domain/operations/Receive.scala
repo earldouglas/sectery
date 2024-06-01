@@ -2,5 +2,6 @@ package sectery.domain.operations
 
 import sectery.domain.entities.Rx
 
-trait ReceiveMessage[F[_]]:
-  def receiveMessage(rx: Rx): F[Unit]
+trait Receive[F[_]]:
+  def name: String
+  def apply(): F[Rx]

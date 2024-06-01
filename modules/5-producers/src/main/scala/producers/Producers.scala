@@ -3,20 +3,27 @@ package sectery.producers
 import java.sql.Connection
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-import sectery.MessageQueue
+import sectery.RabbitMQ
 import sectery.adaptors._
 import sectery.control._
 import sectery.domain.entities._
-import sectery.domain.operations._
 import sectery.effects._
+import sectery.queue._
 import sectery.usecases._
 import zio.Clock
 import zio.Fiber
-import zio.Schedule
 import zio.ZIO
-import zio.durationInt
+import zio.ZLayer
+import zio.json.DeriveJsonDecoder
+import zio.json.DeriveJsonEncoder
+import zio.stream.ZStream
 
-class Producer(
+class Producers(
+    rabbitMqHostname: String,
+    rabbitMqPort: Int,
+    rabbitMqUsername: String,
+    rabbitMqPassword: String,
+    rabbitMqChannelSuffix: String,
     unsafeGetConnection: () => Connection,
     openWeatherMapApiKey: String,
     airNowApiKey: String,
@@ -122,54 +129,102 @@ class Producer(
   val grabQuoteSubstitute =
     LiveGrabQuoteSubstitute(unsafeGetConnection())
 
-  given autoquote: Autoquote[XIO] =
-    grabQuoteSubstitute
-
   val getSetConfig =
     LiveConfig(unsafeGetConnection())
 
-  def start: ZIO[MessageQueue, Nothing, Fiber[Throwable, Unit]] =
-    for
-      inbox <- MessageQueue.inbox
-      outbox <- MessageQueue.outbox
+  def start: ZIO[Any, Nothing, Fiber[Throwable, Unit]] =
 
-      sendMessage =
-        new SendMessage[XIO]:
-          override def sendMessage(tx: Tx): XIO[Unit] =
-            for
-              _ <- ZIO.logDebug(s"offering ${tx} to outbox")
-              _ <- outbox.offer(List(tx))
-            yield ()
+    val rabbitMQ: RabbitMQ =
+      new RabbitMQ(
+        hostname = rabbitMqHostname,
+        port = rabbitMqPort,
+        username = rabbitMqUsername,
+        password = rabbitMqPassword
+      )
+
+    val enqueueTx: Enqueue[XIO, Tx] =
+      rabbitMQ.enqueue[Tx](s"outbox-${rabbitMqChannelSuffix}")(using
+        DeriveJsonEncoder.gen[Tx]
+      )
+
+    for
 
       autoquoteFiber <- {
 
-        given _sendMessage: SendMessage[XIO] = sendMessage
-        val announcers = new Announcers()
+        given autoquote: Autoquote[XIO] =
+          grabQuoteSubstitute
 
-        announcers
+        given _enqueueTx: Enqueue[XIO, Tx] = enqueueTx
+
+        new Announcers()
           .announce()
-          .repeat(Schedule.spaced(5.minutes))
+          .catchAllCause(cause => ZIO.logError(cause.prettyPrint))
           .fork
       }
-      respondToMessage = {
-        given _sendMessage: SendMessage[XIO] = sendMessage
-        new RespondToMessage()
+
+      respondFiber <- {
+
+        val dequeueRx: QueueUpstream.DequeueR =
+          rabbitMQ.dequeue[Rx](
+            s"inbox-${rabbitMqChannelSuffix}"
+          )(using DeriveJsonDecoder.gen[Rx])
+
+        val logger: QueueDownstream.LoggerR =
+          new Logger:
+            override def debug(message: => String) =
+              ZIO.logDebug(message)
+            override def error(message: => String) =
+              ZIO.logError(message)
+
+        QueueUpstream
+          .respondLoop()
+          .provide(
+            ZLayer.succeed(logger) ++
+              ZLayer.succeed(enqueueTx) ++
+              ZLayer.succeed(dequeueRx) ++
+              ZLayer.succeed(new Responders)
+          )
       }
-      respondToMessageFiber <-
-        inbox.take
-          .tap(rx => ZIO.logDebug(s"took ${rx} from inbox"))
-          .mapZIO { rx =>
-            respondToMessage.receiveMessage(rx)
-          }
-          .runDrain
-          .fork
       fiber <-
         Fiber
           .joinAll(
             List(
               autoquoteFiber,
-              respondToMessageFiber
+              respondFiber
             )
           )
           .fork
     yield fiber
+
+object Producers:
+
+  def apply(
+      databaseUrl: String,
+      openWeatherMapApiKey: String,
+      airNowApiKey: String,
+      finnhubApiToken: String,
+      rabbitMqHostname: String,
+      rabbitMqPort: Int,
+      rabbitMqUsername: String,
+      rabbitMqPassword: String,
+      rabbitMqChannelSuffix: String,
+      openAiApiKey: String,
+      unsafeGetConnection: () => Connection
+  ): ZIO[Any, Throwable, Nothing] = {
+    for
+      producerFiber <-
+        new Producers(
+          rabbitMqHostname = rabbitMqHostname,
+          rabbitMqPort = rabbitMqPort,
+          rabbitMqUsername = rabbitMqUsername,
+          rabbitMqPassword = rabbitMqPassword,
+          rabbitMqChannelSuffix = rabbitMqChannelSuffix,
+          unsafeGetConnection = unsafeGetConnection,
+          openWeatherMapApiKey = openWeatherMapApiKey,
+          airNowApiKey = airNowApiKey,
+          finnhubApiToken = finnhubApiToken,
+          openAiApiKey = openAiApiKey
+        ).start
+      _ <- producerFiber.join
+    yield ()
+  }.forever

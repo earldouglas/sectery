@@ -2,7 +2,7 @@ package sectery.usecases
 
 import sectery.control.Monad._
 import sectery.control._
-import sectery.domain.operations.SendMessage
+import sectery.domain.entities._
 import sectery.effects._
 import sectery.usecases.announcers.AutoquoteAnnouncer
 
@@ -11,7 +11,7 @@ class Announcers[
     : Autoquote //
     : Monad //
     : Now //
-    : SendMessage //
+    : [F[_]] =>> Enqueue[F, Tx] //
     : Traversable //
 ]:
 
@@ -27,8 +27,8 @@ class Announcers[
       .flatMap { txs =>
         summon[Traversable[F]]
           .traverse(txs) { tx =>
-            summon[SendMessage[F]]
-              .sendMessage(tx)
+            summon[Enqueue[F, Tx]]
+              .apply(tx)
           }
           .map { xs =>
             xs.fold(())((_, _) => ())

@@ -56,16 +56,15 @@ lazy val adaptors =
     )
     .dependsOn(effects)
 
-lazy val shared =
+lazy val adaptors_with_zio =
   project
-    .in(file("modules/5-shared"))
+    .in(file("modules/4-adaptors-with-zio"))
     .settings(
       libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.21.0",
-      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude ("dev.zio", "zio")
     )
-    .dependsOn(domain)
+    .dependsOn(domain, effects, use_cases)
 
 lazy val irc =
   project
@@ -75,11 +74,13 @@ lazy val irc =
       resolvers += "jitpack" at "https://jitpack.io/", // needed for pircbotx
       libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.3.1",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.3.14",
+      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
+      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion exclude ("dev.zio", "zio"),
       assembly / mainClass := Some("sectery.irc.Main"),
       assembly / assemblyJarName := s"${name.value}.jar",
       Compile / run / fork := true
     )
-    .dependsOn(shared, use_cases, adaptors)
+    .dependsOn(adaptors_with_zio, use_cases, adaptors)
 
 lazy val producers =
   project
@@ -88,11 +89,13 @@ lazy val producers =
       moduleName := "producers",
       libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.4.0",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.3.14",
+      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
+      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion exclude ("dev.zio", "zio"),
       assembly / mainClass := Some("sectery.producers.Main"),
       assembly / assemblyJarName := s"${name.value}.jar",
       Compile / run / fork := true
     )
-    .dependsOn(shared, use_cases, adaptors)
+    .dependsOn(adaptors_with_zio, use_cases, adaptors)
 
 lazy val root =
   project
@@ -106,7 +109,7 @@ lazy val root =
     .aggregate(
       producers,
       irc,
-      shared,
+      adaptors_with_zio,
       adaptors,
       use_cases,
       effects,

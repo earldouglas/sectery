@@ -3,11 +3,10 @@ package sectery.usecases
 import sectery.control.Monad._
 import sectery.control._
 import sectery.domain.entities._
-import sectery.domain.operations._
 import sectery.effects._
 import sectery.usecases.responders._
 
-class RespondToMessage[
+class Responders[
     F[_] //
     : Btc //
     : Counter //
@@ -29,10 +28,9 @@ class RespondToMessage[
     : Stock //
     : Tell //
     : Traversable //
-    : SendMessage //
-] extends ReceiveMessage[F]:
+]:
 
-  private val responders: List[Responder[F]] =
+  val responders: List[Responder[F]] =
     val allExceptHelp: List[Responder[F]] =
       List(
         new AsciiResponder,
@@ -61,17 +59,7 @@ class RespondToMessage[
       )
     new HelpResponder(allExceptHelp) :: allExceptHelp
 
-  override def receiveMessage(rx: Rx): F[Unit] =
+  def respondToMessage(rx: Rx): F[List[Tx]] =
     summon[Traversable[F]]
       .traverse(responders)(_.respondToMessage(rx))
       .map(_.flatten)
-      .flatMap { txs =>
-        summon[Traversable[F]]
-          .traverse(txs) { tx =>
-            summon[SendMessage[F]]
-              .sendMessage(tx)
-          }
-      }
-      .map { xs =>
-        xs.fold(())((_, _) => ())
-      }
