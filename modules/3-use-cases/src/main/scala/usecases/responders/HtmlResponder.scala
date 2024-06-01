@@ -20,8 +20,8 @@ class HtmlResponder[F[_]: Monad: HttpClient] extends Responder[F]:
   private val url = """.*(http[^\s]+).*""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, url(url)) =>
+    rx.message match
+      case url(url) =>
         summon[HttpClient[F]]
           .request("GET", new URI(url).toURL(), Map.empty, None)
           .map { response =>
@@ -35,7 +35,16 @@ class HtmlResponder[F[_]: Monad: HttpClient] extends Responder[F]:
                 case (None, Some(d)) => Some(d)
                 case (Some(t), Some(d)) =>
                   Some(List(t, ": ", d).mkString)
-            titleDesc.map(m => Tx(c, shorten(m))).toList
+            titleDesc
+              .map(m =>
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = shorten(m)
+                )
+              )
+              .toList
           }
       case _ =>
         summon[Monad[F]].pure(Nil)

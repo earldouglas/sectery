@@ -12,8 +12,17 @@ class VersionResponder[F[_]: Monad] extends Responder[F]:
   override def usage = "@version"
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, "@version") =>
-        summon[Monad[F]].pure(List(Tx(c, s"${BuildInfo.version}")))
+    rx.message match
+      case "@version" =>
+        summon[Monad[F]].pure(
+          List(
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = s"${BuildInfo.version}"
+            )
+          )
+        )
       case _ =>
         summon[Monad[F]].pure(Nil)

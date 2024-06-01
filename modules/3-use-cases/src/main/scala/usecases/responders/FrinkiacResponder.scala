@@ -16,13 +16,18 @@ class FrinkiacResponder[F[_]: Monad: Frinkiac] extends Responder[F]:
   private val frinkiac = """^@frinkiac\s+(.+)\s*$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, frinkiac(q)) =>
+    rx.message match
+      case frinkiac(q) =>
         summon[Frinkiac[F]]
           .frinkiac(q)
           .map { messages =>
             messages.map { message =>
-              Tx(c, message)
+              Tx(
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = message
+              )
             }
           }
       case _ =>

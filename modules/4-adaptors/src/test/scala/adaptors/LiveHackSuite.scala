@@ -37,7 +37,7 @@ class LiveHackSuite extends FunSuite:
 
   test("Start new game") {
     assertEquals(
-      obtained = LiveHack(c).getOrStartGame("#foo"),
+      obtained = LiveHack(c).getOrStartGame("irc", "#foo"),
       expected = ("foo", 0)
     )
   }
@@ -45,12 +45,12 @@ class LiveHackSuite extends FunSuite:
   test("Take a buncha guesses") {
 
     assertEquals(
-      obtained = LiveHack(c).setGuessCount("#foo", 42),
+      obtained = LiveHack(c).setGuessCount("irc", "#foo", 42),
       expected = ()
     )
 
     assertEquals(
-      obtained = LiveHack(c).getOrStartGame("#foo"),
+      obtained = LiveHack(c).getOrStartGame("irc", "#foo"),
       expected = ("foo", 42)
     )
   }
@@ -58,12 +58,12 @@ class LiveHackSuite extends FunSuite:
   test("Start another new game") {
 
     assertEquals(
-      obtained = LiveHack(c).deleteGame("#foo"),
+      obtained = LiveHack(c).deleteGame("irc", "#foo"),
       expected = ()
     )
 
     assertEquals(
-      obtained = LiveHack(c).getOrStartGame("#foo"),
+      obtained = LiveHack(c).getOrStartGame("irc", "#foo"),
       expected = ("foo", 0)
     )
   }

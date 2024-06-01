@@ -41,10 +41,14 @@ class AsciiResponderSpec extends FunSuite:
 
     val obtained: List[Tx] =
       new AsciiResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@ascii foo"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@ascii foo")
+        )
 
     val expected: List[List[Tx]] =
-      asciiFoo.map(_.map(line => Tx("#foo", line)))
+      asciiFoo.map(
+        _.map(line => Tx("irc", "#foo", None, line))
+      )
 
     val found: Boolean =
       expected.find(_ == obtained).isDefined

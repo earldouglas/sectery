@@ -30,11 +30,17 @@ class MorseResponderSuite extends FunSuite:
     val obtained: List[Tx] =
       new MorseResponder[Id]
         .respondToMessage(
-          Rx("#foo", "bar", s"@morse encode ${decoded}")
+          Rx(
+            "irc",
+            "#foo",
+            None,
+            "bar",
+            s"@morse encode ${decoded}"
+          )
         )
 
     val expected: List[Tx] =
-      List(Tx("#foo", encoded))
+      List(Tx("irc", "#foo", None, encoded))
 
     assertEquals(
       obtained = obtained,
@@ -47,11 +53,19 @@ class MorseResponderSuite extends FunSuite:
     val obtained: List[Tx] =
       new MorseResponder[Id]
         .respondToMessage(
-          Rx("#foo", "bar", s"@morse decode ${encoded}")
+          Rx(
+            "irc",
+            "#foo",
+            None,
+            "bar",
+            s"@morse decode ${encoded}"
+          )
         )
 
     val expected: List[Tx] =
-      List(Tx("#foo", decoded.toUpperCase()))
+      List(
+        Tx("irc", "#foo", None, decoded.toUpperCase())
+      )
 
     assertEquals(
       obtained = obtained,

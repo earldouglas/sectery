@@ -17,12 +17,17 @@ class SubstituteResponderSuite extends FunSuite:
     given substitute: LastMessage[Id] with
       override def saveLastMessage(rx: Rx): Id[Unit] =
         lastMessage = Some(rx)
-      override def getLastMessages(channel: String): Id[List[LastRx]] =
+      override def getLastMessages(
+          service: String,
+          channel: String
+      ): Id[List[LastRx]] =
         ???
 
     val obtained: List[Tx] =
       new SubstituteResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "bar bar baz"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "bar bar baz")
+        )
 
     val expected: List[Tx] =
       Nil
@@ -34,7 +39,9 @@ class SubstituteResponderSuite extends FunSuite:
 
     assertEquals(
       obtained = lastMessage,
-      expected = Some(Rx("#foo", "bar", "bar bar baz"))
+      expected = Some(
+        Rx("irc", "#foo", None, "bar", "bar bar baz")
+      )
     )
   }
 
@@ -43,17 +50,30 @@ class SubstituteResponderSuite extends FunSuite:
     given substitute: LastMessage[Id] with
       override def saveLastMessage(rx: Rx): Id[Unit] =
         ()
-      override def getLastMessages(channel: String): Id[List[LastRx]] =
+      override def getLastMessages(
+          service: String,
+          channel: String
+      ): Id[List[LastRx]] =
         channel match
           case "#foo" =>
-            List(LastRx("#foo", "jdoe", "bar bar baz", Instant.EPOCH))
+            List(
+              LastRx(
+                "irc",
+                "#foo",
+                "jdoe",
+                "bar bar baz",
+                Instant.EPOCH
+              )
+            )
 
     val obtained: List[Tx] =
       new SubstituteResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "s/bar/baz/"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "s/bar/baz/")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "<jdoe> baz bar baz"))
+      List(Tx("irc", "#foo", None, "<jdoe> baz bar baz"))
 
     assertEquals(
       obtained = obtained,
@@ -66,17 +86,30 @@ class SubstituteResponderSuite extends FunSuite:
     given substitute: LastMessage[Id] with
       override def saveLastMessage(rx: Rx): Id[Unit] =
         ()
-      override def getLastMessages(channel: String): Id[List[LastRx]] =
+      override def getLastMessages(
+          service: String,
+          channel: String
+      ): Id[List[LastRx]] =
         channel match
           case "#foo" =>
-            List(LastRx("#foo", "jdoe", "bar bar baz", Instant.EPOCH))
+            List(
+              LastRx(
+                "irc",
+                "#foo",
+                "jdoe",
+                "bar bar baz",
+                Instant.EPOCH
+              )
+            )
 
     val obtained: List[Tx] =
       new SubstituteResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "s/bar/baz/g"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "s/bar/baz/g")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "<jdoe> baz baz baz"))
+      List(Tx("irc", "#foo", None, "<jdoe> baz baz baz"))
 
     assertEquals(
       obtained = obtained,

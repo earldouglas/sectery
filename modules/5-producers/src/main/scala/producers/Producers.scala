@@ -3,12 +3,11 @@ package sectery.producers
 import java.sql.Connection
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-import sectery.RabbitMQ
+import sectery._
 import sectery.adaptors._
 import sectery.control._
 import sectery.domain.entities._
 import sectery.effects._
-import sectery.queue._
 import sectery.usecases._
 import zio.Clock
 import zio.Fiber
@@ -16,6 +15,8 @@ import zio.ZIO
 import zio.ZLayer
 import zio.json.DeriveJsonDecoder
 import zio.json.DeriveJsonEncoder
+import zio.json.JsonDecoder
+import zio.json.JsonEncoder
 import zio.stream.ZStream
 
 class Producers(
@@ -136,6 +137,8 @@ class Producers(
 
     val rabbitMQ: RabbitMQ =
       new RabbitMQ(
+        service = None,
+        channels = None,
         hostname = rabbitMqHostname,
         port = rabbitMqPort,
         username = rabbitMqUsername,
@@ -143,9 +146,9 @@ class Producers(
       )
 
     val enqueueTx: Enqueue[XIO, Tx] =
-      rabbitMQ.enqueue[Tx](s"outbox-${rabbitMqChannelSuffix}")(using
+      given encoder: JsonEncoder[Tx] =
         DeriveJsonEncoder.gen[Tx]
-      )
+      rabbitMQ.enqueue[Tx](s"outbox-${rabbitMqChannelSuffix}")
 
     for
 
@@ -165,9 +168,21 @@ class Producers(
       respondFiber <- {
 
         val dequeueRx: QueueUpstream.DequeueR =
-          rabbitMQ.dequeue[Rx](
-            s"inbox-${rabbitMqChannelSuffix}"
-          )(using DeriveJsonDecoder.gen[Rx])
+
+          given hasService: HasService[Rx] =
+            new HasService:
+              override def getService(value: Rx) =
+                value.service
+
+          given hasChannel: HasChannel[Rx] =
+            new HasChannel:
+              override def getChannel(value: Rx) =
+                value.channel
+
+          given decoder: JsonDecoder[Rx] =
+            DeriveJsonDecoder.gen[Rx]
+
+          rabbitMQ.dequeue[Rx](s"inbox-${rabbitMqChannelSuffix}")
 
         val logger: QueueDownstream.LoggerR =
           new Logger:

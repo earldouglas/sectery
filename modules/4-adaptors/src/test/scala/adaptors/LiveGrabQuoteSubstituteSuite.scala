@@ -5,7 +5,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import munit.FunSuite
 import sectery._
-import sectery.domain.entities.Rx
+import sectery.domain.entities._
 import sectery.effects._
 import sectery.effects.id._
 import sectery.effects.id.given
@@ -32,7 +32,7 @@ class LiveGrabQuoteSubstituteSuite extends FunSuite:
 
       assertEquals(
         obtained = LiveGrabQuoteSubstitute(c).saveLastMessage(
-          Rx("#foo", "bar", "yo")
+          Rx("irc", "#foo", None, "bar", "yo")
         ),
         expected = ()
       )
@@ -45,7 +45,7 @@ class LiveGrabQuoteSubstituteSuite extends FunSuite:
 
       assertEquals(
         obtained = LiveGrabQuoteSubstitute(c).saveLastMessage(
-          Rx("#foo", "jdoe", "word")
+          Rx("irc", "#foo", None, "jdoe", "word")
         ),
         expected = ()
       )
@@ -59,17 +59,18 @@ class LiveGrabQuoteSubstituteSuite extends FunSuite:
         zero
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).quote("#foo", "bar"),
+      obtained = LiveGrabQuoteSubstitute(c).quote("irc", "#foo", "bar"),
       expected = None
     )
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).quote("#foo", "jdoe"),
+      obtained =
+        LiveGrabQuoteSubstitute(c).quote("irc", "#foo", "jdoe"),
       expected = None
     )
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).quote("#foo"),
+      obtained = LiveGrabQuoteSubstitute(c).quote("irc", "#foo"),
       expected = None
     )
   }
@@ -81,19 +82,21 @@ class LiveGrabQuoteSubstituteSuite extends FunSuite:
         zero
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).grab("#foo"),
+      obtained = LiveGrabQuoteSubstitute(c).grab("irc", "#foo"),
       expected = Some("jdoe")
     )
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).quote("#foo", "bar"),
+      obtained = LiveGrabQuoteSubstitute(c).quote("irc", "#foo", "bar"),
       expected = None
     )
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).quote("#foo", "jdoe"),
+      obtained =
+        LiveGrabQuoteSubstitute(c).quote("irc", "#foo", "jdoe"),
       expected = Some(
         GrabbedMessage(
+          service = "irc",
           channel = "#foo",
           nick = "jdoe",
           message = "word",
@@ -103,9 +106,10 @@ class LiveGrabQuoteSubstituteSuite extends FunSuite:
     )
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).quote("#foo"),
+      obtained = LiveGrabQuoteSubstitute(c).quote("irc", "#foo"),
       expected = Some(
         GrabbedMessage(
+          service = "irc",
           channel = "#foo",
           nick = "jdoe",
           message = "word",
@@ -122,14 +126,15 @@ class LiveGrabQuoteSubstituteSuite extends FunSuite:
         zero
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).grab("#foo", "bar"),
+      obtained = LiveGrabQuoteSubstitute(c).grab("irc", "#foo", "bar"),
       expected = true
     )
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).quote("#foo", "bar"),
+      obtained = LiveGrabQuoteSubstitute(c).quote("irc", "#foo", "bar"),
       expected = Some(
         GrabbedMessage(
+          service = "irc",
           channel = "#foo",
           nick = "bar",
           message = "yo",
@@ -139,9 +144,11 @@ class LiveGrabQuoteSubstituteSuite extends FunSuite:
     )
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).quote("#foo", "jdoe"),
+      obtained =
+        LiveGrabQuoteSubstitute(c).quote("irc", "#foo", "jdoe"),
       expected = Some(
         GrabbedMessage(
+          service = "irc",
           channel = "#foo",
           nick = "jdoe",
           message = "word",
@@ -150,5 +157,5 @@ class LiveGrabQuoteSubstituteSuite extends FunSuite:
       )
     )
 
-    assert(LiveGrabQuoteSubstitute(c).quote("#foo").isDefined)
+    assert(LiveGrabQuoteSubstitute(c).quote("irc", "#foo").isDefined)
   }

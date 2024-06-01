@@ -11,8 +11,17 @@ class PingResponder[F[_]: Monad] extends Responder[F]:
   override def usage = "@ping"
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, "@ping") =>
-        summon[Monad[F]].pure(List(Tx(c, "pong")))
+    rx.message match
+      case "@ping" =>
+        summon[Monad[F]].pure(
+          List(
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = "pong"
+            )
+          )
+        )
       case _ =>
         summon[Monad[F]].pure(Nil)

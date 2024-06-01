@@ -1,8 +1,7 @@
-package sectery.queue
+package sectery.effects
 
 import sectery.domain.entities._
 import sectery.domain.operations._
-import sectery.effects._
 import zio.Fiber
 import zio.ZIO
 import zio.stream.ZStream

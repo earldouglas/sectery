@@ -12,10 +12,12 @@ class VersionResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new VersionResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@version"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@version")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "0.1.0-SNAPSHOT"))
+      List(Tx("irc", "#foo", None, "0.1.0-SNAPSHOT"))
 
     assertEquals(
       obtained = obtained,

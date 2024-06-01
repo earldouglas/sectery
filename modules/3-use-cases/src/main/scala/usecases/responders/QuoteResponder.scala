@@ -15,26 +15,54 @@ class QuoteResponder[F[_]: Monad: Quote] extends Responder[F]:
   private val quote = """^@quote\s+([^\s]+)\s*$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
+    rx.message match
 
-      case Rx(c, _, quote(nick)) =>
+      case quote(nick) =>
         summon[Quote[F]]
-          .quote(c, nick)
+          .quote(rx.service, rx.channel, nick)
           .map {
             case Some(gm) =>
-              List(Tx(c, s"<${gm.nick}> ${gm.message}"))
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"<${gm.nick}> ${gm.message}"
+                )
+              )
             case None =>
-              List(Tx(c, s"${nick} hasn't been grabbed."))
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"${nick} hasn't been grabbed."
+                )
+              )
           }
 
-      case Rx(c, _, "@quote") =>
+      case "@quote" =>
         summon[Quote[F]]
-          .quote(c)
+          .quote(rx.service, rx.channel)
           .map {
             case Some(gm) =>
-              List(Tx(c, s"<${gm.nick}> ${gm.message}"))
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"<${gm.nick}> ${gm.message}"
+                )
+              )
             case None =>
-              List(Tx(c, s"Nobody has been grabbed."))
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"Nobody has been grabbed."
+                )
+              )
           }
 
       case _ =>

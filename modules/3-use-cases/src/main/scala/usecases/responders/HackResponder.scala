@@ -23,43 +23,77 @@ class HackResponder[F[_]: Monad: Hack] extends Responder[F]:
     if count == 1 then s"${count} try" else s"${count} tries"
 
   override def respondToMessage(rx: Rx) =
-    rx match
+    rx.message match
 
-      case Rx(c, _, "@hack") =>
+      case "@hack" =>
         summon[Hack[F]]
-          .getOrStartGame(c)
+          .getOrStartGame(rx.service, rx.channel)
           .map { (word, guessCount) =>
             val message =
               s"Guess a word with ${word.length} letters.  ${guessCount} tries so far."
-            List(Tx(c, message))
+            List(
+              Tx(
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = message
+              )
+            )
           }
 
-      case Rx(c, _, hack(guess)) =>
+      case hack(guess) =>
         for
-          game <- summon[Hack[F]].getOrStartGame(c)
+          game <- summon[Hack[F]].getOrStartGame(rx.service, rx.channel)
           (word, guessCount) = game
           found <- summon[Hack[F]].isAWord(guess)
           tx <-
             if guess.length != word.length then
               summon[Monad[F]].pure(
-                Tx(c, s"Guess a word with ${word.length} letters.")
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"Guess a word with ${word.length} letters."
+                )
               )
             else if found then
               val newGuessCount = guessCount + 1
               val correctCount = countCorrect(guess, word)
               if correctCount == word.length then
-                for _ <- summon[Hack[F]].deleteGame(c)
+                for _ <- summon[Hack[F]]
+                    .deleteGame(rx.service, rx.channel)
                 yield Tx(
-                  c,
-                  s"Guessed ${word} in ${tries(newGuessCount)}."
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message =
+                    s"Guessed ${word} in ${tries(newGuessCount)}."
                 )
               else
-                for _ <- summon[Hack[F]].setGuessCount(c, newGuessCount)
+                for _ <- summon[Hack[F]]
+                    .setGuessCount(
+                      rx.service,
+                      rx.channel,
+                      newGuessCount
+                    )
                 yield
                   val message =
                     s"${correctCount}/${word.length} correct.  ${tries(newGuessCount)} so far."
-                  Tx(c, message)
-            else summon[Monad[F]].pure(Tx(c, "Guess an actual word."))
+                  Tx(
+                    service = rx.service,
+                    channel = rx.channel,
+                    thread = rx.thread,
+                    message = message
+                  )
+            else
+              summon[Monad[F]].pure(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = "Guess an actual word."
+                )
+              )
         yield List(tx)
 
       case _ =>

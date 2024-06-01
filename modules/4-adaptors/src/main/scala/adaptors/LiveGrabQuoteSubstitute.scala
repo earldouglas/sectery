@@ -6,66 +6,74 @@ import java.time.Instant
 import sectery._
 import sectery.control.Monad
 import sectery.control.Monad._
-import sectery.domain.entities.Rx
-import sectery.domain.entities.Tx
+import sectery.domain.entities._
 import sectery.effects.LastMessage.LastRx
 import sectery.effects.Quote.GrabbedMessage
 import sectery.effects._
 
 object LiveGrabQuoteSubstitute:
 
+  private def executeUpdate(c: Connection, sql: String): Unit =
+    val stmt = c.createStatement
+    stmt.executeUpdate(sql)
+    stmt.close
+
   private def unsafeInit(c: Connection): Unit =
-    val s1 =
+    executeUpdate(
+      c,
       """|CREATE TABLE IF NOT EXISTS
-         |`GRABBED_MESSAGES`(
+         |`GRABBED_MESSAGES_V2`(
+         |  `SERVICE` VARCHAR(256) NOT NULL,
          |  `CHANNEL` VARCHAR(256) NOT NULL,
          |  `NICK` VARCHAR(256) NOT NULL,
          |  `MESSAGE` TEXT NOT NULL,
          |  `TIMESTAMP` TIMESTAMP NOT NULL
          |)
          |""".stripMargin
-    val stmt1 = c.createStatement
-    stmt1.executeUpdate(s1)
-    stmt1.close
+    )
 
-    val s2 =
+    executeUpdate(
+      c,
       """|CREATE TABLE IF NOT EXISTS
-         |`LAST_MESSAGE`(
+         |`LAST_MESSAGE_V2`(
+         |  `SERVICE` VARCHAR(256) NOT NULL,
          |  `CHANNEL` VARCHAR(256) NOT NULL,
          |  `NICK` VARCHAR(256) NOT NULL,
          |  `MESSAGE` TEXT NOT NULL,
          |  `TIMESTAMP` TIMESTAMP NOT NULL,
-         |  PRIMARY KEY (`CHANNEL`, `NICK`)
+         |  PRIMARY KEY (`SERVICE`, `CHANNEL`, `NICK`)
          |)
          |""".stripMargin
-    val stmt2 = c.createStatement
-    stmt2.executeUpdate(s2)
-    stmt2.close()
+    )
 
-    val s3 =
+    executeUpdate(
+      c,
       """|CREATE TABLE IF NOT EXISTS
-         |`AUTOQUOTE`(
+         |`AUTOQUOTE_V2`(
+         |  `SERVICE` VARCHAR(256) NOT NULL,
          |  `CHANNEL` VARCHAR(256) NOT NULL,
          |  `TIMESTAMP` TIMESTAMP NOT NULL,
-         |  PRIMARY KEY (`CHANNEL`)
+         |  PRIMARY KEY (`SERVICE`, `CHANNEL`)
          |)
          |""".stripMargin
-    val stmt3 = c.createStatement
-    stmt3.executeUpdate(s3)
-    stmt3.close()
+    )
 
-  private def unsafeLastRx(channel: String)(
-      c: Connection
+  private def unsafeLastRx(
+      c: Connection,
+      service: String,
+      channel: String
   ): Option[LastRx] =
     val s =
       """|SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
-         |FROM `LAST_MESSAGE`
-         |WHERE `CHANNEL` = ?
+         |FROM `LAST_MESSAGE_V2`
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
          |ORDER BY `TIMESTAMP` DESC
          |LIMIT 1
          |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
     val rs = stmt.executeQuery
     var mo: Option[LastRx] = None
     if rs.next() then
@@ -74,6 +82,7 @@ object LiveGrabQuoteSubstitute:
       val timestamp = rs.getTimestamp("TIMESTAMP")
       mo = Some(
         LastRx(
+          service = service,
           channel = channel,
           nick = nick,
           message = message,
@@ -83,41 +92,49 @@ object LiveGrabQuoteSubstitute:
     stmt.close()
     mo
 
-  private def unsafeGrab(channel: String)(
-      c: Connection
+  private def unsafeGrab(
+      c: Connection,
+      service: String,
+      channel: String
   ): Option[String] =
-    unsafeLastRx(channel)(c) match
+    unsafeLastRx(c, service, channel) match
       case Some(m) =>
         val s =
-          """|INSERT INTO `GRABBED_MESSAGES` (
-             |  `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
-             |) VALUES (?, ?, ?, ?)
+          """|INSERT INTO `GRABBED_MESSAGES_V2` (
+             |  `SERVICE`, `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
+             |) VALUES (?, ?, ?, ?, ?)
              |""".stripMargin
         val stmt = c.prepareStatement(s)
-        stmt.setString(1, channel)
-        stmt.setString(2, m.nick)
-        stmt.setString(3, m.message)
-        stmt.setTimestamp(4, new Timestamp(m.instant.toEpochMilli()))
+        stmt.setString(1, service)
+        stmt.setString(2, channel)
+        stmt.setString(3, m.nick)
+        stmt.setString(4, m.message)
+        stmt.setTimestamp(5, new Timestamp(m.instant.toEpochMilli()))
         stmt.executeUpdate()
         stmt.close
         Some(m.nick)
       case None =>
         None
 
-  private def unsafeLastRx(channel: String, nick: String)(
-      c: Connection
+  private def unsafeLastRx(
+      c: Connection,
+      service: String,
+      channel: String,
+      nick: String
   ): Option[LastRx] =
     val s =
       """|SELECT `MESSAGE`, `TIMESTAMP`
-         |FROM `LAST_MESSAGE`
-         |WHERE `CHANNEL` = ?
+         |FROM `LAST_MESSAGE_V2`
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
          |  AND `NICK` = ?
          |ORDER BY `TIMESTAMP` DESC
          |LIMIT 1
          |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
-    stmt.setString(2, nick)
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
+    stmt.setString(3, nick)
     val rs = stmt.executeQuery
     var mo: Option[LastRx] = None
     if rs.next() then
@@ -125,6 +142,7 @@ object LiveGrabQuoteSubstitute:
       val timestamp = rs.getTimestamp("TIMESTAMP")
       mo = Some(
         LastRx(
+          service = service,
           channel = channel,
           nick = nick,
           message = message,
@@ -134,48 +152,56 @@ object LiveGrabQuoteSubstitute:
     stmt.close()
     mo
 
-  private def unsafeGrab(channel: String, nick: String)(
-      c: Connection
+  private def unsafeGrab(
+      c: Connection,
+      service: String,
+      channel: String,
+      nick: String
   ): Boolean =
-    unsafeLastRx(channel, nick)(c) match
+    unsafeLastRx(c, service, channel, nick) match
       case Some(m) =>
         val s =
-          """|INSERT INTO `GRABBED_MESSAGES` (
-             |  `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
-             |) VALUES (?, ?, ?, ?)
+          """|INSERT INTO `GRABBED_MESSAGES_V2` (
+             |  `SERVICE`, `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
+             |) VALUES (?, ?, ?, ?, ?)
              |""".stripMargin
         val stmt = c.prepareStatement(s)
-        stmt.setString(1, channel)
-        stmt.setString(2, nick)
-        stmt.setString(3, m.message)
-        stmt.setTimestamp(4, new Timestamp(m.instant.toEpochMilli()))
+        stmt.setString(1, service)
+        stmt.setString(2, channel)
+        stmt.setString(3, nick)
+        stmt.setString(4, m.message)
+        stmt.setTimestamp(5, new Timestamp(m.instant.toEpochMilli()))
         stmt.executeUpdate()
         stmt.close
         true
       case None =>
         false
 
-  private def unsafeRandomGrabbedMessage(channel: String)(
-      c: Connection
+  private def unsafeRandomGrabbedMessage(
+      c: Connection,
+      service: String,
+      channel: String
   ): Option[GrabbedMessage] =
     val s =
-      """|SELECT `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
-         |FROM `GRABBED_MESSAGES`
-         |WHERE `CHANNEL` = ?
+      """|SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
+         |FROM `GRABBED_MESSAGES_V2`
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
          |ORDER BY RAND()
          |LIMIT 1
          |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
     val rs = stmt.executeQuery
     var gmo: Option[GrabbedMessage] = None
     if rs.next() then
-      val channel = rs.getString("CHANNEL")
       val nick = rs.getString("NICK")
       val message = rs.getString("MESSAGE")
       val timestamp = rs.getTimestamp("TIMESTAMP")
       gmo = Some(
         GrabbedMessage(
+          service = service,
           channel = channel,
           nick = nick,
           message = message,
@@ -185,29 +211,34 @@ object LiveGrabQuoteSubstitute:
     stmt.close
     gmo
 
-  private def unsafeRandomGrabbedMessage(channel: String, nick: String)(
-      c: Connection
+  private def unsafeRandomGrabbedMessage(
+      c: Connection,
+      service: String,
+      channel: String,
+      nick: String
   ): Option[GrabbedMessage] =
     val s =
-      """|SELECT `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
-         |FROM `GRABBED_MESSAGES`
-         |WHERE `CHANNEL` = ?
+      """|SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
+         |FROM `GRABBED_MESSAGES_V2`
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
          |  AND `NICK` = ?
          |ORDER BY RAND()
          |LIMIT 1
          |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
-    stmt.setString(2, nick)
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
+    stmt.setString(3, nick)
     val rs = stmt.executeQuery
     var gmo: Option[GrabbedMessage] = None
     if rs.next() then
-      val channel = rs.getString("CHANNEL")
       val nick = rs.getString("NICK")
       val message = rs.getString("MESSAGE")
       val timestamp = rs.getTimestamp("TIMESTAMP")
       gmo = Some(
         GrabbedMessage(
+          service = service,
           channel = channel,
           nick = nick,
           message = message,
@@ -221,38 +252,53 @@ object LiveGrabQuoteSubstitute:
 
     def deleteLastRx(c: Connection): Unit =
       val s =
-        "DELETE FROM `LAST_MESSAGE` WHERE `CHANNEL` = ? AND `NICK` = ?"
+        """|DELETE FROM `LAST_MESSAGE_V2`
+           |WHERE `SERVICE` = ?
+           |  AND `CHANNEL` = ?
+           |  AND `NICK` = ?
+           |""".stripMargin
       val stmt = c.prepareStatement(s)
-      stmt.setString(1, rx.channel)
-      stmt.setString(2, rx.nick)
+      stmt.setString(1, rx.service)
+      stmt.setString(2, rx.channel)
+      stmt.setString(3, rx.nick)
       stmt.executeUpdate
       stmt.close()
 
     def addLastRx(nowMillis: Long)(c: Connection): Unit =
       val s =
-        "INSERT INTO `LAST_MESSAGE` (`CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`) VALUES (?, ?, ?, ?)"
+        """|INSERT INTO `LAST_MESSAGE_V2` (`SERVICE`, `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`)
+           |VALUES (?, ?, ?, ?, ?)
+           |""".stripMargin
       val stmt = c.prepareStatement(s)
-      stmt.setString(1, rx.channel)
-      stmt.setString(2, rx.nick)
-      stmt.setString(3, rx.message)
-      stmt.setTimestamp(4, new Timestamp(nowMillis))
+      stmt.setString(1, rx.service)
+      stmt.setString(2, rx.channel)
+      stmt.setString(3, rx.nick)
+      stmt.setString(4, rx.message)
+      stmt.setTimestamp(5, new Timestamp(nowMillis))
       stmt.executeUpdate
       stmt.close()
 
     def deleteAutoquote(c: Connection): Unit =
       val s =
-        "DELETE FROM `AUTOQUOTE` WHERE `CHANNEL` = ?"
+        """|DELETE FROM `AUTOQUOTE_V2`
+           |WHERE `SERVICE` = ?
+           |  AND `CHANNEL` = ?
+           |""".stripMargin
       val stmt = c.prepareStatement(s)
-      stmt.setString(1, rx.channel)
+      stmt.setString(1, rx.service)
+      stmt.setString(2, rx.channel)
       stmt.executeUpdate
       stmt.close()
 
     def addAutoquote(nowMillis: Long)(c: Connection): Unit =
       val s =
-        "INSERT INTO `AUTOQUOTE` (`CHANNEL`, `TIMESTAMP`) VALUES (?, ?)"
+        """|INSERT INTO `AUTOQUOTE_V2` (`SERVICE`, `CHANNEL`, `TIMESTAMP`)
+           |VALUES (?, ?, ?)
+           |""".stripMargin
       val stmt = c.prepareStatement(s)
-      stmt.setString(1, rx.channel)
-      stmt.setTimestamp(2, new Timestamp(nowMillis))
+      stmt.setString(1, rx.service)
+      stmt.setString(2, rx.channel)
+      stmt.setTimestamp(3, new Timestamp(nowMillis))
       stmt.executeUpdate
       stmt.close()
 
@@ -263,59 +309,65 @@ object LiveGrabQuoteSubstitute:
 
   private def unsafeGetAutoquoteChannels(
       nowMillis: Long
-  )(c: Connection): List[String] =
+  )(c: Connection): List[(String, String)] =
 
-    def getChannels(c: Connection): List[String] =
+    def getServiceChannels(c: Connection): List[(String, String)] =
       val s =
-        """|SELECT CHANNEL
-           |FROM AUTOQUOTE
+        """|SELECT SERVICE, CHANNEL
+           |FROM AUTOQUOTE_V2
            |WHERE TIMESTAMP <= ?
            |""".stripMargin
       val stmt = c.prepareStatement(s)
       val fourtyFiveMinutesAgoMillis = nowMillis - 45L * 60L * 1000L
       stmt.setTimestamp(1, new Timestamp(fourtyFiveMinutesAgoMillis))
       val rs = stmt.executeQuery
-      var cs: List[String] = Nil
+      var scs: List[(String, String)] = Nil
       if rs.next() then
+        val service = rs.getString("SERVICE")
         val channel = rs.getString("CHANNEL")
-        cs = channel :: cs
+        scs = (service, channel) :: scs
       stmt.close()
-      cs
+      scs
 
     def updateAutoquote(
-        channels: List[String]
+        scs: List[(String, String)]
     )(c: Connection): Unit =
-      if channels.length > 0 then
-        val in = channels.map(_ => "?").mkString(", ")
+      if scs.length > 0 then
+        val now = new Timestamp(nowMillis)
         val s =
-          s"""|UPDATE AUTOQUOTE
+          s"""|UPDATE AUTOQUOTE_V2
               |SET TIMESTAMP = ?
-              |WHERE CHANNEL IN (${in})
+              |WHERE SERVICE = ?
+              |  AND CHANNEL = ?
               |""".stripMargin
-        val stmt = c.prepareStatement(s)
-        stmt.setTimestamp(1, new Timestamp(nowMillis))
-        channels.zipWithIndex
-          .foreach { case (channel, index) =>
-            stmt.setString(2 + index, channel)
+        scs
+          .foreach { case (service, channel) =>
+            val stmt = c.prepareStatement(s)
+            stmt.setTimestamp(1, now)
+            stmt.setString(2, service)
+            stmt.setString(3, channel)
+            stmt.execute()
+            stmt.close()
           }
-        stmt.execute()
-        stmt.close()
       else ()
 
-    val channels = getChannels(c)
-    updateAutoquote(channels)(c)
-    channels
+    val scs = getServiceChannels(c)
+    updateAutoquote(scs)(c)
+    scs
 
   private def unsafeGetAutoquoteMessages(
-      channels: List[String]
+      scs: List[(String, String)]
   )(c: Connection): List[Tx] =
-    channels.flatMap { channel =>
-      unsafeRandomGrabbedMessage(channel)(c).map { gm =>
-        Tx(
-          channel = channel,
-          message = s"<${gm.nick}> ${gm.message}"
-        )
-      }
+    scs.flatMap { (service, channel) =>
+      unsafeRandomGrabbedMessage(c, service, channel)
+        .map { gm =>
+          Tx(
+            service = service,
+            channel = channel,
+            thread = None,
+            message = s"<${gm.nick}> ${gm.message}"
+          )
+        }
     }
 
   def apply[F[_]: Transactor: Now: Monad](
@@ -326,27 +378,38 @@ object LiveGrabQuoteSubstitute:
 
     new Grab[F] with Quote[F] with Autoquote[F] with LastMessage[F]:
 
-      override def grab(channel: String, nick: String): F[Boolean] =
+      override def grab(
+          service: String,
+          channel: String,
+          nick: String
+      ): F[Boolean] =
         summon[Transactor[F]].transact { c =>
-          unsafeGrab(channel, nick)(c)
+          unsafeGrab(c, service, channel, nick)
         }
 
-      override def grab(channel: String): F[Option[String]] =
+      override def grab(
+          service: String,
+          channel: String
+      ): F[Option[String]] =
         summon[Transactor[F]].transact { c =>
-          unsafeGrab(channel)(c)
+          unsafeGrab(c, service, channel)
         }
 
       override def quote(
+          service: String,
           channel: String,
           nick: String
       ): F[Option[GrabbedMessage]] =
         summon[Transactor[F]].transact { c =>
-          unsafeRandomGrabbedMessage(channel, nick)(c)
+          unsafeRandomGrabbedMessage(c, service, channel, nick)
         }
 
-      override def quote(channel: String): F[Option[GrabbedMessage]] =
+      override def quote(
+          service: String,
+          channel: String
+      ): F[Option[GrabbedMessage]] =
         summon[Transactor[F]].transact { c =>
-          unsafeRandomGrabbedMessage(channel)(c)
+          unsafeRandomGrabbedMessage(c, service, channel)
         }
 
       override def getAutoquoteMessages(): F[List[Tx]] =
@@ -369,7 +432,10 @@ object LiveGrabQuoteSubstitute:
             }
           }
 
-      override def getLastMessages(channel: String): F[List[LastRx]] =
+      override def getLastMessages(
+          service: String,
+          channel: String
+      ): F[List[LastRx]] =
         summon[Transactor[F]].transact { c =>
-          unsafeLastRx(channel)(c).toList
+          unsafeLastRx(c, service, channel).toList
         }

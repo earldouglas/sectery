@@ -20,10 +20,14 @@ class HelpResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       helpResponder
-        .respondToMessage(Rx("#foo", "bar", "@help"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@help")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "@ascii, @help, @ping"))
+      List(
+        Tx("irc", "#foo", None, "@ascii, @help, @ping")
+      )
 
     assertEquals(
       obtained = obtained,
@@ -43,10 +47,14 @@ class HelpResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       helpResponder
-        .respondToMessage(Rx("#foo", "bar", "@help @ascii"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@help @ascii")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Usage: @ascii <text>"))
+      List(
+        Tx("irc", "#foo", None, "Usage: @ascii <text>")
+      )
 
     assertEquals(
       obtained = obtained,

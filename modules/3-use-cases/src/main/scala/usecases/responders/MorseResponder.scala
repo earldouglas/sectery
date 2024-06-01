@@ -58,21 +58,39 @@ class MorseResponder[F[_]: Monad] extends Responder[F]:
   private val decode = """^@morse\s+decode\s+(.+)$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, encode(message)) =>
+    rx.message match
+      case encode(message) =>
         val encoded =
           message
             .toUpperCase()
             .split("")
             .flatMap(c => encoder.get(c))
             .mkString(" ")
-        summon[Monad[F]].pure(List(Tx(c, encoded)))
-      case Rx(c, _, decode(message)) =>
+        summon[Monad[F]].pure(
+          List(
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = encoded
+            )
+          )
+        )
+      case decode(message) =>
         val decoded =
           message
             .split(" ")
             .flatMap(c => decoder.get(c))
             .mkString("")
-        summon[Monad[F]].pure(List(Tx(c, decoded)))
+        summon[Monad[F]].pure(
+          List(
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = decoded
+            )
+          )
+        )
       case _ =>
         summon[Monad[F]].pure(Nil)

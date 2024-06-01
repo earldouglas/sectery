@@ -25,10 +25,25 @@ class SetResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new SetResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@set foo bar baz"))
+        .respondToMessage(
+          Rx(
+            "irc",
+            "#foo",
+            None,
+            "bar",
+            "@set foo bar baz"
+          )
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "bar: foo set to bar baz"))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "bar: foo set to bar baz"
+        )
+      )
 
     assertEquals(
       obtained = obtained,

@@ -22,6 +22,7 @@ class LiveTellSuite extends FunSuite:
           k(c)
 
     LiveTell(c).save(
+      "irc",
       "#foo",
       Tell.Saved(
         to = "jdoe",
@@ -32,7 +33,7 @@ class LiveTellSuite extends FunSuite:
     )
 
     assertEquals(
-      obtained = LiveTell(c).pop("#foo", "jdoe"),
+      obtained = LiveTell(c).pop("irc", "#foo", "jdoe"),
       expected = List(
         Tell.Saved(
           to = "jdoe",

@@ -1,9 +1,13 @@
 package sectery.effects
 
 trait Krypto[F[_]]:
-  def getOrStartGame(channel: String): F[Krypto.Game]
-  def deleteGame(channel: String): F[Unit]
-  def setGuessCount(channel: String, guessCount: Int): F[Unit]
+  def getOrStartGame(service: String, channel: String): F[Krypto.Game]
+  def deleteGame(service: String, channel: String): F[Unit]
+  def setGuessCount(
+      service: String,
+      channel: String,
+      guessCount: Int
+  ): F[Unit]
 
 object Krypto:
   case class Game(

@@ -15,13 +15,18 @@ class OpenAIResponder[F[_]: Monad: OpenAI] extends Responder[F]:
   private val ai = """^@ai\s+(.+)$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, ai(prompt)) =>
+    rx.message match
+      case ai(prompt) =>
         summon[OpenAI[F]]
           .complete(prompt)
           .map { completions =>
             completions.map { completion =>
-              Tx(c, completion)
+              Tx(
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = completion
+              )
             }
           }
       case _ =>

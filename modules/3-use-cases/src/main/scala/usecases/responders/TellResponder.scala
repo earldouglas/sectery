@@ -17,37 +17,46 @@ class TellResponder[F[_]: Monad: Tell: Now] extends Responder[F]:
   private val tell = """^@tell\s+([^\s]+)\s+(.+)\s*$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
+    rx.message match
 
-      case Rx(c, from, tell(to, message)) =>
+      case tell(to, message) =>
         summon[Now[F]]
           .now()
           .flatMap { now =>
             val m =
               Tell.Saved(
                 to = to,
-                from = from,
+                from = rx.nick,
                 date = now,
                 message = message
               )
             summon[Tell[F]]
-              .save(c, m)
+              .save(rx.service, rx.channel, m)
               .map { _ =>
-                List(Tx(c, s"I will let ${to} know."))
+                List(
+                  Tx(
+                    service = rx.service,
+                    channel = rx.channel,
+                    thread = rx.thread,
+                    message = s"I will let ${to} know."
+                  )
+                )
               }
           }
 
-      case Rx(c, nick, _) =>
+      case _ =>
         summon[Tell[F]]
-          .pop(c, nick)
+          .pop(rx.service, rx.channel, rx.nick)
           .map { saveds =>
             saveds.map { saved =>
               val prettyTime = new PrettyTime().format(saved.date)
               val message =
                 s"${saved.to}: ${prettyTime}, ${saved.from} said: ${saved.message}"
-              Tx(c, message)
+              Tx(
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = message
+              )
             }
           }
-
-      case _ =>
-        summon[Monad[F]].pure(Nil)

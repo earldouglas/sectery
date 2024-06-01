@@ -14,14 +14,23 @@ class BtcResponder[F[_]: Monad: Btc] extends Responder[F]:
   override def usage = "@btc"
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, "@btc") =>
+    rx.message match
+      case "@btc" =>
         summon[Monad[F]]
           .flatMap(summon[Btc[F]].toUsd()) {
             case Some(rate) =>
               val message =
                 s"${NumberFormat.getCurrencyInstance(Locale.US).format(rate)}"
-              summon[Monad[F]].pure(List(Tx(c, message)))
+              summon[Monad[F]].pure(
+                List(
+                  Tx(
+                    service = rx.service,
+                    channel = rx.channel,
+                    thread = rx.thread,
+                    message = message
+                  )
+                )
+              )
             case None =>
               summon[Monad[F]].pure(Nil)
           }

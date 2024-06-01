@@ -26,12 +26,22 @@ class WxResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new WxResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@wx san francisco"))
+        .respondToMessage(
+          Rx(
+            "irc",
+            "#foo",
+            None,
+            "bar",
+            "@wx san francisco"
+          )
+        )
 
     val expected: List[Tx] =
       List(
         Tx(
+          "irc",
           "#foo",
+          None,
           "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 1, o3 15, pm2.5 25, pm10 10"
         )
       )
@@ -59,12 +69,17 @@ class WxResponderSuite extends FunSuite:
         None
 
     val obtained: List[Tx] =
-      new WxResponder[Id].respondToMessage(Rx("#foo", "bar", "@wx"))
+      new WxResponder[Id]
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@wx")
+        )
 
     val expected: List[Tx] =
       List(
         Tx(
+          "irc",
           "#foo",
+          None,
           "bar: Set default location with `@set wx <location>`"
         )
       )
@@ -95,12 +110,17 @@ class WxResponderSuite extends FunSuite:
         }
 
     val obtained: List[Tx] =
-      new WxResponder[Id].respondToMessage(Rx("#foo", "bar", "@wx"))
+      new WxResponder[Id]
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@wx")
+        )
 
     val expected: List[Tx] =
       List(
         Tx(
+          "irc",
           "#foo",
+          None,
           "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 1, o3 15, pm2.5 25, pm10 10"
         )
       )

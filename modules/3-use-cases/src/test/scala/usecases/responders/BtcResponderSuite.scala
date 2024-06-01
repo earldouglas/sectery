@@ -16,10 +16,12 @@ class BtcResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new BtcResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@btc"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@btc")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "$39,193.03"))
+      List(Tx("irc", "#foo", None, "$39,193.03"))
 
     assertEquals(
       obtained = obtained,

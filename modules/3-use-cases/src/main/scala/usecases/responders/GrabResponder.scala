@@ -16,29 +16,66 @@ class GrabResponder[F[_]: Monad: Grab: LastMessage]
   private val grab = """^@grab\s+([^\s]+)\s*$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
+    rx.message match
 
-      case Rx(c, from, grab(nick)) if from == nick =>
-        summon[Monad[F]].pure(List(Tx(c, "You can't grab yourself.")))
+      case grab(nick) if rx.nick == nick =>
+        summon[Monad[F]].pure(
+          List(
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = "You can't grab yourself."
+            )
+          )
+        )
 
-      case Rx(c, _, grab(nick)) =>
+      case grab(nick) =>
         summon[Grab[F]]
-          .grab(c, nick)
+          .grab(rx.service, rx.channel, nick)
           .map {
             case true =>
-              List(Tx(c, s"Grabbed ${nick}."))
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"Grabbed ${nick}."
+                )
+              )
             case false =>
-              List(Tx(c, s"${nick} hasn't said anything."))
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"${nick} hasn't said anything."
+                )
+              )
           }
 
-      case Rx(c, _, "@grab") =>
+      case "@grab" =>
         summon[Grab[F]]
-          .grab(c)
+          .grab(rx.service, rx.channel)
           .map {
             case Some(nick) =>
-              List(Tx(c, s"Grabbed ${nick}."))
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"Grabbed ${nick}."
+                )
+              )
             case None =>
-              List(Tx(c, "Nobody has said anything."))
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = "Nobody has said anything."
+                )
+              )
           }
 
       case _ =>

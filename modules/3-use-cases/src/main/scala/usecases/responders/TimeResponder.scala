@@ -24,29 +24,57 @@ class TimeResponder[F[_]: Monad: GetConfig: Now] extends Responder[F]:
       .map(instant => PrettyTime(instant, timeZoneString))
 
   private def getResponse(
+      service: String,
       channel: String,
+      thread: Option[String],
       timeZoneString: String
   ): F[List[Tx]] =
     getPrettyTimeAtZone(timeZoneString)
       .map { message =>
-        List(Tx(channel, message))
+        List(
+          Tx(
+            service = service,
+            channel = channel,
+            thread = thread,
+            message = message
+          )
+        )
       }
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, nick, "@time") =>
+    rx.message match
+      case "@time" =>
         summon[GetConfig[F]]
-          .getConfig(nick, "tz")
+          .getConfig(rx.nick, "tz")
           .flatMap { timeZoneStringOption =>
             timeZoneStringOption match
               case Some(timeZoneString) =>
-                getResponse(c, timeZoneString)
+                getResponse(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  timeZoneString
+                )
               case None =>
                 val message =
-                  s"${nick}: Set default time zone with `@set tz <zone>`"
-                summon[Monad[F]].pure(List(Tx(c, message)))
+                  s"${rx.nick}: Set default time zone with `@set tz <zone>`"
+                summon[Monad[F]].pure(
+                  List(
+                    Tx(
+                      service = rx.service,
+                      channel = rx.channel,
+                      thread = rx.thread,
+                      message = message
+                    )
+                  )
+                )
           }
-      case Rx(c, _, time(_, timeZoneString)) =>
-        getResponse(c, timeZoneString)
+      case time(_, timeZoneString) =>
+        getResponse(
+          service = rx.service,
+          channel = rx.channel,
+          thread = rx.thread,
+          timeZoneString
+        )
       case _ =>
         summon[Monad[F]].pure(Nil)

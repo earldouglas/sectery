@@ -16,44 +16,58 @@ class PointsResponder[F[_]: Monad: Points] extends Responder[F]:
   private val minusOne = """^\s*([^+]+)[-][-]\s*$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
+    rx.message match
 
-      case Rx(channel, fromNick, plusOne(plusOneNick))
-          if fromNick == plusOneNick =>
+      case plusOne(plusOneNick) if rx.nick == plusOneNick =>
         summon[Monad[F]].pure(
-          List(Tx(channel, "You gotta get someone else to do it."))
+          List(
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = "You gotta get someone else to do it."
+            )
+          )
         )
 
-      case Rx(channel, fromNick, plusOne(plusOneNick))
-          if fromNick != plusOneNick =>
+      case plusOne(plusOneNick) if rx.nick != plusOneNick =>
         summon[Points[F]]
-          .update(channel, plusOneNick, 1)
+          .update(rx.service, rx.channel, plusOneNick, 1)
           .map { newValue =>
             List(
               Tx(
-                channel,
-                s"""${plusOneNick} has ${newValue} point${
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = s"""${plusOneNick} has ${newValue} point${
                     if newValue == 1 then "" else "s"
                   }."""
               )
             )
           }
 
-      case Rx(channel, fromNick, minusOne(minusOneNick))
-          if fromNick == minusOneNick =>
+      case minusOne(minusOneNick) if rx.nick == minusOneNick =>
         summon[Monad[F]].pure(
-          List(Tx(channel, "You gotta get someone else to do it."))
+          List(
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = "You gotta get someone else to do it."
+            )
+          )
         )
 
-      case Rx(channel, fromNick, minusOne(minusOneNick))
-          if fromNick != minusOneNick =>
+      case minusOne(minusOneNick) if rx.nick != minusOneNick =>
         summon[Points[F]]
-          .update(channel, minusOneNick, -1)
+          .update(rx.service, rx.channel, minusOneNick, -1)
           .map { newValue =>
             List(
               Tx(
-                channel,
-                s"""${minusOneNick} has ${newValue} point${
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = s"""${minusOneNick} has ${newValue} point${
                     if newValue == 1 then "" else "s"
                   }."""
               )

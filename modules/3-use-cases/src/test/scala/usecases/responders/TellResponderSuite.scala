@@ -17,20 +17,37 @@ class TellResponderSuite extends FunSuite:
       override def now() = Instant.EPOCH
 
     given tell: Tell[Id] with
-      override def save(channel: String, m: Tell.Saved) =
-        (channel, m.to) match
-          case ("#foo", "bob") =>
+      override def save(
+          service: String,
+          channel: String,
+          m: Tell.Saved
+      ) =
+        (service, channel, m.to) match
+          case ("irc", "#foo", "bob") =>
             saved = saved :+ m.message
-      override def pop(channel: String, nick: String) = ???
+
+      override def pop(
+          service: String,
+          channel: String,
+          nick: String
+      ) = ???
 
     val obtained: List[Tx] =
       new TellResponder[Id]
         .respondToMessage(
-          Rx("#foo", "bar", "@tell bob remember the milk")
+          Rx(
+            "irc",
+            "#foo",
+            None,
+            "bar",
+            "@tell bob remember the milk"
+          )
         )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "I will let bob know."))
+      List(
+        Tx("irc", "#foo", None, "I will let bob know.")
+      )
 
     assertEquals(
       obtained = obtained,
@@ -53,10 +70,20 @@ class TellResponderSuite extends FunSuite:
         Instant.now()
 
     given tell: Tell[Id] with
-      override def save(channel: String, m: Tell.Saved) = ???
-      override def pop(channel: String, nick: String) =
-        (channel, nick) match
-          case ("#foo", "bob") =>
+
+      override def save(
+          service: String,
+          channel: String,
+          m: Tell.Saved
+      ) = ???
+
+      override def pop(
+          service: String,
+          channel: String,
+          nick: String
+      ) =
+        (service, channel, nick) match
+          case ("irc", "#foo", "bob") =>
             val popped: List[String] = saved
             saved = Nil
             popped.map { message =>
@@ -71,11 +98,24 @@ class TellResponderSuite extends FunSuite:
     val obtained: List[Tx] =
       new TellResponder[Id]
         .respondToMessage(
-          Rx("#foo", "bob", "What'd I miss?")
+          Rx(
+            "irc",
+            "#foo",
+            None,
+            "bob",
+            "What'd I miss?"
+          )
         )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "bob: 1 hour ago, bar said: remember the milk"))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "bob: 1 hour ago, bar said: remember the milk"
+        )
+      )
 
     assertEquals(
       obtained = obtained,

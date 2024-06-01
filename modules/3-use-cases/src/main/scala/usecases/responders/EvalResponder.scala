@@ -15,8 +15,8 @@ class EvalResponder[F[_]: Monad: Eval] extends Responder[F]:
   private val eval = """^@eval\s+(.+)\s*$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, eval(expr)) =>
+    rx.message match
+      case eval(expr) =>
         summon[Eval[F]]
           .eval(expr)
           .map {
@@ -24,7 +24,14 @@ class EvalResponder[F[_]: Monad: Eval] extends Responder[F]:
             case Left(x)  => x
           }
           .map { message =>
-            List(Tx(c, message))
+            List(
+              Tx(
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = message
+              )
+            )
           }
       case _ =>
         summon[Monad[F]].pure(Nil)

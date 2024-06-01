@@ -42,29 +42,48 @@ class StockResponder[F[_]: Monad: Stock: Traversable: GetConfig]
       }
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, stock(symbolsString, _, _)) =>
+    rx.message match
+      case stock(symbolsString, _, _) =>
         getQuotes(symbolsString)
           .map { quotes =>
             quotes.map { quote =>
-              Tx(channel = c, message = quote)
+              Tx(
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = quote
+              )
             }
           }
-      case Rx(c, nick, "@stock") =>
+      case "@stock" =>
         for
-          so <- summon[GetConfig[F]].getConfig(nick, "stock")
+          so <- summon[GetConfig[F]].getConfig(rx.nick, "stock")
           txs <- so match
             case Some(symbolsString) =>
               getQuotes(symbolsString)
                 .map { quotes =>
                   quotes.map { quote =>
-                    Tx(channel = c, message = quote)
+                    Tx(
+                      service = rx.service,
+                      channel = rx.channel,
+                      thread = rx.thread,
+                      message = quote
+                    )
                   }
                 }
             case None =>
               val message =
-                s"${nick}: Set default symbols with `@set stock <symbol1> [symbol2] ... [symbolN]`"
-              summon[Monad[F]].pure(List(Tx(c, message)))
+                s"${rx.nick}: Set default symbols with `@set stock <symbol1> [symbol2] ... [symbolN]`"
+              summon[Monad[F]].pure(
+                List(
+                  Tx(
+                    service = rx.service,
+                    channel = rx.channel,
+                    thread = rx.thread,
+                    message = message
+                  )
+                )
+              )
         yield txs
 
       case _ =>
