@@ -2,5 +2,6 @@ package sectery.domain.operations
 
 import sectery.domain.entities.Tx
 
-trait SendMessage[F[_]]:
-  def sendMessage(tx: Tx): F[Unit]
+trait Send[F[_]]:
+  def name: String
+  def apply(tx: Tx): F[Unit]

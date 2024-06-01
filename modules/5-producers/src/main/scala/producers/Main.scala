@@ -27,16 +27,18 @@ object Main extends ZIOAppDefault:
     () => DriverManager.getConnection(databaseUrl)
 
   override def run: ZIO[Any, Throwable, ExitCode] =
-    Start(
-      databaseUrl = databaseUrl,
-      openWeatherMapApiKey = openWeatherMapApiKey,
-      airNowApiKey = airNowApiKey,
-      finnhubApiToken = finnhubApiToken,
-      rabbitMqHostname = rabbitMqHostname,
-      rabbitMqPort = rabbitMqPort,
-      rabbitMqUsername = rabbitMqUsername,
-      rabbitMqPassword = rabbitMqPassword,
-      openAiApiKey = openAiApiKey,
-      unsafeGetConnection = unsafeGetConnection,
-      channelSuffix = "live"
-    ).map(_ => ExitCode.failure) // should never exit
+    Producers
+      .apply(
+        databaseUrl = databaseUrl,
+        openWeatherMapApiKey = openWeatherMapApiKey,
+        airNowApiKey = airNowApiKey,
+        finnhubApiToken = finnhubApiToken,
+        rabbitMqHostname = rabbitMqHostname,
+        rabbitMqPort = rabbitMqPort,
+        rabbitMqUsername = rabbitMqUsername,
+        rabbitMqPassword = rabbitMqPassword,
+        rabbitMqChannelSuffix = "live",
+        openAiApiKey = openAiApiKey,
+        unsafeGetConnection = unsafeGetConnection
+      )
+      .map(_ => ExitCode.failure) // should never exit

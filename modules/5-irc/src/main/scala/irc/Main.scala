@@ -21,17 +21,18 @@ object Main extends ZIOAppDefault:
   val ircChannels: List[String] =
     sys.env("IRC_CHANNELS").split(",").map(_.trim).toList
 
-  override def run: ZIO[Any, Nothing, ExitCode] =
-    Start(
-      rabbitMqHostname = rabbitMqHostname,
-      rabbitMqPort = rabbitMqPort,
-      rabbitMqUsername = rabbitMqUsername,
-      rabbitMqPassword = rabbitMqPassword,
-      ircHostname = ircHostname,
-      ircPort = ircPort,
-      ircChannels = ircChannels,
-      ircUsername = ircUsername,
-      ircPassword = ircPassword,
-      channelSuffix = "live"
-    )
+  override def run: ZIO[Any, Throwable, ExitCode] =
+    Bot
+      .apply(
+        rabbitMqHostname = rabbitMqHostname,
+        rabbitMqPort = rabbitMqPort,
+        rabbitMqUsername = rabbitMqUsername,
+        rabbitMqPassword = rabbitMqPassword,
+        rabbitMqChannelSuffix = "live",
+        ircUsername = ircUsername,
+        ircPassword = ircPassword,
+        ircHostname = ircHostname,
+        ircPort = ircPort,
+        ircChannels = ircChannels
+      )
       .map(_ => ExitCode.failure) // should never exit
