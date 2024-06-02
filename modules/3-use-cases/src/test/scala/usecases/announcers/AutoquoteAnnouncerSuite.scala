@@ -45,7 +45,8 @@ class AutoquoteAnnouncerSuite extends ScalaCheckSuite:
         override def now() = Instant.ofEpochMilli(timeMillis)
 
       given autoquote: Autoquote[Id] with
-        override def getAutoquoteMessages() = List(Tx("#foo", "bar"))
+        override def getAutoquoteMessages() =
+          List(Tx("irc", "#foo", None, "bar"))
 
       assertEquals(
         obtained = new AutoquoteAnnouncer[Id].announce(),
@@ -71,7 +72,8 @@ class AutoquoteAnnouncerSuite extends ScalaCheckSuite:
         override def now() = Instant.ofEpochMilli(timeMillis)
 
       given autoquote: Autoquote[Id] with
-        override def getAutoquoteMessages() = List(Tx("#foo", "bar"))
+        override def getAutoquoteMessages() =
+          List(Tx("irc", "#foo", None, "bar"))
 
       assertEquals(
         obtained = new AutoquoteAnnouncer[Id].announce(),
@@ -97,7 +99,8 @@ class AutoquoteAnnouncerSuite extends ScalaCheckSuite:
         override def now() = Instant.ofEpochMilli(timeMillis)
 
       given autoquote: Autoquote[Id] with
-        override def getAutoquoteMessages() = List(Tx("#foo", "bar"))
+        override def getAutoquoteMessages() =
+          List(Tx("irc", "#foo", None, "bar"))
 
       assertEquals(
         obtained = new AutoquoteAnnouncer[Id].announce(),
@@ -123,11 +126,12 @@ class AutoquoteAnnouncerSuite extends ScalaCheckSuite:
         override def now() = Instant.ofEpochMilli(timeMillis)
 
       given autoquote: Autoquote[Id] with
-        override def getAutoquoteMessages() = List(Tx("#foo", "bar"))
+        override def getAutoquoteMessages() =
+          List(Tx("irc", "#foo", None, "bar"))
 
       assertEquals(
         obtained = new AutoquoteAnnouncer[Id].announce(),
-        List(Tx("#foo", "bar"))
+        List(Tx("irc", "#foo", None, "bar"))
       )
     }
   }

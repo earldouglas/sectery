@@ -19,10 +19,12 @@ class EvalResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new EvalResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@eval 6 * 7"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@eval 6 * 7")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "42"))
+      List(Tx("irc", "#foo", None, "42"))
 
     assertEquals(
       obtained = obtained,

@@ -18,29 +18,29 @@ To start Sectery, first set a bunch of configuration variables, then run
 the two main classes with `sbt run`:
 
 ```
+$ export RABBIT_MQ_HOSTNAME=localhost
+$ export RABBIT_MQ_PORT=5672
+$ export RABBIT_MQ_USERNAME=guest
+$ export RABBIT_MQ_PASSWORD=guest
+$ export DATABASE_URL=jdbc:mysql://username:password@host:port/dbname
+$ export FINNHUB_API_TOKEN=my_finnhub_api_token
+$ export OPEN_WEATHER_MAP_API_KEY=my_open_weather_map_api_key
+$ export AIRNOW_API_KEY=my_airnow_api_key
+$ export OPENAI_APIKEY=my_openai_api_key
+$ sbt "project producers" run
+```
+
+```
+$ export RABBIT_MQ_HOSTNAME=localhost
+$ export RABBIT_MQ_PORT=5672
+$ export RABBIT_MQ_USERNAME=guest
+$ export RABBIT_MQ_PASSWORD=guest
 $ export IRC_HOST=irc.libera.chat
 $ export IRC_PORT=7000
 $ export IRC_USER=my_nick
 $ export IRC_PASS=my_password
 $ export IRC_CHANNELS=#my_channel
-$ export RABBIT_MQ_HOSTNAME=localhost
-$ export RABBIT_MQ_PORT=5672
-$ export RABBIT_MQ_USERNAME=guest
-$ export RABBIT_MQ_PASSWORD=guest
 $ sbt "project irc" run
-```
-
-```
-$ export DATABASE_URL=jdbc:mysql://username:password@host:port/dbname
-$ export FINNHUB_API_TOKEN=my_finnhub_api_token
-$ export OPEN_WEATHER_MAP_API_KEY=my_open_weather_map_api_key
-$ export AIRNOW_API_KEY=my_airnow_api_key
-$ export RABBIT_MQ_HOSTNAME=localhost
-$ export RABBIT_MQ_PORT=5672
-$ export RABBIT_MQ_USERNAME=guest
-$ export RABBIT_MQ_PASSWORD=guest
-$ export OPENAI_APIKEY=my_openai_api_key
-$ sbt "project producers" run
 ```
 
 ## Development

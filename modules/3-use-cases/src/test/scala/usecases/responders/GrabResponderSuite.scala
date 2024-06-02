@@ -15,19 +15,33 @@ class GrabResponderSuite extends FunSuite:
       override def now() = Instant.EPOCH
 
     given lastMessage: LastMessage[Id] with
-      override def getLastMessages(channel: String) = ???
+      override def getLastMessages(service: String, channel: String) =
+        ???
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
-      override def grab(channel: String, nick: String) = false
-      override def grab(channel: String) = ???
+      override def grab(
+          service: String,
+          channel: String,
+          nick: String
+      ) = false
+      override def grab(service: String, channel: String) = ???
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@grab bar"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@grab bar")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "You can't grab yourself."))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "You can't grab yourself."
+        )
+      )
 
     assertEquals(
       obtained = obtained,
@@ -41,19 +55,33 @@ class GrabResponderSuite extends FunSuite:
       override def now() = Instant.EPOCH
 
     given lastMessage: LastMessage[Id] with
-      override def getLastMessages(channel: String) = ???
+      override def getLastMessages(service: String, channel: String) =
+        ???
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
-      override def grab(channel: String, nick: String) = false
-      override def grab(channel: String) = ???
+      override def grab(
+          service: String,
+          channel: String,
+          nick: String
+      ) = false
+      override def grab(service: String, channel: String) = ???
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@grab baz"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@grab baz")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "baz hasn't said anything."))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "baz hasn't said anything."
+        )
+      )
 
     assertEquals(
       obtained = obtained,
@@ -67,22 +95,29 @@ class GrabResponderSuite extends FunSuite:
       override def now() = Instant.EPOCH
 
     given lastMessage: LastMessage[Id] with
-      override def getLastMessages(channel: String) = ???
+      override def getLastMessages(service: String, channel: String) =
+        ???
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
-      override def grab(channel: String, nick: String) =
+      override def grab(
+          service: String,
+          channel: String,
+          nick: String
+      ) =
         (channel, nick) match {
           case ("#foo", "baz") => true
         }
-      override def grab(channel: String) = ???
+      override def grab(service: String, channel: String) = ???
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@grab baz"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@grab baz")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Grabbed baz."))
+      List(Tx("irc", "#foo", None, "Grabbed baz."))
 
     assertEquals(
       obtained = obtained,
@@ -96,19 +131,33 @@ class GrabResponderSuite extends FunSuite:
       override def now() = Instant.EPOCH
 
     given lastMessage: LastMessage[Id] with
-      override def getLastMessages(channel: String) = ???
+      override def getLastMessages(service: String, channel: String) =
+        ???
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
-      override def grab(channel: String, nick: String) = ???
-      override def grab(channel: String) = None
+      override def grab(
+          service: String,
+          channel: String,
+          nick: String
+      ) = ???
+      override def grab(service: String, channel: String) = None
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@grab"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@grab")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Nobody has said anything."))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "Nobody has said anything."
+        )
+      )
 
     assertEquals(
       obtained = obtained,
@@ -122,22 +171,29 @@ class GrabResponderSuite extends FunSuite:
       override def now() = Instant.EPOCH
 
     given lastMessage: LastMessage[Id] with
-      override def getLastMessages(channel: String) = ???
+      override def getLastMessages(service: String, channel: String) =
+        ???
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
-      override def grab(channel: String, nick: String) = ???
-      override def grab(channel: String) =
+      override def grab(
+          service: String,
+          channel: String,
+          nick: String
+      ) = ???
+      override def grab(service: String, channel: String) =
         channel match {
           case "#foo" => Some("baz")
         }
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@grab"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@grab")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Grabbed baz."))
+      List(Tx("irc", "#foo", None, "Grabbed baz."))
 
     assertEquals(
       obtained = obtained,
@@ -153,17 +209,24 @@ class GrabResponderSuite extends FunSuite:
       override def now() = Instant.EPOCH
 
     given lastMessage: LastMessage[Id] with
-      override def getLastMessages(channel: String) = ???
+      override def getLastMessages(service: String, channel: String) =
+        ???
       override def saveLastMessage(rx: Rx) =
         saved = Some(rx)
 
     given grab: Grab[Id] with
-      override def grab(channel: String, nick: String) = ???
-      override def grab(channel: String) = ???
+      override def grab(
+          service: String,
+          channel: String,
+          nick: String
+      ) = ???
+      override def grab(service: String, channel: String) = ???
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "Heyo."))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "Heyo.")
+        )
 
     val expected: List[Tx] =
       Nil
@@ -175,6 +238,6 @@ class GrabResponderSuite extends FunSuite:
 
     assertEquals(
       obtained = saved,
-      expected = Some(Rx("#foo", "bar", "Heyo."))
+      expected = Some(Rx("irc", "#foo", None, "bar", "Heyo."))
     )
   }

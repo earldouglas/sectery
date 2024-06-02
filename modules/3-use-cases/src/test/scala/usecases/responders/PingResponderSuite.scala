@@ -12,10 +12,12 @@ class PingResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new PingResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@ping"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@ping")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "pong"))
+      List(Tx("irc", "#foo", None, "pong"))
 
     assertEquals(
       obtained = obtained,

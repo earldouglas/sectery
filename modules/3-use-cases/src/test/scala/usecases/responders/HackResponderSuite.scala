@@ -9,13 +9,20 @@ import sectery.effects.id.given
 class HackResponderSuite extends FunSuite:
 
   trait HackStub extends Hack[Id]:
-    override def getOrStartGame(channel: String): Id[(String, Int)] =
+    override def getOrStartGame(
+        service: String,
+        channel: String
+    ): Id[(String, Int)] =
       ???
     override def isAWord(word: String): Id[Boolean] =
       ???
-    override def deleteGame(channel: String): Id[Unit] =
+    override def deleteGame(
+        service: String,
+        channel: String
+    ): Id[Unit] =
       ???
     override def setGuessCount(
+        service: String,
         channel: String,
         guessCount: Int
     ): Id[Unit] =
@@ -24,33 +31,46 @@ class HackResponderSuite extends FunSuite:
   test("@hack: start a new game") {
     given hack: Hack[Id] =
       new HackStub:
-        override def getOrStartGame(channel: String) =
-          channel match
-            case "#foo" => ("foo", 0)
+        override def getOrStartGame(service: String, channel: String) =
+          (service, channel) match
+            case ("irc", "#foo") => ("foo", 0)
 
     assertEquals(
       new HackResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@hack")),
-      List(Tx("#foo", "Guess a word with 3 letters.  0 tries so far."))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@hack")
+        ),
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "Guess a word with 3 letters.  0 tries so far."
+        )
+      )
     )
   }
 
   test("@hack: guess a non-word") {
     given hack: Hack[Id] =
       new HackStub:
-        override def getOrStartGame(channel: String) =
-          channel match
-            case "#foo" => ("foo", 1)
+        override def getOrStartGame(service: String, channel: String) =
+          (service, channel) match
+            case ("irc", "#foo") => ("foo", 1)
         override def isAWord(word: String) =
           word match
             case "bar" => false
 
     val obtained: List[Tx] =
       new HackResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@hack bar"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@hack bar")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Guess an actual word."))
+      List(
+        Tx("irc", "#foo", None, "Guess an actual word.")
+      )
 
     assertEquals(
       obtained = obtained,
@@ -61,22 +81,35 @@ class HackResponderSuite extends FunSuite:
   test("@hack: guess a valid word with no matching letters") {
     given hack: Hack[Id] =
       new HackStub:
-        override def getOrStartGame(channel: String) =
-          channel match
-            case "#foo" => ("foo", 1)
+        override def getOrStartGame(service: String, channel: String) =
+          (service, channel) match
+            case ("irc", "#foo") => ("foo", 1)
         override def isAWord(word: String) =
           word match
             case "bar" => true
-        override def setGuessCount(channel: String, guessCount: Int) =
+        override def setGuessCount(
+            service: String,
+            channel: String,
+            guessCount: Int
+        ) =
           (channel, guessCount) match
             case ("#foo", 2) => ()
 
     val obtained: List[Tx] =
       new HackResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@hack bar"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@hack bar")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "0/3 correct.  2 tries so far."))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "0/3 correct.  2 tries so far."
+        )
+      )
 
     assertEquals(
       obtained = obtained,
@@ -87,22 +120,35 @@ class HackResponderSuite extends FunSuite:
   test("@hack: guess a valid word with some matching letters") {
     given hack: Hack[Id] =
       new HackStub:
-        override def getOrStartGame(channel: String) =
-          channel match
-            case "#foo" => ("foo", 2)
+        override def getOrStartGame(service: String, channel: String) =
+          (service, channel) match
+            case ("irc", "#foo") => ("foo", 2)
         override def isAWord(word: String) =
           word match
             case "foe" => true
-        override def setGuessCount(channel: String, guessCount: Int) =
+        override def setGuessCount(
+            service: String,
+            channel: String,
+            guessCount: Int
+        ) =
           (channel, guessCount) match
             case ("#foo", 3) => ()
 
     val obtained: List[Tx] =
       new HackResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@hack foe"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@hack foe")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "2/3 correct.  3 tries so far."))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "2/3 correct.  3 tries so far."
+        )
+      )
 
     assertEquals(
       obtained = obtained,
@@ -115,22 +161,31 @@ class HackResponderSuite extends FunSuite:
 
     given hack: Hack[Id] =
       new HackStub:
-        override def getOrStartGame(channel: String) =
-          channel match
-            case "#foo" => ("foo", 3)
+        override def getOrStartGame(service: String, channel: String) =
+          (service, channel) match
+            case ("irc", "#foo") => ("foo", 3)
         override def isAWord(word: String) =
           word match
             case "foo" => true
-        override def deleteGame(channel: String) =
-          channel match
-            case "#foo" => deleted = true
+        override def deleteGame(service: String, channel: String) =
+          (service, channel) match
+            case ("irc", "#foo") => deleted = true
 
     val obtained: List[Tx] =
       new HackResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@hack foo"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@hack foo")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Guessed foo in 4 tries."))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "Guessed foo in 4 tries."
+        )
+      )
 
     assertEquals(
       obtained = obtained,

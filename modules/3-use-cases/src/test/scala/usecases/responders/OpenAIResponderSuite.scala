@@ -20,14 +20,16 @@ class OpenAIResponderSuite extends FunSuite:
       new OpenAIResponder[Id]
         .respondToMessage(
           Rx(
+            "irc",
             "#foo",
+            None,
             "bar",
             "@ai What is the answer to life, the universe, and everything?"
           )
         )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "42"))
+      List(Tx("irc", "#foo", None, "42"))
 
     assertEquals(
       obtained = obtained,

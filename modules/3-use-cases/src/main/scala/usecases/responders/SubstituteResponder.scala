@@ -18,38 +18,49 @@ class SubstituteResponder[F[_]: Monad: LastMessage]
   val subAll = """s\/(.*)\/(.*)\/g""".r
 
   private def substitute(
+      service: String,
       channel: String,
+      thread: Option[String],
       toReplace: String,
       howReplace: String => String
   ): F[List[Tx]] =
     val matcher: Regex = new Regex(s".*${toReplace}.*")
     summon[LastMessage[F]]
-      .getLastMessages(channel)
+      .getLastMessages(service, channel)
       .map { rxs =>
         rxs
           .find(rx => matcher.matches(rx.message))
           .map { rx =>
             val replacedMsg: String = howReplace(rx.message)
-            Tx(channel, s"<${rx.nick}> ${replacedMsg}")
+            Tx(
+              service = service,
+              channel = channel,
+              thread = thread,
+              message = s"<${rx.nick}> ${replacedMsg}"
+            )
           }
           .toList
       }
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(channel, nick, subFirst(toReplace, withReplace)) =>
+    rx.message match
+      case subFirst(toReplace, withReplace) =>
         substitute(
-          channel,
+          service = rx.service,
+          channel = rx.channel,
+          thread = rx.thread,
           toReplace,
           _.replaceFirst(toReplace, withReplace)
         )
-      case Rx(channel, nick, subAll(toReplace, withReplace)) =>
+      case subAll(toReplace, withReplace) =>
         substitute(
-          channel,
+          service = rx.service,
+          channel = rx.channel,
+          thread = rx.thread,
           toReplace,
           _.replaceAll(toReplace, withReplace)
         )
-      case rx =>
+      case _ =>
         summon[LastMessage[F]]
           .saveLastMessage(rx)
           .map(_ => Nil)

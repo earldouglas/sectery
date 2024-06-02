@@ -9,8 +9,8 @@ object LiveHack:
   private def unsafeInit(c: Connection): Unit =
     val s1 =
       """|CREATE TABLE IF NOT EXISTS
-         |HACK_WORDS (
-         |  WORD VARCHAR(24) NOT NULL
+         |`HACK_WORDS` (
+         |  `WORD` VARCHAR(24) NOT NULL
          |)
          |""".stripMargin
     val stmt1 = c.createStatement()
@@ -19,23 +19,32 @@ object LiveHack:
 
     val s2 =
       """|CREATE TABLE IF NOT EXISTS
-         |HACK_GAMES (
-         |  CHANNEL VARCHAR(256) NOT NULL,
-         |  WORD VARCHAR(24) NOT NULL,
-         |  COUNT INT NOT NULL,
-         |  PRIMARY KEY (CHANNEL)
+         |`HACK_GAMES_V2` (
+         |  `SERVICE` VARCHAR(256) NOT NULL,
+         |  `CHANNEL` VARCHAR(256) NOT NULL,
+         |  `WORD` VARCHAR(24) NOT NULL,
+         |  `COUNT` INT NOT NULL,
+         |  PRIMARY KEY (`SERVICE`, `CHANNEL`)
          |)
          |""".stripMargin
     val stmt2 = c.createStatement()
     stmt2.executeUpdate(s2)
     stmt2.close()
 
-  private def unsafeGetCurrentWord(channel: String)(
-      c: Connection
+  private def unsafeGetCurrentWord(
+      c: Connection,
+      service: String,
+      channel: String
   ): Option[(String, Int)] =
-    val s = "SELECT WORD, COUNT FROM HACK_GAMES WHERE CHANNEL = ?"
+    val s =
+      """|SELECT `WORD`, `COUNT`
+         |FROM `HACK_GAMES_V2`
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
+         |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
     val rs = stmt.executeQuery
     val wordO =
       if rs.next() then Some((rs.getString("WORD"), rs.getInt("COUNT")))
@@ -44,7 +53,12 @@ object LiveHack:
     wordO
 
   private def unsafeGetRandomWord(c: Connection): String =
-    val q = "SELECT WORD FROM HACK_WORDS ORDER BY RAND() LIMIT 1"
+    val q =
+      """|SELECT `WORD`
+         |FROM `HACK_WORDS`
+         |ORDER BY RAND()
+         |LIMIT 1
+         |""".stripMargin
     val stmt = c.createStatement
     val rs = stmt.executeQuery(q)
     rs.next()
@@ -52,9 +66,13 @@ object LiveHack:
     stmt.close
     word
 
-  private def unsafeIsAWord(word: String)(c: Connection): Boolean =
+  private def unsafeIsAWord(c: Connection, word: String): Boolean =
     val s =
-      "SELECT WORD FROM HACK_WORDS WHERE LOWER(WORD) = ? LIMIT 1"
+      """|SELECT `WORD`
+         |FROM `HACK_WORDS`
+         |WHERE LOWER(`WORD`) = ?
+         |LIMIT 1
+         |""".stripMargin
     val stmt = c.prepareStatement(s)
     stmt.setString(1, word.toLowerCase)
     val rs = stmt.executeQuery
@@ -63,47 +81,73 @@ object LiveHack:
     found
 
   private def unsafeSetCurrentWord(
+      c: Connection,
+      service: String,
       channel: String,
       word: String
-  )(c: Connection): Unit =
+  ): Unit =
 
-    unsafeDeleteGame(channel)(c)
+    unsafeDeleteGame(c, service, channel)
 
     val s =
-      "INSERT INTO HACK_GAMES (CHANNEL, WORD, COUNT) VALUES (?, ?, ?)"
+      """|INSERT INTO
+         |HACK_GAMES_V2 (`SERVICE`, `CHANNEL`, `WORD`, `COUNT`)
+         |VALUES (?, ?, ?, ?)
+         |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
-    stmt.setString(2, word)
-    stmt.setInt(3, 0)
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
+    stmt.setString(3, word)
+    stmt.setInt(4, 0)
     stmt.executeUpdate
     stmt.close
 
-  private def unsafeGetOrStartGame(channel: String)(
-      c: Connection
+  private def unsafeGetOrStartGame(
+      c: Connection,
+      service: String,
+      channel: String
   ): (String, Int) =
-    unsafeGetCurrentWord(channel)(c) match
+    unsafeGetCurrentWord(c, service, channel) match
       case Some(wc) =>
         wc
       case None =>
         val word = unsafeGetRandomWord(c)
-        unsafeSetCurrentWord(channel, word)(c)
+        unsafeSetCurrentWord(c, service, channel, word)
         (word, 0)
 
   private def unsafeSetGuessCount(
+      c: Connection,
+      service: String,
       channel: String,
       guessCount: Int
-  )(c: Connection): Unit =
-    val s = "UPDATE HACK_GAMES SET COUNT = ? WHERE CHANNEL = ?"
+  ): Unit =
+    val s =
+      """|UPDATE `HACK_GAMES_V2`
+         |SET `COUNT` = ?
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
+         |""".stripMargin
     val stmt = c.prepareStatement(s)
     stmt.setInt(1, guessCount)
-    stmt.setString(2, channel)
+    stmt.setString(2, service)
+    stmt.setString(3, channel)
     stmt.executeUpdate
     stmt.close
 
-  private def unsafeDeleteGame(channel: String)(c: Connection): Unit =
-    val s = "DELETE FROM HACK_GAMES WHERE CHANNEL = ?"
+  private def unsafeDeleteGame(
+      c: Connection,
+      service: String,
+      channel: String
+  ): Unit =
+    val s =
+      """|DELETE FROM
+         |`HACK_GAMES_V2`
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
+         |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
     stmt.executeUpdate
     stmt.close
 
@@ -113,25 +157,32 @@ object LiveHack:
 
     new Hack:
 
-      override def getOrStartGame(channel: String): F[(String, Int)] =
+      override def getOrStartGame(
+          service: String,
+          channel: String
+      ): F[(String, Int)] =
         summon[Transactor[F]].transact { c =>
-          unsafeGetOrStartGame(channel)(c)
+          unsafeGetOrStartGame(c, service, channel)
         }
 
       override def isAWord(word: String): F[Boolean] =
         summon[Transactor[F]].transact { c =>
-          unsafeIsAWord(word)(c)
+          unsafeIsAWord(c, word)
         }
 
-      override def deleteGame(channel: String): F[Unit] =
+      override def deleteGame(
+          service: String,
+          channel: String
+      ): F[Unit] =
         summon[Transactor[F]].transact { c =>
-          unsafeDeleteGame(channel)(c)
+          unsafeDeleteGame(c, service, channel)
         }
 
       override def setGuessCount(
+          service: String,
           channel: String,
           guessCount: Int
       ): F[Unit] =
         summon[Transactor[F]].transact { c =>
-          unsafeSetGuessCount(channel, guessCount)(c)
+          unsafeSetGuessCount(c, service, channel, guessCount)
         }

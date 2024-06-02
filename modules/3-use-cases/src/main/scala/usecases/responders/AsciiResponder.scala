@@ -16,10 +16,17 @@ class AsciiResponder[F[_]: Monad] extends Responder[F]:
   private val ascii = """^@ascii\s+(.+)$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, ascii(text)) =>
+    rx.message match
+      case ascii(text) =>
         summon[Monad[F]].pure(
-          AsciiResponder.ascii(text).map { line => Tx(c, line) }
+          AsciiResponder.ascii(text).map { line =>
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = line
+            )
+          }
         )
       case _ =>
         summon[Monad[F]].pure(Nil)

@@ -11,16 +11,18 @@ import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.types.GenericMessageEvent
 import scala.jdk.CollectionConverters._
 import sectery._
+import sectery.adaptors._
 import sectery.domain.entities._
 import sectery.domain.operations._
 import sectery.effects._
-import sectery.queue._
 import zio.Queue
 import zio.Unsafe
 import zio.ZIO
 import zio.ZLayer
 import zio.json.DeriveJsonDecoder
 import zio.json.DeriveJsonEncoder
+import zio.json.JsonDecoder
+import zio.json.JsonEncoder
 import zio.stream.ZStream
 
 class Bot(
@@ -59,7 +61,9 @@ class Bot(
                   case e: MessageEvent =>
                     unsafeReceive(
                       Rx(
+                        service = Bot.name,
                         channel = e.getChannel().getName(),
+                        thread = None,
                         nick = e.getUser().getNick(),
                         message = e.getMessage()
                       )
@@ -70,7 +74,9 @@ class Bot(
               if event.getUser().getNick() != username then
                 unsafeSend(
                   Tx(
+                    service = Bot.name,
                     channel = event.getChannel().getName(),
+                    thread = None,
                     message = s"Hi, ${event.getUser().getNick()}!"
                   )
                 )
@@ -82,10 +88,12 @@ class Bot(
   private def unsafeSend(tx: Tx): Unit =
     pircBotX.sendIRC().message(tx.channel, tx.message)
 
-  def unsafeStart(): Unit =
+  private def unsafeStart(): Unit =
     pircBotX.startBot()
 
 object Bot:
+
+  val name: String = "irc"
 
   def apply(
       rabbitMqHostname: String,
@@ -130,6 +138,8 @@ object Bot:
 
         rabbitMQ =
           new RabbitMQ(
+            service = Some(Bot.name),
+            channels = Some(ircChannels),
             hostname = rabbitMqHostname,
             port = rabbitMqPort,
             username = rabbitMqUsername,
@@ -143,25 +153,37 @@ object Bot:
 
               val receive: QueueDownstream.ReceiveR =
                 new Receive[[A] =>> ZIO[Any, Throwable, A]]:
-                  override def name = "IRC"
+                  override def name = Bot.name
                   override def apply() =
                     received.take
 
               val enqueue: QueueDownstream.EnqueueR =
-                rabbitMQ.enqueue[Rx](s"inbox-${rabbitMqChannelSuffix}")(
-                  using DeriveJsonEncoder.gen[Rx]
-                )
+                given encoder: JsonEncoder[Rx] =
+                  DeriveJsonEncoder.gen[Rx]
+                rabbitMQ.enqueue[Rx](s"inbox-${rabbitMqChannelSuffix}")
 
               val send: QueueDownstream.SendR =
                 new Send[[A] =>> ZIO[Any, Throwable, A]]:
-                  override def name = "IRC"
+                  override def name = Bot.name
                   override def apply(tx: Tx) =
                     ZIO.attempt(bot.unsafeSend(tx))
 
               val dequeue: QueueDownstream.DequeueR =
-                rabbitMQ.dequeue[Tx](
-                  s"outbox-${rabbitMqChannelSuffix}"
-                )(using DeriveJsonDecoder.gen[Tx])
+
+                given hasService: HasService[Tx] =
+                  new HasService:
+                    override def getService(value: Tx) =
+                      value.service
+
+                given hasChannel: HasChannel[Tx] =
+                  new HasChannel:
+                    override def getChannel(value: Tx) =
+                      value.channel
+
+                given decoder: JsonDecoder[Tx] =
+                  DeriveJsonDecoder.gen[Tx]
+
+                rabbitMQ.dequeue[Tx](s"outbox-${rabbitMqChannelSuffix}")
 
               val logger: QueueDownstream.LoggerR =
                 new Logger:
@@ -177,7 +199,7 @@ object Bot:
                 ZLayer.succeed(dequeue)
             }
 
-        _ <- ZIO.logDebug(s"Starting IRC bot")
+        _ <- ZIO.logDebug(s"Starting irc bot")
         _ <- ZIO.attemptBlocking(bot.unsafeStart())
       yield ()
     )

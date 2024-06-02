@@ -13,9 +13,18 @@ class BlinkResponder[F[_]: Monad] extends Responder[F]:
   private val blink = """^@blink\s(.+)$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, blink(text)) =>
+    rx.message match
+      case blink(text) =>
         val b = '\u0006'
-        summon[Monad[F]].pure(List(Tx(c, s"${b}${text}${b}")))
+        summon[Monad[F]].pure(
+          List(
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = s"${b}${text}${b}"
+            )
+          )
+        )
       case _ =>
         summon[Monad[F]].pure(Nil)

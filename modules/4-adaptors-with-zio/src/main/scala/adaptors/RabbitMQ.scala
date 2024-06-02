@@ -1,4 +1,4 @@
-package sectery
+package sectery.adaptors
 
 import com.rabbitmq.client.CancelCallback
 import com.rabbitmq.client.Channel
@@ -7,8 +7,8 @@ import com.rabbitmq.client.ConnectionFactory
 import com.rabbitmq.client.DeliverCallback
 import com.rabbitmq.client.Delivery
 import java.nio.charset.StandardCharsets
-import sectery.effects.Dequeue
-import sectery.effects.Enqueue
+import sectery._
+import sectery.effects._
 import zio.Chunk
 import zio.ZIO
 import zio.json.JsonDecoder
@@ -16,6 +16,8 @@ import zio.json.JsonEncoder
 import zio.stream.ZStream
 
 class RabbitMQ(
+    service: Option[String],
+    channels: Option[List[String]],
     hostname: String,
     port: Int,
     username: String,
@@ -53,7 +55,7 @@ class RabbitMQ(
             value.toJson.getBytes(StandardCharsets.UTF_8)
           channel.basicPublish("", queueName, null, message)
 
-  def dequeue[A: JsonDecoder](
+  def dequeue[A: HasService: HasChannel: JsonDecoder](
       queueName: String
   ): Dequeue[[A] =>> ZStream[Any, Throwable, A], A] =
     channel.queueDeclare(queueName, false, false, false, null)
@@ -71,7 +73,31 @@ class RabbitMQ(
               messageBody.fromJson[A] match {
                 case Left(e) =>
                   cb(ZIO.fail(new Exception(e)).mapError(Some(_)))
-                case Right(a) => cb(ZIO.succeed(Chunk(a)))
+                case Right(a) =>
+                  val serviceMatches =
+                    service match
+                      case None => true
+                      case Some(s) =>
+                        s == summon[HasService[A]].getService(a)
+
+                  val channelMatches =
+                    channels match
+                      case None => true
+                      case Some(cs) =>
+                        cs.contains(summon[HasChannel[A]].getChannel(a))
+
+                  if serviceMatches && channelMatches
+                  then
+                    channel.basicAck(
+                      message.getEnvelope().getDeliveryTag(),
+                      true
+                    )
+                    cb(ZIO.succeed(Chunk(a)))
+                  else
+                    channel.basicAck(
+                      message.getEnvelope().getDeliveryTag(),
+                      false
+                    )
               }
             }
 
@@ -79,7 +105,7 @@ class RabbitMQ(
             (consumerTag: String) =>
               cb(ZIO.fail(new Exception("cancelled")).mapError(Some(_)))
 
-          channel.basicConsume(queueName, true, deliver, cancel)
+          channel.basicConsume(queueName, false, deliver, cancel)
 
           ()
         }

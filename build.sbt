@@ -19,9 +19,6 @@ ThisBuild / assembly / assemblyMergeStrategy := {
 lazy val domain =
   project
     .in(file("modules/1-domain"))
-    .settings(
-      libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test
-    )
 
 lazy val effects =
   project
@@ -66,6 +63,21 @@ lazy val adaptors_with_zio =
     )
     .dependsOn(domain, effects, use_cases)
 
+lazy val producers =
+  project
+    .in(file("modules/5-producers"))
+    .settings(
+      moduleName := "producers",
+      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.4.0",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.6",
+      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
+      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion exclude ("dev.zio", "zio"),
+      assembly / mainClass := Some("sectery.producers.Main"),
+      assembly / assemblyJarName := s"${name.value}.jar",
+      Compile / run / fork := true
+    )
+    .dependsOn(adaptors_with_zio, use_cases, adaptors)
+
 lazy val irc =
   project
     .in(file("modules/5-irc"))
@@ -82,21 +94,6 @@ lazy val irc =
     )
     .dependsOn(adaptors_with_zio, use_cases, adaptors)
 
-lazy val producers =
-  project
-    .in(file("modules/5-producers"))
-    .settings(
-      moduleName := "producers",
-      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.4.0",
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.6",
-      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
-      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion exclude ("dev.zio", "zio"),
-      assembly / mainClass := Some("sectery.producers.Main"),
-      assembly / assemblyJarName := s"${name.value}.jar",
-      Compile / run / fork := true
-    )
-    .dependsOn(adaptors_with_zio, use_cases, adaptors)
-
 lazy val root =
   project
     .in(file("."))
@@ -105,7 +102,7 @@ lazy val root =
       libraryDependencies += "com.dimafeng" %% "testcontainers-scala-mariadb" % testcontainersVersion % Test,
       Test / run / fork := true
     )
-    .dependsOn(irc, producers)
+    .dependsOn(producers, irc)
     .aggregate(
       producers,
       irc,

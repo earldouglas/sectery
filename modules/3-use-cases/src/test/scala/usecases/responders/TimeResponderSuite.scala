@@ -22,11 +22,19 @@ class TimeResponderSuite extends FunSuite:
       override def now(): Id[Instant] = ???
 
     val obtained: List[Tx] =
-      new TimeResponder[Id].respondToMessage(Rx("#foo", "bar", "@time"))
+      new TimeResponder[Id]
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@time")
+        )
 
     val expected: List[Tx] =
       List(
-        Tx("#foo", "bar: Set default time zone with `@set tz <zone>`")
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "bar: Set default time zone with `@set tz <zone>`"
+        )
       )
 
     assertEquals(
@@ -53,10 +61,19 @@ class TimeResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new TimeResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@time MST"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@time MST")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Wed, 14 Jan 1970, 23:56 MST"))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "Wed, 14 Jan 1970, 23:56 MST"
+        )
+      )
 
     assertEquals(
       obtained = obtained,
@@ -79,10 +96,19 @@ class TimeResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new TimeResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@time MST"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@time MST")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Wed, 14 Jan 1970, 23:56 MST"))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "Wed, 14 Jan 1970, 23:56 MST"
+        )
+      )
 
     assertEquals(
       obtained = obtained,
@@ -104,10 +130,20 @@ class TimeResponderSuite extends FunSuite:
         Instant.ofEpochMilli(1234567890L)
 
     val obtained: List[Tx] =
-      new TimeResponder[Id].respondToMessage(Rx("#foo", "bar", "@time"))
+      new TimeResponder[Id]
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@time")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Wed, 14 Jan 1970, 22:56 PST"))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "Wed, 14 Jan 1970, 22:56 PST"
+        )
+      )
 
     assertEquals(
       obtained = obtained,

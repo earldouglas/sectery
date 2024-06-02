@@ -1,7 +1,6 @@
-package sectery.queue
+package sectery.effects
 
 import sectery.domain.entities._
-import sectery.effects._
 import sectery.usecases._
 import zio.Fiber
 import zio.ZIO

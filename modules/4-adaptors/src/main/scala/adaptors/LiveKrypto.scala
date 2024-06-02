@@ -9,29 +9,37 @@ object LiveKrypto:
   private def unsafeInit(c: Connection): Unit =
     val s =
       """|CREATE TABLE IF NOT EXISTS
-         |KRYPTO (
-         |  CHANNEL VARCHAR(256) NOT NULL,
-         |  OBJECTIVE INT NOT NULL,
-         |  CARD1 INT NOT NULL,
-         |  CARD2 INT NOT NULL,
-         |  CARD3 INT NOT NULL,
-         |  CARD4 INT NOT NULL,
-         |  CARD5 INT NOT NULL,
-         |  COUNT INT NOT NULL,
-         |  PRIMARY KEY (CHANNEL)
+         |`KRYPTO_V2` (
+         |  `SERVICE` VARCHAR(256) NOT NULL,
+         |  `CHANNEL` VARCHAR(256) NOT NULL,
+         |  `OBJECTIVE` INT NOT NULL,
+         |  `CARD1` INT NOT NULL,
+         |  `CARD2` INT NOT NULL,
+         |  `CARD3` INT NOT NULL,
+         |  `CARD4` INT NOT NULL,
+         |  `CARD5` INT NOT NULL,
+         |  `COUNT` INT NOT NULL,
+         |  PRIMARY KEY (`SERVICE`, `CHANNEL`)
          |)
          |""".stripMargin
     val stmt = c.createStatement()
     stmt.executeUpdate(s)
     stmt.close()
 
-  private def unsafeGetCurrentGame(channel: String)(
-      c: Connection
+  private def unsafeGetCurrentGame(
+      c: Connection,
+      service: String,
+      channel: String
   ): Option[Krypto.Game] =
     val s =
-      "SELECT OBJECTIVE, CARD1, CARD2, CARD3, CARD4, CARD5, COUNT FROM KRYPTO WHERE CHANNEL = ?"
+      """|SELECT *
+         |FROM `KRYPTO_V2`
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
+         |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
     val rs = stmt.executeQuery
     val gameO =
       if rs.next() then
@@ -52,52 +60,77 @@ object LiveKrypto:
     stmt.close
     gameO
 
-  private def unsafeSetCurrentGame(channel: String, game: Krypto.Game)(
-      c: Connection
+  private def unsafeDeleteGame(
+      c: Connection,
+      service: String,
+      channel: String
   ): Unit =
-
-    unsafeDeleteGame(channel)(c)
-
     val s =
-      "INSERT INTO KRYPTO (CHANNEL, OBJECTIVE, CARD1, CARD2, CARD3, CARD4, CARD5, COUNT) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+      """|DELETE FROM `KRYPTO_V2`
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
+         |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
-    stmt.setInt(2, game.objective)
-    stmt.setInt(3, game.cards._1)
-    stmt.setInt(4, game.cards._2)
-    stmt.setInt(5, game.cards._3)
-    stmt.setInt(6, game.cards._4)
-    stmt.setInt(7, game.cards._5)
-    stmt.setInt(8, game.guessCount)
-    stmt.executeUpdate
-    stmt.close
-
-  private def unsafeGetOrStartGame(channel: String)(
-      c: Connection
-  ): Krypto.Game =
-    unsafeGetCurrentGame(channel)(c) match
-      case Some(game) =>
-        game
-      case None =>
-        val game = Krypto.newGame
-        unsafeSetCurrentGame(channel, game)(c)
-        game
-
-  private def unsafeSetGuessCount(
-      channel: String,
-      guessCount: Int
-  )(c: Connection): Unit =
-    val s = "UPDATE KRYPTO SET COUNT = ? WHERE CHANNEL = ?"
-    val stmt = c.prepareStatement(s)
-    stmt.setInt(1, guessCount)
+    stmt.setString(1, service)
     stmt.setString(2, channel)
     stmt.executeUpdate
     stmt.close
 
-  private def unsafeDeleteGame(channel: String)(c: Connection): Unit =
-    val s = "DELETE FROM KRYPTO WHERE CHANNEL = ?"
+  private def unsafeSetCurrentGame(
+      c: Connection,
+      service: String,
+      channel: String,
+      game: Krypto.Game
+  ): Unit =
+
+    unsafeDeleteGame(c, service, channel)
+
+    val s =
+      """|INSERT INTO `KRYPTO_V2` (`SERVICE`, `CHANNEL`, `OBJECTIVE`, `CARD1`, `CARD2`, `CARD3`, `CARD4`, `CARD5`, `COUNT`)
+         |VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+         |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
+    stmt.setInt(3, game.objective)
+    stmt.setInt(4, game.cards._1)
+    stmt.setInt(5, game.cards._2)
+    stmt.setInt(6, game.cards._3)
+    stmt.setInt(7, game.cards._4)
+    stmt.setInt(8, game.cards._5)
+    stmt.setInt(9, game.guessCount)
+    stmt.executeUpdate
+    stmt.close
+
+  private def unsafeGetOrStartGame(
+      c: Connection,
+      service: String,
+      channel: String
+  ): Krypto.Game =
+    unsafeGetCurrentGame(c, service, channel) match
+      case Some(game) =>
+        game
+      case None =>
+        val game = Krypto.newGame
+        unsafeSetCurrentGame(c, service, channel, game)
+        game
+
+  private def unsafeSetGuessCount(
+      c: Connection,
+      service: String,
+      channel: String,
+      guessCount: Int
+  ): Unit =
+    val s =
+      """|UPDATE `KRYPTO_V2`
+         |SET `COUNT` = ?
+         |WHERE `SERVICE` = ?
+         |  AND `CHANNEL` = ?
+         |""".stripMargin
+    val stmt = c.prepareStatement(s)
+    stmt.setInt(1, guessCount)
+    stmt.setString(2, service)
+    stmt.setString(3, channel)
     stmt.executeUpdate
     stmt.close
 
@@ -107,20 +140,27 @@ object LiveKrypto:
 
     new Krypto:
 
-      override def getOrStartGame(channel: String): F[Krypto.Game] =
+      override def getOrStartGame(
+          service: String,
+          channel: String
+      ): F[Krypto.Game] =
         summon[Transactor[F]].transact { c =>
-          unsafeGetOrStartGame(channel)(c)
+          unsafeGetOrStartGame(c, service, channel)
         }
 
-      override def deleteGame(channel: String): F[Unit] =
+      override def deleteGame(
+          service: String,
+          channel: String
+      ): F[Unit] =
         summon[Transactor[F]].transact { c =>
-          unsafeDeleteGame(channel)(c)
+          unsafeDeleteGame(c, service, channel)
         }
 
       override def setGuessCount(
+          service: String,
           channel: String,
           guessCount: Int
       ): F[Unit] =
         summon[Transactor[F]].transact { c =>
-          unsafeSetGuessCount(channel, guessCount)(c)
+          unsafeSetGuessCount(c, service, channel, guessCount)
         }

@@ -18,10 +18,12 @@ class FrinkiacResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new FrinkiacResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@frinkiac foo"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@frinkiac foo")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "foo bar baz"))
+      List(Tx("irc", "#foo", None, "foo bar baz"))
 
     assertEquals(
       obtained = obtained,

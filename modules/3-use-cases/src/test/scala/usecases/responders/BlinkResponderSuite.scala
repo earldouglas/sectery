@@ -12,10 +12,12 @@ class BlinkResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new BlinkResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@blink foo"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@blink foo")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "\u0006foo\u0006"))
+      List(Tx("irc", "#foo", None, "\u0006foo\u0006"))
 
     assertEquals(
       obtained = obtained,

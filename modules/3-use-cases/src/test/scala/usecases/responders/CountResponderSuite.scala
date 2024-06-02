@@ -15,10 +15,12 @@ class CountResponderSuite extends FunSuite:
 
     val obtained: List[Tx] =
       new CountResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "@count"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "@count")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "42"))
+      List(Tx("irc", "#foo", None, "42"))
 
     assertEquals(
       obtained = obtained,

@@ -42,14 +42,23 @@ class HtmlResponderSuite extends FunSuite:
       new HtmlResponder[Id]
         .respondToMessage(
           Rx(
+            "irc",
             "#foo",
+            None,
             "bar",
             "foo bar https://example.com/hello.html baz"
           )
         )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "Hello, world!: A page about hello, world."))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "Hello, world!: A page about hello, world."
+        )
+      )
 
     assertEquals(
       obtained = obtained,

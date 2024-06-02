@@ -11,16 +11,23 @@ class PointsResponderSuite extends FunSuite:
   test("<nick>++ increases points to 1") {
 
     given points: Points[Id] with
-      override def update(channel: String, nick: String, delta: Int) =
-        (channel, nick, delta) match
-          case ("#foo", "jdoe", 1) => 1
+      override def update(
+          service: String,
+          channel: String,
+          nick: String,
+          delta: Int
+      ) =
+        (service, channel, nick, delta) match
+          case ("irc", "#foo", "jdoe", 1) => 1
 
     val obtained: List[Tx] =
       new PointsResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "jdoe++"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "jdoe++")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "jdoe has 1 point."))
+      List(Tx("irc", "#foo", None, "jdoe has 1 point."))
 
     assertEquals(
       obtained = obtained,
@@ -31,16 +38,23 @@ class PointsResponderSuite extends FunSuite:
   test("<nick>++ increases points to 2") {
 
     given points: Points[Id] with
-      override def update(channel: String, nick: String, delta: Int) =
-        (channel, nick, delta) match
-          case ("#foo", "jdoe", 1) => 2
+      override def update(
+          service: String,
+          channel: String,
+          nick: String,
+          delta: Int
+      ) =
+        (service, channel, nick, delta) match
+          case ("irc", "#foo", "jdoe", 1) => 2
 
     val obtained: List[Tx] =
       new PointsResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "jdoe++"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "jdoe++")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "jdoe has 2 points."))
+      List(Tx("irc", "#foo", None, "jdoe has 2 points."))
 
     assertEquals(
       obtained = obtained,
@@ -51,16 +65,23 @@ class PointsResponderSuite extends FunSuite:
   test("<nick>-- decreases points to 1") {
 
     given points: Points[Id] with
-      override def update(channel: String, nick: String, delta: Int) =
-        (channel, nick, delta) match
-          case ("#foo", "jdoe", -1) => 1
+      override def update(
+          service: String,
+          channel: String,
+          nick: String,
+          delta: Int
+      ) =
+        (service, channel, nick, delta) match
+          case ("irc", "#foo", "jdoe", -1) => 1
 
     val obtained: List[Tx] =
       new PointsResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "jdoe--"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "jdoe--")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "jdoe has 1 point."))
+      List(Tx("irc", "#foo", None, "jdoe has 1 point."))
 
     assertEquals(
       obtained = obtained,
@@ -71,16 +92,23 @@ class PointsResponderSuite extends FunSuite:
   test("<nick>-- decreases points to 0") {
 
     given points: Points[Id] with
-      override def update(channel: String, nick: String, delta: Int) =
-        (channel, nick, delta) match
-          case ("#foo", "jdoe", -1) => 0
+      override def update(
+          service: String,
+          channel: String,
+          nick: String,
+          delta: Int
+      ) =
+        (service, channel, nick, delta) match
+          case ("irc", "#foo", "jdoe", -1) => 0
 
     val obtained: List[Tx] =
       new PointsResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "jdoe--"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "jdoe--")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "jdoe has 0 points."))
+      List(Tx("irc", "#foo", None, "jdoe has 0 points."))
 
     assertEquals(
       obtained = obtained,
@@ -91,15 +119,28 @@ class PointsResponderSuite extends FunSuite:
   test("Can't increase own points") {
 
     given points: Points[Id] with
-      override def update(channel: String, nick: String, delta: Int) =
-        ???
+      override def update(
+          service: String,
+          channel: String,
+          nick: String,
+          delta: Int
+      ) = ???
 
     val obtained: List[Tx] =
       new PointsResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "bar++"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "bar++")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "You gotta get someone else to do it."))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "You gotta get someone else to do it."
+        )
+      )
 
     assertEquals(
       obtained = obtained,
@@ -109,15 +150,28 @@ class PointsResponderSuite extends FunSuite:
   test("Can't decrease own points") {
 
     given points: Points[Id] with
-      override def update(channel: String, nick: String, delta: Int) =
-        ???
+      override def update(
+          service: String,
+          channel: String,
+          nick: String,
+          delta: Int
+      ) = ???
 
     val obtained: List[Tx] =
       new PointsResponder[Id]
-        .respondToMessage(Rx("#foo", "bar", "bar--"))
+        .respondToMessage(
+          Rx("irc", "#foo", None, "bar", "bar--")
+        )
 
     val expected: List[Tx] =
-      List(Tx("#foo", "You gotta get someone else to do it."))
+      List(
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "You gotta get someone else to do it."
+        )
+      )
 
     assertEquals(
       obtained = obtained,

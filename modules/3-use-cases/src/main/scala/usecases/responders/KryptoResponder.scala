@@ -53,45 +53,86 @@ class KryptoResponder[F[_]: Monad: Krypto] extends Responder[F]:
     s"Cards: ${game.cards.toList.mkString("[", ", ", "]")}.  Objective: ${game.objective}.  ${tries(game.guessCount)} so far."
 
   override def respondToMessage(rx: Rx) =
-    rx match
+    rx.message match
 
-      case Rx(c, _, "@krypto") =>
+      case "@krypto" =>
         summon[Krypto[F]]
-          .getOrStartGame(c)
-          .map(game => List(Tx(c, show(game))))
+          .getOrStartGame(rx.service, rx.channel)
+          .map(game =>
+            List(
+              Tx(
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = show(game)
+              )
+            )
+          )
 
-      case Rx(c, _, krypto(guess)) =>
+      case krypto(guess) =>
         summon[Krypto[F]]
-          .getOrStartGame(c)
+          .getOrStartGame(rx.service, rx.channel)
           .flatMap { game =>
             calc(guess) match
               case Some(result) =>
                 checkCards(game, guess) match
                   case false =>
                     summon[Monad[F]].pure(
-                      List(Tx(c, "Gotta play the cards as dealt."))
+                      List(
+                        Tx(
+                          service = rx.service,
+                          channel = rx.channel,
+                          thread = rx.thread,
+                          message = "Gotta play the cards as dealt."
+                        )
+                      )
                     )
                   case true =>
                     if (game.objective == result) then
                       summon[Krypto[F]]
-                        .deleteGame(c)
+                        .deleteGame(rx.service, rx.channel)
                         .map { _ =>
                           val message =
                             s"Krypto!  Got it in ${tries(game.guessCount + 1)}."
-                          List(Tx(c, message))
+                          List(
+                            Tx(
+                              service = rx.service,
+                              channel = rx.channel,
+                              thread = rx.thread,
+                              message = message
+                            )
+                          )
                         }
                     else
                       val newGuessCount = game.guessCount + 1
                       summon[Krypto[F]]
-                        .setGuessCount(c, newGuessCount)
+                        .setGuessCount(
+                          rx.service,
+                          rx.channel,
+                          newGuessCount
+                        )
                         .map { _ =>
                           val message =
                             s"Try again.  ${tries(newGuessCount)} so far."
-                          List(Tx(c, message))
+                          List(
+                            Tx(
+                              service = rx.service,
+                              channel = rx.channel,
+                              thread = rx.thread,
+                              message = message
+                            )
+                          )
                         }
               case None =>
                 summon[Monad[F]].pure(
-                  List(Tx(c, "Can't parse that."))
+                  List(
+                    Tx(
+                      service = rx.service,
+                      channel = rx.channel,
+                      thread = rx.thread,
+                      message = "Can't parse that."
+                    )
+                  )
                 )
           }
 

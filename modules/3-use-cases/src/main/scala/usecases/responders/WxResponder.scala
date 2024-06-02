@@ -15,23 +15,50 @@ class WxResponder[F[_]: GetWx: GetConfig: Monad] extends Responder[F]:
   private val wx = """^@wx(\s+(.+)\s*)?$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, nick, "@wx") =>
+    rx.message match
+      case "@wx" =>
         for
-          lo <- summon[GetConfig[F]].getConfig(nick, "wx")
+          lo <- summon[GetConfig[F]].getConfig(rx.nick, "wx")
           txs <- lo match
             case Some(l) =>
               summon[GetWx[F]]
                 .getWx(l)
-                .map(message => List(Tx(c, message)))
+                .map(message =>
+                  List(
+                    Tx(
+                      service = rx.service,
+                      channel = rx.channel,
+                      thread = rx.thread,
+                      message = message
+                    )
+                  )
+                )
             case None =>
               val message =
-                s"${nick}: Set default location with `@set wx <location>`"
-              summon[Monad[F]].pure(List(Tx(c, message)))
+                s"${rx.nick}: Set default location with `@set wx <location>`"
+              summon[Monad[F]].pure(
+                List(
+                  Tx(
+                    service = rx.service,
+                    channel = rx.channel,
+                    thread = rx.thread,
+                    message = message
+                  )
+                )
+              )
         yield txs
-      case Rx(c, _, wx(_, q)) =>
+      case wx(_, q) =>
         summon[GetWx[F]]
           .getWx(q)
-          .map(message => List(Tx(c, message)))
+          .map(message =>
+            List(
+              Tx(
+                service = rx.service,
+                channel = rx.channel,
+                thread = rx.thread,
+                message = message
+              )
+            )
+          )
       case _ =>
         summon[Monad[F]].pure(Nil)

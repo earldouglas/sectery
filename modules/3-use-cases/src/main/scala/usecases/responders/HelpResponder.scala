@@ -28,16 +28,41 @@ class HelpResponder[F[_]: Monad](_responders: List[Responder[F]])
   private val help = """^@help\s+(.+)\s*$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, _, "@help") =>
-        summon[Monad[F]].pure(List(Tx(c, helpMessage)))
-      case Rx(c, _, help(name)) =>
+    rx.message match
+      case "@help" =>
+        summon[Monad[F]].pure(
+          List(
+            Tx(
+              service = rx.service,
+              channel = rx.channel,
+              thread = rx.thread,
+              message = helpMessage
+            )
+          )
+        )
+      case help(name) =>
         usageMap.get(name) match
           case Some(usage) =>
-            summon[Monad[F]].pure(List(Tx(c, s"Usage: ${usage}")))
+            summon[Monad[F]].pure(
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"Usage: ${usage}"
+                )
+              )
+            )
           case None =>
             summon[Monad[F]].pure(
-              List(Tx(c, s"I don't know anything about ${name}"))
+              List(
+                Tx(
+                  service = rx.service,
+                  channel = rx.channel,
+                  thread = rx.thread,
+                  message = s"I don't know anything about ${name}"
+                )
+              )
             )
       case _ =>
         summon[Monad[F]].pure(Nil)

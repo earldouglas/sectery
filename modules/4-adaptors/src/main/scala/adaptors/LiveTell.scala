@@ -10,52 +10,65 @@ object LiveTell:
 
   private def unsafeInit(c: Connection): Unit =
     val s =
-      """|CREATE TABLE IF NOT EXISTS TELL (
-         |  _CHANNEL_ VARCHAR(64) NOT NULL,
-         |  _FROM_ VARCHAR(64) NOT NULL,
-         |  _TO_ VARCHAR(64) NOT NULL,
-         |  _MESSAGE_ VARCHAR(64) NOT NULL,
-         |  _TIMESTAMP_ TIMESTAMP NOT NULL
+      """|CREATE TABLE IF NOT EXISTS `TELL_V2` (
+         |  `SERVICE` VARCHAR(64) NOT NULL,
+         |  `CHANNEL` VARCHAR(64) NOT NULL,
+         |  `FROM` VARCHAR(64) NOT NULL,
+         |  `TO` VARCHAR(64) NOT NULL,
+         |  `MESSAGE` VARCHAR(64) NOT NULL,
+         |  `TIMESTAMP` TIMESTAMP NOT NULL
          |)
          |""".stripMargin
     val stmt = c.createStatement
     stmt.executeUpdate(s)
     stmt.close
 
-  private def unsafeSave(channel: String, m: Tell.Saved)(
-      c: Connection
+  private def unsafeSave(
+      c: Connection,
+      service: String,
+      channel: String,
+      m: Tell.Saved
   ): Unit =
     val s =
-      "INSERT INTO TELL (_CHANNEL_, _FROM_, _TO_, _MESSAGE_, _TIMESTAMP_) VALUES (?, ?, ?, ?, ?)"
+      """|INSERT INTO `TELL_V2` (`SERVICE`, `CHANNEL`, `FROM`, `TO`, `MESSAGE`, `TIMESTAMP`)
+         |VALUES (?, ?, ?, ?, ?, ?)
+         |""".stripMargin
     val stmt = c.prepareStatement(s)
-    stmt.setString(1, channel)
-    stmt.setString(2, m.from)
-    stmt.setString(3, m.to)
-    stmt.setString(4, m.message)
-    stmt.setTimestamp(5, new Timestamp(m.date.toEpochMilli()))
+    stmt.setString(1, service)
+    stmt.setString(2, channel)
+    stmt.setString(3, m.from)
+    stmt.setString(4, m.to)
+    stmt.setString(5, m.message)
+    stmt.setTimestamp(6, new Timestamp(m.date.toEpochMilli()))
     stmt.executeUpdate()
     stmt.close()
 
-  private def unsafePop(channel: String, nick: String)(
-      c: Connection
+  private def unsafePop(
+      c: Connection,
+      service: String,
+      channel: String,
+      nick: String
   ): List[Tell.Saved] =
 
     def findMessages(c: Connection): List[Tell.Saved] =
       val s =
-        """|SELECT _FROM_, _MESSAGE_, _TIMESTAMP_
-           |FROM TELL
-           |WHERE _CHANNEL_ = ? AND _TO_ = ?
-           |ORDER BY _TIMESTAMP_ DESC
+        """|SELECT `FROM`, `MESSAGE`, `TIMESTAMP`
+           |FROM `TELL_V2`
+           |WHERE `SERVICE` = ?
+           |  AND `CHANNEL` = ?
+           |  AND `TO` = ?
+           |ORDER BY `TIMESTAMP` DESC
            |""".stripMargin
       val stmt = c.prepareStatement(s)
-      stmt.setString(1, channel)
-      stmt.setString(2, nick)
+      stmt.setString(1, service)
+      stmt.setString(2, channel)
+      stmt.setString(3, nick)
       val rs = stmt.executeQuery()
       var msgs: List[Tell.Saved] = Nil
       while (rs.next()) {
-        val from = rs.getString("_FROM_")
-        val message = rs.getString("_MESSAGE_")
-        val timestamp = rs.getTimestamp("_TIMESTAMP_")
+        val from = rs.getString("FROM")
+        val message = rs.getString("MESSAGE")
+        val timestamp = rs.getTimestamp("TIMESTAMP")
         msgs = Tell.Saved(
           to = nick,
           from = from,
@@ -68,10 +81,15 @@ object LiveTell:
 
     def dropMessages(c: Connection): Unit =
       val s =
-        "DELETE FROM TELL WHERE _CHANNEL_ = ? AND _TO_ = ?"
+        """|DELETE FROM `TELL_V2`
+           |WHERE `SERVICE` = ?
+           |  AND `CHANNEL` = ?
+           |  AND `TO` = ?
+           |""".stripMargin
       val stmt = c.prepareStatement(s)
-      stmt.setString(1, channel)
-      stmt.setString(2, nick)
+      stmt.setString(1, service)
+      stmt.setString(2, channel)
+      stmt.setString(3, nick)
       stmt.executeUpdate()
       stmt.close
 
@@ -87,12 +105,16 @@ object LiveTell:
 
     new Tell[F]:
 
-      override def save(channel: String, m: Tell.Saved) =
+      override def save(
+          service: String,
+          channel: String,
+          m: Tell.Saved
+      ) =
         summon[Transactor[F]].transact { c =>
-          unsafeSave(channel, m)(c)
+          unsafeSave(c, service, channel, m)
         }
 
-      override def pop(channel: String, nick: String) =
+      override def pop(service: String, channel: String, nick: String) =
         summon[Transactor[F]].transact { c =>
-          unsafePop(channel, nick)(c)
+          unsafePop(c, service, channel, nick)
         }

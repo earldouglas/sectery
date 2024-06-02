@@ -15,16 +15,30 @@ class GetResponder[F[_]: Monad: GetConfig] extends Responder[F]:
   private val get = """^@get\s+([^\s]+)\s*$""".r
 
   override def respondToMessage(rx: Rx) =
-    rx match
-      case Rx(c, nick, get(key)) =>
+    rx.message match
+      case get(key) =>
         summon[GetConfig[F]]
-          .getConfig(nick, key)
+          .getConfig(rx.nick, key)
           .map {
             _ match
               case Some(value) =>
-                List(Tx(c, s"${nick}: ${key} is set to ${value}"))
+                List(
+                  Tx(
+                    service = rx.service,
+                    channel = rx.channel,
+                    thread = rx.thread,
+                    message = s"${rx.nick}: ${key} is set to ${value}"
+                  )
+                )
               case None =>
-                List(Tx(c, s"${nick}: ${key} is not set"))
+                List(
+                  Tx(
+                    service = rx.service,
+                    channel = rx.channel,
+                    thread = rx.thread,
+                    message = s"${rx.nick}: ${key} is not set"
+                  )
+                )
           }
       case _ =>
         summon[Monad[F]].pure(Nil)
