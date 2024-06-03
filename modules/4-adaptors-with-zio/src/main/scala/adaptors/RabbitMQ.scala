@@ -129,7 +129,10 @@ class RabbitMQ(
           channel.basicConsume(
             queueName,
             false,
-            Map("x-stream-offset" -> new java.util.Date()).asJava,
+            Map(
+              "x-stream-offset" -> new java.util.Date(),
+              "max-outstanding-messages" -> 100
+            ).asJava,
             deliver,
             cancel
           )
