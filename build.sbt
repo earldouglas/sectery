@@ -12,6 +12,7 @@ ThisBuild / assembly / assemblyMergeStrategy := {
   case "META-INF/io.netty.versions.properties" => MergeStrategy.first
   case "META-INF/versions/9/module-info.class" => MergeStrategy.first
   case "META-INF/okio.kotlin_module"           => MergeStrategy.first
+  case "logback.xml"                           => MergeStrategy.first
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
