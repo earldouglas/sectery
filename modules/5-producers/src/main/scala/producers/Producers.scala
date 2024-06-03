@@ -137,7 +137,6 @@ class Producers(
 
     val rabbitMQ: RabbitMQ =
       new RabbitMQ(
-        service = None,
         channels = None,
         hostname = rabbitMqHostname,
         port = rabbitMqPort,
@@ -145,67 +144,80 @@ class Producers(
         password = rabbitMqPassword
       )
 
-    val enqueueTx: Enqueue[XIO, Tx] =
-      given encoder: JsonEncoder[Tx] =
-        DeriveJsonEncoder.gen[Tx]
-      rabbitMQ.enqueue[Tx](s"outbox-${rabbitMqChannelSuffix}")
+    def autoquoteFiber(outboxName: String) =
+      given autoquote: Autoquote[XIO] =
+        grabQuoteSubstitute
+
+      given enqueueTx: Enqueue[XIO, Tx] =
+        given encoder: JsonEncoder[Tx] =
+          DeriveJsonEncoder.gen[Tx]
+        rabbitMQ.enqueue[Tx](outboxName)
+
+      new Announcers()
+        .announce()
+        .catchAllCause(cause => ZIO.logError(cause.prettyPrint))
+        .fork
+
+    def respondFiber(
+        inboxName: String,
+        outboxName: String
+    ) =
+
+      val dequeueRx: QueueUpstream.DequeueR =
+
+        given hasChannel: HasChannel[Rx] =
+          new HasChannel:
+            override def getChannel(value: Rx) =
+              value.channel
+
+        given decoder: JsonDecoder[Rx] =
+          DeriveJsonDecoder.gen[Rx]
+
+        rabbitMQ.dequeue[Rx](inboxName)
+
+      val enqueueTx: Enqueue[XIO, Tx] =
+        given encoder: JsonEncoder[Tx] =
+          DeriveJsonEncoder.gen[Tx]
+        rabbitMQ.enqueue[Tx](outboxName)
+
+      val logger: QueueDownstream.LoggerR =
+        new Logger:
+          override def debug(message: => String) =
+            ZIO.logDebug(message)
+          override def error(message: => String) =
+            ZIO.logError(message)
+
+      QueueUpstream
+        .respondLoop()
+        .provide(
+          ZLayer.succeed(logger) ++
+            ZLayer.succeed(enqueueTx) ++
+            ZLayer.succeed(dequeueRx) ++
+            ZLayer.succeed(new Responders)
+        )
+
+    val inboxIrc = s"inbox-irc-${rabbitMqChannelSuffix}"
+    val inboxSlack = s"inbox-slack-${rabbitMqChannelSuffix}"
+
+    val outboxIrc = s"outbox-irc-${rabbitMqChannelSuffix}"
+    val outboxSlack = s"outbox-slack-${rabbitMqChannelSuffix}"
 
     for
 
-      autoquoteFiber <- {
+      autoquoteIrcFiber <- autoquoteFiber(outboxIrc)
+      autoquoteSlackFiber <- autoquoteFiber(outboxSlack)
 
-        given autoquote: Autoquote[XIO] =
-          grabQuoteSubstitute
+      respondIrcFiber <- respondFiber(inboxIrc, outboxIrc)
+      respondSlackFiber <- respondFiber(inboxSlack, outboxSlack)
 
-        given _enqueueTx: Enqueue[XIO, Tx] = enqueueTx
-
-        new Announcers()
-          .announce()
-          .catchAllCause(cause => ZIO.logError(cause.prettyPrint))
-          .fork
-      }
-
-      respondFiber <- {
-
-        val dequeueRx: QueueUpstream.DequeueR =
-
-          given hasService: HasService[Rx] =
-            new HasService:
-              override def getService(value: Rx) =
-                value.service
-
-          given hasChannel: HasChannel[Rx] =
-            new HasChannel:
-              override def getChannel(value: Rx) =
-                value.channel
-
-          given decoder: JsonDecoder[Rx] =
-            DeriveJsonDecoder.gen[Rx]
-
-          rabbitMQ.dequeue[Rx](s"inbox-${rabbitMqChannelSuffix}")
-
-        val logger: QueueDownstream.LoggerR =
-          new Logger:
-            override def debug(message: => String) =
-              ZIO.logDebug(message)
-            override def error(message: => String) =
-              ZIO.logError(message)
-
-        QueueUpstream
-          .respondLoop()
-          .provide(
-            ZLayer.succeed(logger) ++
-              ZLayer.succeed(enqueueTx) ++
-              ZLayer.succeed(dequeueRx) ++
-              ZLayer.succeed(new Responders)
-          )
-      }
       fiber <-
         Fiber
           .joinAll(
             List(
-              autoquoteFiber,
-              respondFiber
+              autoquoteIrcFiber,
+              autoquoteSlackFiber,
+              respondIrcFiber,
+              respondSlackFiber
             )
           )
           .fork

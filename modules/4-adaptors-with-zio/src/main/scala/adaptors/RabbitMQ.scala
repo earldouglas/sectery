@@ -7,7 +7,6 @@ import com.rabbitmq.client.ConnectionFactory
 import com.rabbitmq.client.DeliverCallback
 import com.rabbitmq.client.Delivery
 import java.nio.charset.StandardCharsets
-import scala.jdk.CollectionConverters._
 import sectery._
 import sectery.effects._
 import zio.Chunk
@@ -17,7 +16,6 @@ import zio.json.JsonEncoder
 import zio.stream.ZStream
 
 class RabbitMQ(
-    service: Option[String],
     channels: Option[List[String]],
     hostname: String,
     port: Int,
@@ -40,27 +38,13 @@ class RabbitMQ(
     val connection: Connection =
       connectionFactory.newConnection()
 
-    val channel: Channel =
-      connection.createChannel()
-
-    channel.basicQos(1)
-
-    channel
+    connection.createChannel()
 
   def enqueue[A: JsonEncoder](
       queueName: String
   ): Enqueue[[A] =>> ZIO[Any, Throwable, A], A] =
 
-    channel.queueDeclare(
-      queueName,
-      true, // durable
-      false,
-      false, // not exclusive, not auto-delete,
-      Map(
-        "x-queue-type" -> "stream",
-        "x-max-age" -> "1h"
-      ).asJava
-    )
+    channel.queueDeclare(queueName, false, false, false, null)
 
     new Enqueue:
       override def name = queueName
@@ -71,20 +55,11 @@ class RabbitMQ(
             value.toJson.getBytes(StandardCharsets.UTF_8)
           channel.basicPublish("", queueName, null, message)
 
-  def dequeue[A: HasService: HasChannel: JsonDecoder](
+  def dequeue[A: HasChannel: JsonDecoder](
       queueName: String
   ): Dequeue[[A] =>> ZStream[Any, Throwable, A], A] =
 
-    channel.queueDeclare(
-      queueName,
-      true, // durable
-      false,
-      false, // not exclusive, not auto-delete,
-      Map(
-        "x-queue-type" -> "stream",
-        "x-max-age" -> "1h"
-      ).asJava
-    )
+    channel.queueDeclare(queueName, false, false, false, null)
 
     new Dequeue:
       override def name = queueName
@@ -102,12 +77,6 @@ class RabbitMQ(
                   cb(ZIO.fail(new Exception(e)).mapError(Some(_)))
 
                 case Right(a) =>
-                  val serviceMatches =
-                    service match
-                      case None => true
-                      case Some(s) =>
-                        s == summon[HasService[A]].getService(a)
-
                   val ch = summon[HasChannel[A]].getChannel(a)
 
                   val channelMatches =
@@ -116,12 +85,7 @@ class RabbitMQ(
                       case Some(cs) =>
                         cs.contains(ch)
 
-                  channel.basicAck(
-                    message.getEnvelope().getDeliveryTag(),
-                    true
-                  )
-
-                  if serviceMatches && channelMatches
+                  if channelMatches
                   then cb(ZIO.succeed(Chunk(a)))
                   else ()
               }
@@ -131,15 +95,7 @@ class RabbitMQ(
             (consumerTag: String) =>
               cb(ZIO.fail(new Exception("cancelled")).mapError(Some(_)))
 
-          channel.basicConsume(
-            queueName,
-            false,
-            Map(
-              "x-stream-offset" -> new java.util.Date()
-            ).asJava,
-            deliver,
-            cancel
-          )
+          channel.basicConsume(queueName, true, deliver, cancel)
 
           ()
         }
