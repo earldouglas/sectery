@@ -8,5 +8,6 @@
   <root level="${LOG_LEVEL_ROOT}">
     <appender-ref ref="STDOUT" />
   </root>
+  <logger name="org.pircbotx" level="INFO" />
   <logger name="sectery" level="DEBUG" />
 </configuration>

@@ -139,7 +139,7 @@ object Slack:
             password = rabbitMqPassword
           )
 
-        _ <-
+        respondLoopFiber <-
           QueueDownstream
             .respondLoop()
             .provideLayer {
@@ -161,7 +161,7 @@ object Slack:
                 new Send[[A] =>> ZIO[Any, Throwable, A]]:
                   override def name = Slack.name
                   override def apply(tx: Tx) =
-                    ZIO.attempt(slack.unsafeSend(tx))
+                    ZIO.attemptBlocking(slack.unsafeSend(tx))
 
               val dequeue: QueueDownstream.DequeueR =
 
@@ -192,6 +192,7 @@ object Slack:
             }
 
         _ <- ZIO.logDebug(s"Starting Slack bot")
-        _ <- ZIO.attemptBlocking(slack.unsafeStart())
+        startFiber <- ZIO.attemptBlocking(slack.unsafeStart()).fork
+        _ <- Fiber.joinAll(List(respondLoopFiber, startFiber))
       yield ()
     )

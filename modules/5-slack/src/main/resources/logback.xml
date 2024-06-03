@@ -8,6 +8,6 @@
   <root level="${LOG_LEVEL_ROOT}">
     <appender-ref ref="STDOUT" />
   </root>
-  <logger name="com.slack" level="DEBUG" />
+  <logger name="com.slack" level="INFO" />
   <logger name="sectery" level="DEBUG" />
 </configuration>
