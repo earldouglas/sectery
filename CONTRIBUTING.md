@@ -49,6 +49,8 @@ $ IRC_USER=redacted \
   AIRNOW_API_KEY=redacted \
   FINNHUB_API_TOKEN=redacted \
   OPENAI_APIKEY=redacted \
+  SLACK_BOT_TOKEN=redacted \
+  SLACK_APP_TOKEN=redacted \
   sbt Test/run
 ```
 

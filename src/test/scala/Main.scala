@@ -31,6 +31,9 @@ object Main extends ZIOAppDefault:
   val ircChannels: List[String] =
     sys.env("IRC_CHANNELS").split(",").map(_.trim).toList
 
+  val slackBotToken: String = sys.env("SLACK_BOT_TOKEN")
+  val slackAppToken: String = sys.env("SLACK_APP_TOKEN")
+
   override def run: ZIO[Any, Any, ExitCode] =
     val mariaDbContainer = MariaDBContainer.Def().createContainer()
     mariaDbContainer.start()
@@ -85,7 +88,19 @@ object Main extends ZIOAppDefault:
               ircChannels = ircChannels
             )
             .fork
-        _ <- Fiber.joinAll(List(producersFiber, ircFiber))
+        slackFiber <-
+          sectery.slack.Slack
+            .apply(
+              rabbitMqHostname = rabbitMqHostname,
+              rabbitMqPort = rabbitMqPort,
+              rabbitMqUsername = rabbitMqUsername,
+              rabbitMqPassword = rabbitMqPassword,
+              rabbitMqChannelSuffix = "test",
+              slackBotToken = slackBotToken,
+              slackAppToken = slackAppToken
+            )
+            .fork
+        _ <- Fiber.joinAll(List(producersFiber, ircFiber, slackFiber))
       yield ()
 
     start
