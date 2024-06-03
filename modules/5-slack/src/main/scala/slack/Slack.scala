@@ -132,7 +132,6 @@ object Slack:
 
         rabbitMQ =
           new RabbitMQ(
-            service = Some(Slack.name),
             channels = None,
             hostname = rabbitMqHostname,
             port = rabbitMqPort,
@@ -154,7 +153,9 @@ object Slack:
               val enqueue: QueueDownstream.EnqueueR =
                 given encoder: JsonEncoder[Rx] =
                   DeriveJsonEncoder.gen[Rx]
-                rabbitMQ.enqueue[Rx](s"inbox-${rabbitMqChannelSuffix}")
+                rabbitMQ.enqueue[Rx](
+                  s"inbox-${Slack.name}-${rabbitMqChannelSuffix}"
+                )
 
               val send: QueueDownstream.SendR =
                 new Send[[A] =>> ZIO[Any, Throwable, A]]:
@@ -164,11 +165,6 @@ object Slack:
 
               val dequeue: QueueDownstream.DequeueR =
 
-                given hasService: HasService[Tx] =
-                  new HasService:
-                    override def getService(value: Tx) =
-                      value.service
-
                 given hasChannel: HasChannel[Tx] =
                   new HasChannel:
                     override def getChannel(value: Tx) =
@@ -177,7 +173,9 @@ object Slack:
                 given decoder: JsonDecoder[Tx] =
                   DeriveJsonDecoder.gen[Tx]
 
-                rabbitMQ.dequeue[Tx](s"outbox-${rabbitMqChannelSuffix}")
+                rabbitMQ.dequeue[Tx](
+                  s"outbox-${Slack.name}-${rabbitMqChannelSuffix}"
+                )
 
               val logger: QueueDownstream.LoggerR =
                 new Logger:

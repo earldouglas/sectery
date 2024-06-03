@@ -138,7 +138,6 @@ object Bot:
 
         rabbitMQ =
           new RabbitMQ(
-            service = Some(Bot.name),
             channels = Some(ircChannels),
             hostname = rabbitMqHostname,
             port = rabbitMqPort,
@@ -160,7 +159,9 @@ object Bot:
               val enqueue: QueueDownstream.EnqueueR =
                 given encoder: JsonEncoder[Rx] =
                   DeriveJsonEncoder.gen[Rx]
-                rabbitMQ.enqueue[Rx](s"inbox-${rabbitMqChannelSuffix}")
+                rabbitMQ.enqueue[Rx](
+                  s"inbox-${Bot.name}-${rabbitMqChannelSuffix}"
+                )
 
               val send: QueueDownstream.SendR =
                 new Send[[A] =>> ZIO[Any, Throwable, A]]:
@@ -170,11 +171,6 @@ object Bot:
 
               val dequeue: QueueDownstream.DequeueR =
 
-                given hasService: HasService[Tx] =
-                  new HasService:
-                    override def getService(value: Tx) =
-                      value.service
-
                 given hasChannel: HasChannel[Tx] =
                   new HasChannel:
                     override def getChannel(value: Tx) =
@@ -183,7 +179,9 @@ object Bot:
                 given decoder: JsonDecoder[Tx] =
                   DeriveJsonDecoder.gen[Tx]
 
-                rabbitMQ.dequeue[Tx](s"outbox-${rabbitMqChannelSuffix}")
+                rabbitMQ.dequeue[Tx](
+                  s"outbox-${Bot.name}-${rabbitMqChannelSuffix}"
+                )
 
               val logger: QueueDownstream.LoggerR =
                 new Logger:
