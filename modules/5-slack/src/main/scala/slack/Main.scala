@@ -2,12 +2,18 @@ package sectery.slack
 
 import zio.ExitCode
 import zio.ZIO
+import zio.ZIOAppArgs
 import zio.ZIOAppDefault
+import zio.ZLayer
+import zio.logging.backend.SLF4J
 
 /** This is the main entry point for the module. Set your env vars, then
   * run the `main` method.
   */
 object Main extends ZIOAppDefault:
+
+  override val bootstrap: ZLayer[ZIOAppArgs, Any, Any] =
+    zio.Runtime.removeDefaultLoggers >>> SLF4J.slf4j
 
   val rabbitMqHostname: String = sys.env("RABBIT_MQ_HOSTNAME")
   val rabbitMqPort: Int = sys.env("RABBIT_MQ_PORT").toInt
