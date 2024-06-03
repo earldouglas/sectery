@@ -53,7 +53,8 @@ class RabbitMQ(
       false, // not exclusive, not auto-delete,
       Map(
         "x-queue-type" -> "stream",
-        "x-max-age" -> "1h"
+        "x-max-age" -> "1h",
+        "max-outstanding-messages" -> 1
       ).asJava
     )
 
@@ -77,7 +78,8 @@ class RabbitMQ(
       false, // not exclusive, not auto-delete,
       Map(
         "x-queue-type" -> "stream",
-        "x-max-age" -> "1h"
+        "x-max-age" -> "1h",
+        "max-outstanding-messages" -> 1
       ).asJava
     )
 
@@ -130,8 +132,7 @@ class RabbitMQ(
             queueName,
             false,
             Map(
-              "x-stream-offset" -> new java.util.Date(),
-              "max-outstanding-messages" -> 100
+              "x-stream-offset" -> new java.util.Date()
             ).asJava,
             deliver,
             cancel
