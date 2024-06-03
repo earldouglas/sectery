@@ -86,15 +86,15 @@ in {
           User = "irc";
         };
         environment = {
+          RABBIT_MQ_HOSTNAME = builtins.getEnv "RABBIT_MQ_HOSTNAME";
+          RABBIT_MQ_PORT = builtins.getEnv "RABBIT_MQ_PORT";
+          RABBIT_MQ_USERNAME = builtins.getEnv "RABBIT_MQ_USERNAME";
+          RABBIT_MQ_PASSWORD = builtins.getEnv "RABBIT_MQ_PASSWORD";
           IRC_USER = builtins.getEnv "IRC_USER";
           IRC_PASS = builtins.getEnv "IRC_PASS";
           IRC_HOST = builtins.getEnv "IRC_HOST";
           IRC_PORT = builtins.getEnv "IRC_PORT";
           IRC_CHANNELS = builtins.getEnv "IRC_CHANNELS";
-          RABBIT_MQ_HOSTNAME = builtins.getEnv "RABBIT_MQ_HOSTNAME";
-          RABBIT_MQ_PORT = builtins.getEnv "RABBIT_MQ_PORT";
-          RABBIT_MQ_USERNAME = builtins.getEnv "RABBIT_MQ_USERNAME";
-          RABBIT_MQ_PASSWORD = builtins.getEnv "RABBIT_MQ_PASSWORD";
         };
       };
       services.cron = {
@@ -102,6 +102,35 @@ in {
         systemCronJobs = [
           "0 0 * * * systemctl restart irc" # https://xkcd.com/1495/
         ];
+      };
+
+      # Slack Module ###################################################
+
+      ## Slack Service User ############################################
+      users.groups.slack = {};
+      users.users.slack = {
+        group = "slack";
+        isSystemUser = true;
+      };
+
+      ## Slack Service #################################################
+      systemd.services.slack = {
+        description = "slack";
+        after = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          ExecStart = "${pkgs.jdk17_headless}/bin/java -server -Xms192m -Xmx192m -cp ${slf4jSimple}:${sectery}/slack.jar sectery.slack.Main";
+          Restart = "always";
+          User = "slack";
+        };
+        environment = {
+          RABBIT_MQ_HOSTNAME = builtins.getEnv "RABBIT_MQ_HOSTNAME";
+          RABBIT_MQ_PORT = builtins.getEnv "RABBIT_MQ_PORT";
+          RABBIT_MQ_USERNAME = builtins.getEnv "RABBIT_MQ_USERNAME";
+          RABBIT_MQ_PASSWORD = builtins.getEnv "RABBIT_MQ_PASSWORD";
+          SLACK_BOT_TOKEN = builtins.getEnv "SLACK_BOT_TOKEN";
+          SLACK_APP_TOKEN = builtins.getEnv "SLACK_APP_TOKEN";
+        };
       };
 
       # Producers Module ###############################################
@@ -141,14 +170,14 @@ in {
           User = "producers";
         };
         environment = {
-          DATABASE_URL = builtins.getEnv "DATABASE_URL";
-          FINNHUB_API_TOKEN = builtins.getEnv "FINNHUB_API_TOKEN";
-          OPEN_WEATHER_MAP_API_KEY = builtins.getEnv "OPEN_WEATHER_MAP_API_KEY";
-          AIRNOW_API_KEY = builtins.getEnv "AIRNOW_API_KEY";
           RABBIT_MQ_HOSTNAME = builtins.getEnv "RABBIT_MQ_HOSTNAME";
           RABBIT_MQ_PORT = builtins.getEnv "RABBIT_MQ_PORT";
           RABBIT_MQ_USERNAME = builtins.getEnv "RABBIT_MQ_USERNAME";
           RABBIT_MQ_PASSWORD = builtins.getEnv "RABBIT_MQ_PASSWORD";
+          DATABASE_URL = builtins.getEnv "DATABASE_URL";
+          FINNHUB_API_TOKEN = builtins.getEnv "FINNHUB_API_TOKEN";
+          OPEN_WEATHER_MAP_API_KEY = builtins.getEnv "OPEN_WEATHER_MAP_API_KEY";
+          AIRNOW_API_KEY = builtins.getEnv "AIRNOW_API_KEY";
           OPENAI_APIKEY = builtins.getEnv "OPENAI_APIKEY";
         };
       };
