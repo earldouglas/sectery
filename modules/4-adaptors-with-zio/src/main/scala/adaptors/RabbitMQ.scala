@@ -40,7 +40,12 @@ class RabbitMQ(
     val connection: Connection =
       connectionFactory.newConnection()
 
-    connection.createChannel()
+    val channel: Channel =
+      connection.createChannel()
+
+    channel.basicQos(1)
+
+    channel
 
   def enqueue[A: JsonEncoder](
       queueName: String
@@ -53,8 +58,7 @@ class RabbitMQ(
       false, // not exclusive, not auto-delete,
       Map(
         "x-queue-type" -> "stream",
-        "x-max-age" -> "1h",
-        "max-outstanding-messages" -> 1
+        "x-max-age" -> "1h"
       ).asJava
     )
 
@@ -78,8 +82,7 @@ class RabbitMQ(
       false, // not exclusive, not auto-delete,
       Map(
         "x-queue-type" -> "stream",
-        "x-max-age" -> "1h",
-        "max-outstanding-messages" -> 1
+        "x-max-age" -> "1h"
       ).asJava
     )
 
