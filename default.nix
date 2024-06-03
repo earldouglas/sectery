@@ -48,6 +48,7 @@ in
     installPhase = ''
       mkdir -p $out/
       cp modules/5-irc/target/scala-*/irc.jar $out/
+      cp modules/5-slack/target/scala-*/slack.jar $out/
       cp modules/5-producers/target/scala-*/producers.jar $out/
     '';
   }
