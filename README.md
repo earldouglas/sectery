@@ -5,7 +5,7 @@
 
 # Sectery
 
-Sectery is an digital assistant IRC bot.
+Sectery is an digital assistant chatbot.
 
 ## Usage
 
@@ -43,6 +43,16 @@ $ export IRC_CHANNELS=#my_channel
 $ sbt "project irc" run
 ```
 
+```
+$ export RABBIT_MQ_HOSTNAME=localhost
+$ export RABBIT_MQ_PORT=5672
+$ export RABBIT_MQ_USERNAME=guest
+$ export RABBIT_MQ_PASSWORD=guest
+$ export SLACK_BOT_TOKEN=xoxb-foo-bar-baz
+$ export SLACK_APP_TOKEN=xapp-1-foo-bar-baz
+$ sbt "project slack" run
+```
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -59,7 +69,7 @@ beneath.
 .----------------------------------------------------------------------.
 |                                Layer 5                               |
 |                                                                      |
-|                        irc                 producers                 |
+|                        irc      slack      producers                 |
 |                                                                      |
 | o                                                              (ZIO) |
 '-|--------------------------------------------------------------------'
@@ -120,10 +130,10 @@ Modules interact with each other via RabbitMQ:
     |                 '------------'                   vv
 .-------.                                        .-------------.
 |  irc  |                                        |  producers  |-.
-'-------'                                        '-------------' |-.
-    ^                                              '-------------' |
-    |                                                '-------------'
-    |                 .------------.                   ||
+'-------'-.                                      '-------------' |-.
+  | slack |                                        '-------------' |
+  '-------'                                          '-------------'
+    ^                 .------------.                   ||
     |                /            / \                  ||
     '---------------|   outbox   | <===================''
                      \            \ /
@@ -138,6 +148,10 @@ Modules access various internal and external resources:
 .-----.         .------------.
 | irc |-------->| IRC Server |
 '-----'         '------------'
+
+.-------.       .-----------.
+| slack |------>| Slack API |
+'-------'       '-----------'
 
 .-----------.         .----------------.
 | producers |-.======>| 3rd party APIs |-.

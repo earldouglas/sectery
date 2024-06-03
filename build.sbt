@@ -94,6 +94,23 @@ lazy val irc =
     )
     .dependsOn(adaptors_with_zio, use_cases, adaptors)
 
+lazy val slack =
+  project
+    .in(file("modules/5-slack"))
+    .settings(
+      moduleName := "slack",
+      libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.39.3",
+      libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1",
+      libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "1.19",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.6",
+      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
+      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion exclude ("dev.zio", "zio"),
+      assembly / mainClass := Some("sectery.slack.Main"),
+      assembly / assemblyJarName := s"${name.value}.jar",
+      Compile / run / fork := true
+    )
+    .dependsOn(adaptors_with_zio, use_cases, adaptors)
+
 lazy val root =
   project
     .in(file("."))
@@ -102,10 +119,11 @@ lazy val root =
       libraryDependencies += "com.dimafeng" %% "testcontainers-scala-mariadb" % testcontainersVersion % Test,
       Test / run / fork := true
     )
-    .dependsOn(producers, irc)
+    .dependsOn(producers, irc, slack)
     .aggregate(
       producers,
       irc,
+      slack,
       adaptors_with_zio,
       adaptors,
       use_cases,
