@@ -15,6 +15,35 @@ class GrabResponder[F[_]: Monad: Grab: LastMessage]
 
   private val grab = """^@grab\s+([^\s]+)\s*$""".r
 
+  private def grabLastMessage(
+      service: String,
+      channel: String,
+      thread: Option[String],
+      nick: String
+  ): F[List[Tx]] =
+    summon[Grab[F]]
+      .grab(service, channel, nick)
+      .map {
+        case true =>
+          List(
+            Tx(
+              service = service,
+              channel = channel,
+              thread = thread,
+              message = s"Grabbed ${nick}."
+            )
+          )
+        case false =>
+          List(
+            Tx(
+              service = service,
+              channel = channel,
+              thread = thread,
+              message = s"${nick} hasn't said anything."
+            )
+          )
+      }
+
   override def respondToMessage(rx: Rx) =
     rx.message match
 
@@ -31,52 +60,40 @@ class GrabResponder[F[_]: Monad: Grab: LastMessage]
         )
 
       case grab(nick) =>
-        summon[Grab[F]]
-          .grab(rx.service, rx.channel, nick)
-          .map {
-            case true =>
-              List(
-                Tx(
-                  service = rx.service,
-                  channel = rx.channel,
-                  thread = rx.thread,
-                  message = s"Grabbed ${nick}."
-                )
-              )
-            case false =>
-              List(
-                Tx(
-                  service = rx.service,
-                  channel = rx.channel,
-                  thread = rx.thread,
-                  message = s"${nick} hasn't said anything."
-                )
-              )
-          }
+        grabLastMessage(
+          service = rx.service,
+          channel = rx.channel,
+          thread = rx.thread,
+          nick = nick
+        )
 
       case "@grab" =>
-        summon[Grab[F]]
-          .grab(rx.service, rx.channel)
-          .map {
-            case Some(nick) =>
-              List(
-                Tx(
+        summon[LastMessage[F]]
+          .getLastMessages(rx.service, rx.channel)
+          .flatMap(lms =>
+            lms
+              .filter(lm => lm.nick != rx.nick)
+              .headOption match
+              case Some(lm) =>
+                grabLastMessage(
                   service = rx.service,
                   channel = rx.channel,
                   thread = rx.thread,
-                  message = s"Grabbed ${nick}."
+                  nick = lm.nick
                 )
-              )
-            case None =>
-              List(
-                Tx(
-                  service = rx.service,
-                  channel = rx.channel,
-                  thread = rx.thread,
-                  message = "Nobody has said anything."
-                )
-              )
-          }
+              case None =>
+                summon[Monad[F]]
+                  .pure(
+                    List(
+                      Tx(
+                        service = rx.service,
+                        channel = rx.channel,
+                        thread = rx.thread,
+                        message = "Nobody has said anything."
+                      )
+                    )
+                  )
+          )
 
       case _ =>
         summon[LastMessage[F]]

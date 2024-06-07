@@ -58,63 +58,36 @@ object LiveGrabQuoteSubstitute:
          |""".stripMargin
     )
 
-  private def unsafeLastRx(
+  private def unsafeLastRxs(
       c: Connection,
       service: String,
       channel: String
-  ): Option[LastRx] =
+  ): List[LastRx] =
     val s =
       """|SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
          |FROM `LAST_MESSAGE_V2`
          |WHERE `SERVICE` = ?
          |  AND `CHANNEL` = ?
          |ORDER BY `TIMESTAMP` DESC
-         |LIMIT 1
          |""".stripMargin
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
     val rs = stmt.executeQuery
-    var mo: Option[LastRx] = None
+    var ms: List[LastRx] = Nil
     if rs.next() then
       val nick = rs.getString("NICK")
       val message = rs.getString("MESSAGE")
       val timestamp = rs.getTimestamp("TIMESTAMP")
-      mo = Some(
-        LastRx(
-          service = service,
-          channel = channel,
-          nick = nick,
-          message = message,
-          instant = Instant.ofEpochMilli(timestamp.getTime())
-        )
-      )
+      ms = LastRx(
+        service = service,
+        channel = channel,
+        nick = nick,
+        message = message,
+        instant = Instant.ofEpochMilli(timestamp.getTime())
+      ) :: ms
     stmt.close()
-    mo
-
-  private def unsafeGrab(
-      c: Connection,
-      service: String,
-      channel: String
-  ): Option[String] =
-    unsafeLastRx(c, service, channel) match
-      case Some(m) =>
-        val s =
-          """|INSERT INTO `GRABBED_MESSAGES_V2` (
-             |  `SERVICE`, `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
-             |) VALUES (?, ?, ?, ?, ?)
-             |""".stripMargin
-        val stmt = c.prepareStatement(s)
-        stmt.setString(1, service)
-        stmt.setString(2, channel)
-        stmt.setString(3, m.nick)
-        stmt.setString(4, m.message)
-        stmt.setTimestamp(5, new Timestamp(m.instant.toEpochMilli()))
-        stmt.executeUpdate()
-        stmt.close
-        Some(m.nick)
-      case None =>
-        None
+    ms
 
   private def unsafeLastRx(
       c: Connection,
@@ -387,14 +360,6 @@ object LiveGrabQuoteSubstitute:
           unsafeGrab(c, service, channel, nick)
         }
 
-      override def grab(
-          service: String,
-          channel: String
-      ): F[Option[String]] =
-        summon[Transactor[F]].transact { c =>
-          unsafeGrab(c, service, channel)
-        }
-
       override def quote(
           service: String,
           channel: String,
@@ -437,5 +402,5 @@ object LiveGrabQuoteSubstitute:
           channel: String
       ): F[List[LastRx]] =
         summon[Transactor[F]].transact { c =>
-          unsafeLastRx(c, service, channel).toList
+          unsafeLastRxs(c, service, channel).toList
         }
