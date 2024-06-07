@@ -18,6 +18,7 @@ class SubstituteResponder[F[_]: Monad: LastMessage]
   val subAll = """s\/(.*)\/(.*)\/g""".r
 
   private def substitute(
+      nick: String,
       service: String,
       channel: String,
       thread: Option[String],
@@ -29,7 +30,10 @@ class SubstituteResponder[F[_]: Monad: LastMessage]
       .getLastMessages(service, channel)
       .map { rxs =>
         rxs
-          .find(rx => matcher.matches(rx.message))
+          .find { rx =>
+            rx.nick != nick &&
+            matcher.matches(rx.message)
+          }
           .map { rx =>
             val replacedMsg: String = howReplace(rx.message)
             Tx(
@@ -46,6 +50,7 @@ class SubstituteResponder[F[_]: Monad: LastMessage]
     rx.message match
       case subFirst(toReplace, withReplace) =>
         substitute(
+          nick = rx.nick,
           service = rx.service,
           channel = rx.channel,
           thread = rx.thread,
@@ -54,6 +59,7 @@ class SubstituteResponder[F[_]: Monad: LastMessage]
         )
       case subAll(toReplace, withReplace) =>
         substitute(
+          nick = rx.nick,
           service = rx.service,
           channel = rx.channel,
           thread = rx.thread,
