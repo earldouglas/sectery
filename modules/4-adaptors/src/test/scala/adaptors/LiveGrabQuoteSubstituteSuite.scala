@@ -82,8 +82,8 @@ class LiveGrabQuoteSubstituteSuite extends FunSuite:
         zero
 
     assertEquals(
-      obtained = LiveGrabQuoteSubstitute(c).grab("irc", "#foo"),
-      expected = Some("jdoe")
+      obtained = LiveGrabQuoteSubstitute(c).grab("irc", "#foo", "jdoe"),
+      expected = true
     )
 
     assertEquals(

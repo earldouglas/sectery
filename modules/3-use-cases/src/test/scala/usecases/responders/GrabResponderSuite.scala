@@ -6,6 +6,7 @@ import sectery.effects._
 import sectery.effects.id.Id
 import sectery.effects.id.given
 import java.time.Instant
+import sectery.effects.LastMessage.LastRx
 
 class GrabResponderSuite extends FunSuite:
 
@@ -25,7 +26,6 @@ class GrabResponderSuite extends FunSuite:
           channel: String,
           nick: String
       ) = false
-      override def grab(service: String, channel: String) = ???
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
@@ -56,7 +56,8 @@ class GrabResponderSuite extends FunSuite:
 
     given lastMessage: LastMessage[Id] with
       override def getLastMessages(service: String, channel: String) =
-        ???
+        (service, channel) match
+          case ("irc", "#foo") => Nil
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
@@ -65,7 +66,6 @@ class GrabResponderSuite extends FunSuite:
           channel: String,
           nick: String
       ) = false
-      override def grab(service: String, channel: String) = ???
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
@@ -108,7 +108,6 @@ class GrabResponderSuite extends FunSuite:
         (channel, nick) match {
           case ("#foo", "baz") => true
         }
-      override def grab(service: String, channel: String) = ???
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
@@ -132,7 +131,11 @@ class GrabResponderSuite extends FunSuite:
 
     given lastMessage: LastMessage[Id] with
       override def getLastMessages(service: String, channel: String) =
-        ???
+        (service, channel) match {
+          case ("irc", "#foo") =>
+            List(
+            )
+        }
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
@@ -141,7 +144,6 @@ class GrabResponderSuite extends FunSuite:
           channel: String,
           nick: String
       ) = ???
-      override def grab(service: String, channel: String) = None
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
@@ -172,7 +174,11 @@ class GrabResponderSuite extends FunSuite:
 
     given lastMessage: LastMessage[Id] with
       override def getLastMessages(service: String, channel: String) =
-        ???
+        (service, channel) match
+          case ("irc", "#foo") =>
+            List(
+              LastRx("irc", "#foo", "baz", "I am baz.", Instant.EPOCH)
+            )
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
@@ -180,11 +186,9 @@ class GrabResponderSuite extends FunSuite:
           service: String,
           channel: String,
           nick: String
-      ) = ???
-      override def grab(service: String, channel: String) =
-        channel match {
-          case "#foo" => Some("baz")
-        }
+      ) =
+        (service, channel, nick) match
+          case ("irc", "#foo", "baz") => true
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
@@ -220,7 +224,6 @@ class GrabResponderSuite extends FunSuite:
           channel: String,
           nick: String
       ) = ???
-      override def grab(service: String, channel: String) = ???
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
