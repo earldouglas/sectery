@@ -102,8 +102,8 @@ lazy val slack =
     .settings(
       moduleName := "slack",
       libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.39.3",
-      libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1",
-      libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "1.19",
+      libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1" % Provided,
+      libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "1.21",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.6",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude ("dev.zio", "zio"),
       libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion exclude ("dev.zio", "zio"),
