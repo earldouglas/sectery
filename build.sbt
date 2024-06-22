@@ -101,7 +101,7 @@ lazy val slack =
     .in(file("modules/5-slack"))
     .settings(
       moduleName := "slack",
-      libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.39.3",
+      libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.40.1",
       libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1" % Provided,
       libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "1.21",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.6",
