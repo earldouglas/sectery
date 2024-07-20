@@ -53,7 +53,7 @@ lazy val adaptors =
         "dev.zio",
         "zio"
       ),
-      libraryDependencies += "com.h2database" % "h2" % "2.2.224" % Test,
+      libraryDependencies += "com.h2database" % "h2" % "2.3.230" % Test,
       libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test
     )
     .dependsOn(effects)
