@@ -146,8 +146,11 @@ in {
       services.mysql = {
         enable = true;
         package = pkgs.mariadb;
-        ensureDatabases = [
-          "producers"
+        initialDatabases = [
+          {
+            name = "producers";
+            schema = ../producers.sql;
+          }
         ];
         ensureUsers = [
           {
