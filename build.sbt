@@ -121,7 +121,7 @@ lazy val slack =
       moduleName := "slack",
       libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.40.3",
       libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1" % Provided,
-      libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "2.1.5",
+      libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "2.2.0",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.6",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
         "dev.zio",
