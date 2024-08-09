@@ -19,6 +19,7 @@ import sectery.domain.operations._
 import sectery.effects._
 import zio.Fiber
 import zio.Queue
+import zio.durationInt
 import zio.Unsafe
 import zio.ZIO
 import zio.ZLayer
@@ -27,6 +28,7 @@ import zio.json.DeriveJsonEncoder
 import zio.json.JsonDecoder
 import zio.json.JsonEncoder
 import zio.stream.ZStream
+import zio.Schedule
 
 // See https://slack.dev/java-slack-sdk/guides/web-api-basics
 class Slack(
@@ -130,14 +132,16 @@ object Slack:
             unsafeReceive = unsafeReceive
           )
 
-        rabbitMQ =
-          new RabbitMQ(
+        rabbitMQ <-
+          RabbitMQ(
             channels = None,
             hostname = rabbitMqHostname,
             port = rabbitMqPort,
             username = rabbitMqUsername,
             password = rabbitMqPassword
           )
+            .retry(Schedule.spaced(1.seconds))
+            .orDie
 
         respondLoopFiber <-
           QueueDownstream
