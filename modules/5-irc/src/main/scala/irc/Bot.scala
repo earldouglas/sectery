@@ -19,11 +19,13 @@ import zio.Queue
 import zio.Unsafe
 import zio.ZIO
 import zio.ZLayer
+import zio.durationInt
 import zio.json.DeriveJsonDecoder
 import zio.json.DeriveJsonEncoder
 import zio.json.JsonDecoder
 import zio.json.JsonEncoder
 import zio.stream.ZStream
+import zio.Schedule
 
 class Bot(
     hostname: String,
@@ -136,14 +138,16 @@ object Bot:
             unsafeReceive = unsafeReceive
           )
 
-        rabbitMQ =
-          new RabbitMQ(
+        rabbitMQ <-
+          RabbitMQ(
             channels = Some(ircChannels),
             hostname = rabbitMqHostname,
             port = rabbitMqPort,
             username = rabbitMqUsername,
             password = rabbitMqPassword
           )
+            .retry(Schedule.spaced(1.seconds))
+            .orDie
 
         _ <-
           QueueDownstream

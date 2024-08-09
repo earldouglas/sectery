@@ -16,29 +16,9 @@ import zio.json.JsonEncoder
 import zio.stream.ZStream
 
 class RabbitMQ(
-    channels: Option[List[String]],
-    hostname: String,
-    port: Int,
-    username: String,
-    password: String
+    channel: Channel,
+    channels: Option[List[String]]
 ):
-
-  private val channel: Channel =
-
-    val connectionFactory: ConnectionFactory =
-      new ConnectionFactory()
-
-    connectionFactory.setHost(hostname)
-    connectionFactory.setPort(port)
-    connectionFactory.setUsername(username)
-    connectionFactory.setPassword(password)
-    connectionFactory.setAutomaticRecoveryEnabled(true)
-    connectionFactory.setNetworkRecoveryInterval(1000)
-
-    val connection: Connection =
-      connectionFactory.newConnection()
-
-    connection.createChannel()
 
   def enqueue[A: JsonEncoder](
       queueName: String
@@ -99,3 +79,32 @@ class RabbitMQ(
 
           ()
         }
+
+object RabbitMQ:
+
+  def apply(
+      channels: Option[List[String]],
+      hostname: String,
+      port: Int,
+      username: String,
+      password: String
+  ): ZIO[Any, Throwable, RabbitMQ] =
+    ZIO.attempt:
+
+      val connectionFactory: ConnectionFactory =
+        new ConnectionFactory()
+
+      connectionFactory.setHost(hostname)
+      connectionFactory.setPort(port)
+      connectionFactory.setUsername(username)
+      connectionFactory.setPassword(password)
+      connectionFactory.setAutomaticRecoveryEnabled(true)
+      connectionFactory.setNetworkRecoveryInterval(1000)
+
+      val connection: Connection =
+        connectionFactory.newConnection()
+
+      val channel: Channel =
+        connection.createChannel()
+
+      new RabbitMQ(channel, channels)

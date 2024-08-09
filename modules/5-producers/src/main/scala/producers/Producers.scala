@@ -11,8 +11,10 @@ import sectery.effects._
 import sectery.usecases._
 import zio.Clock
 import zio.Fiber
+import zio.Schedule
 import zio.ZIO
 import zio.ZLayer
+import zio.durationInt
 import zio.json.DeriveJsonDecoder
 import zio.json.DeriveJsonEncoder
 import zio.json.JsonDecoder
@@ -135,16 +137,7 @@ class Producers(
 
   def start: ZIO[Any, Nothing, Fiber[Throwable, Unit]] =
 
-    val rabbitMQ: RabbitMQ =
-      new RabbitMQ(
-        channels = None,
-        hostname = rabbitMqHostname,
-        port = rabbitMqPort,
-        username = rabbitMqUsername,
-        password = rabbitMqPassword
-      )
-
-    def autoquoteFiber(outboxName: String) =
+    def autoquoteFiber(rabbitMQ: RabbitMQ, outboxName: String) =
       given autoquote: Autoquote[XIO] =
         grabQuoteSubstitute
 
@@ -159,6 +152,7 @@ class Producers(
         .fork
 
     def respondFiber(
+        rabbitMQ: RabbitMQ,
         inboxName: String,
         outboxName: String
     ) =
@@ -204,11 +198,26 @@ class Producers(
 
     for
 
-      autoquoteIrcFiber <- autoquoteFiber(outboxIrc)
-      autoquoteSlackFiber <- autoquoteFiber(outboxSlack)
+      rabbitMQ <-
+        RabbitMQ(
+          channels = None,
+          hostname = rabbitMqHostname,
+          port = rabbitMqPort,
+          username = rabbitMqUsername,
+          password = rabbitMqPassword
+        )
+          .retry(Schedule.spaced(1.seconds))
+          .orDie
 
-      respondIrcFiber <- respondFiber(inboxIrc, outboxIrc)
-      respondSlackFiber <- respondFiber(inboxSlack, outboxSlack)
+      autoquoteIrcFiber <- autoquoteFiber(rabbitMQ, outboxIrc)
+      autoquoteSlackFiber <- autoquoteFiber(rabbitMQ, outboxSlack)
+
+      respondIrcFiber <- respondFiber(rabbitMQ, inboxIrc, outboxIrc)
+      respondSlackFiber <- respondFiber(
+        rabbitMQ,
+        inboxSlack,
+        outboxSlack
+      )
 
       fiber <-
         Fiber
