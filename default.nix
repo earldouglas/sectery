@@ -37,7 +37,7 @@ in
     pname = "sectery";
     version = "1.0.0";
 
-    depsSha256 = "sha256-DBq19uUQXSaeUAM4aHzluJo58L3xM9WHQvxvfTrGi6c=";
+    depsSha256 = "sha256-5Vj1Q6nwAaHOqf08RZkncKT3RXvXOC03+ne9/CR2nUI=";
 
     src = ./.;
 
