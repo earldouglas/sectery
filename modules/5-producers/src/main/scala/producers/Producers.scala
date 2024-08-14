@@ -12,6 +12,7 @@ import sectery.usecases._
 import zio.Clock
 import zio.Fiber
 import zio.Schedule
+import zio.Task
 import zio.ZIO
 import zio.ZLayer
 import zio.durationInt
@@ -34,25 +35,23 @@ class Producers(
     openAiApiKey: String
 ):
 
-  type XIO[A] = ZIO[Any, Throwable, A]
-
-  given monad: Monad[XIO] with
-    override def pure[A](value: => A): XIO[A] =
+  given monad: Monad[Task] with
+    override def pure[A](value: => A): Task[A] =
       ZIO.attempt(value)
-    override def flatMap[A, B](fa: XIO[A])(f: A => XIO[B]): XIO[B] =
+    override def flatMap[A, B](fa: Task[A])(f: A => Task[B]): Task[B] =
       fa.flatMap(f)
 
-  given traversable: Traversable[XIO] with
+  given traversable: Traversable[Task] with
     override def traverse[A, B](as: List[A])(
-        f: A => XIO[B]
-    ): XIO[List[B]] =
+        f: A => Task[B]
+    ): Task[List[B]] =
       ZIO.collectAll(as.map(f))
 
-  given httpClient: HttpClient[XIO] =
+  given httpClient: HttpClient[Task] =
     LiveHttpClient()
 
-  given transactor: Transactor[XIO] with
-    override def transact[A](k: Connection => A): XIO[A] =
+  given transactor: Transactor[Task] with
+    override def transact[A](k: Connection => A): Task[A] =
       val c = unsafeGetConnection()
       ZIO
         .attempt {
@@ -72,61 +71,61 @@ class Producers(
           yield f
         }
 
-  given now: Now[XIO] with
-    override def now(): XIO[Instant] =
+  given now: Now[Task] with
+    override def now(): Task[Instant] =
       Clock
         .currentTime(TimeUnit.MILLISECONDS)
         .map(Instant.ofEpochMilli(_))
 
-  given btc: Btc[XIO] =
+  given btc: Btc[Task] =
     LiveBtc()
 
-  given counter: Counter[XIO] =
+  given counter: Counter[Task] =
     LiveCounter(unsafeGetConnection())
 
-  given eval: Eval[XIO] =
+  given eval: Eval[Task] =
     LiveEval()
 
-  given frinkiac: Frinkiac[XIO] =
+  given frinkiac: Frinkiac[Task] =
     LiveFrinkiac()
 
-  given getConfig: GetConfig[XIO] =
+  given getConfig: GetConfig[Task] =
     getSetConfig
 
-  given getWx: GetWx[XIO] =
+  given getWx: GetWx[Task] =
     LiveGetWx(
       openWeatherMapApiKey = openWeatherMapApiKey,
       airNowApiKey = airNowApiKey
     )
 
-  given grab: Grab[XIO] =
+  given grab: Grab[Task] =
     grabQuoteSubstitute
 
-  given hack: Hack[XIO] =
+  given hack: Hack[Task] =
     LiveHack(unsafeGetConnection())
 
-  given krypto: Krypto[XIO] =
+  given krypto: Krypto[Task] =
     LiveKrypto(unsafeGetConnection())
 
-  given lastMessage: LastMessage[XIO] =
+  given lastMessage: LastMessage[Task] =
     grabQuoteSubstitute
 
-  given openAI: OpenAI[XIO] =
+  given openAI: OpenAI[Task] =
     LiveOpenAI(openAiApiKey)
 
-  given points: Points[XIO] =
+  given points: Points[Task] =
     LivePoints(unsafeGetConnection())
 
-  given quote: Quote[XIO] =
+  given quote: Quote[Task] =
     grabQuoteSubstitute
 
-  given setConfig: SetConfig[XIO] =
+  given setConfig: SetConfig[Task] =
     getSetConfig
 
-  given stock: Stock[XIO] =
+  given stock: Stock[Task] =
     LiveStock(finnhubApiToken)
 
-  given tell: Tell[XIO] =
+  given tell: Tell[Task] =
     LiveTell(unsafeGetConnection())
 
   val grabQuoteSubstitute =
@@ -138,10 +137,10 @@ class Producers(
   def start: ZIO[Any, Nothing, Fiber[Throwable, Unit]] =
 
     def autoquoteFiber(rabbitMQ: RabbitMQ, outboxName: String) =
-      given autoquote: Autoquote[XIO] =
+      given autoquote: Autoquote[Task] =
         grabQuoteSubstitute
 
-      given enqueueTx: Enqueue[XIO, Tx] =
+      given enqueueTx: Enqueue[Task, Tx] =
         given encoder: JsonEncoder[Tx] =
           DeriveJsonEncoder.gen[Tx]
         rabbitMQ.enqueue[Tx](outboxName)
@@ -169,7 +168,7 @@ class Producers(
 
         rabbitMQ.dequeue[Rx](inboxName)
 
-      val enqueueTx: Enqueue[XIO, Tx] =
+      val enqueueTx: Enqueue[Task, Tx] =
         given encoder: JsonEncoder[Tx] =
           DeriveJsonEncoder.gen[Tx]
         rabbitMQ.enqueue[Tx](outboxName)
