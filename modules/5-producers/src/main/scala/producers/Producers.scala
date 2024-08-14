@@ -37,8 +37,8 @@ class Producers(
   type XIO[A] = ZIO[Any, Throwable, A]
 
   given monad: Monad[XIO] with
-    override def pure[A](value: A): XIO[A] =
-      ZIO.succeed(value)
+    override def pure[A](value: => A): XIO[A] =
+      ZIO.attempt(value)
     override def flatMap[A, B](fa: XIO[A])(f: A => XIO[B]): XIO[B] =
       fa.flatMap(f)
 
