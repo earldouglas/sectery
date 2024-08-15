@@ -56,7 +56,13 @@ class HtmlResponderSuite extends FunSuite:
           "irc",
           "#foo",
           None,
-          "Hello, world!: A page about hello, world."
+          "Hello, world!"
+        ),
+        Tx(
+          "irc",
+          "#foo",
+          None,
+          "A page about hello, world."
         )
       )
 

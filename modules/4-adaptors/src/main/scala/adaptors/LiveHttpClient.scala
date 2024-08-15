@@ -9,9 +9,9 @@ import sectery.control.Monad
 import sectery.effects.HttpClient.Response
 import sectery.effects._
 
-class LiveHttpClient[F[_]: Monad] extends HttpClient[F]:
+object LiveHttpClient:
 
-  private def unsafeRequest(
+  def unsafeRequest(
       method: String,
       url: URL,
       headers: Map[String, String],
@@ -54,6 +54,8 @@ class LiveHttpClient[F[_]: Monad] extends HttpClient[F]:
 
     response
 
+class LiveHttpClient[F[_]: Monad] extends HttpClient[F]:
+
   override def request(
       method: String,
       url: URL,
@@ -62,10 +64,11 @@ class LiveHttpClient[F[_]: Monad] extends HttpClient[F]:
   ) =
     summon[Monad[F]]
       .pure(
-        unsafeRequest(
-          method = method,
-          url = url,
-          headers = headers,
-          body = body
-        )
+        LiveHttpClient
+          .unsafeRequest(
+            method = method,
+            url = url,
+            headers = headers,
+            body = body
+          )
       )
