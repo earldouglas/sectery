@@ -18,27 +18,28 @@ object HtmlResponder:
 
   val url = """.*(http[^\s]+).*""".r
 
-  def shorten(x: String): String =
+  private def shorten(x: String): String =
     if x.length > 300 then x.take(280) + "..." else x
 
-  def clean(x: String): String =
+  private def clean(x: String): String =
     x
       .replaceAll("[\\r\\n]", " ")
       .replaceAll("\\s+", " ")
 
-  def select(doc: Document, selector: String): List[Element] =
+  private def select(doc: Document, selector: String): List[Element] =
     doc
       .select(selector)
       .asScala
       .toList
 
-  def selectText(doc: Document, selector: String): List[String] =
+  private def selectText(
+      doc: Document,
+      selector: String
+  ): List[String] =
     select(doc, selector)
       .map(_.text())
-      .flatMap(nonEmpty)
-      .map(clean(_))
 
-  def selectContentAttribute(
+  private def selectContentAttribute(
       doc: Document,
       selector: String
   ): List[String] =
@@ -47,18 +48,26 @@ object HtmlResponder:
       .flatMap(nonEmpty)
       .map(clean(_))
 
-  def getTitle(doc: Document): List[String] =
-    selectText(doc, "title")
-
-  def getMeta(doc: Document, key: String): List[String] =
+  private def getMeta(doc: Document, key: String): List[String] =
     List("", "og:", "twitter:")
       .flatMap { prefix =>
         selectContentAttribute(doc, s"meta[name=${key}]") ++
           selectContentAttribute(doc, s"meta[property=${key}]")
       }
 
-  def getDescription(doc: Document): List[String] =
+  def getTitle(doc: Document): Option[String] =
+    selectText(doc, "title")
+      .flatMap(nonEmpty)
+      .map(clean(_))
+      .map(shorten)
+      .headOption
+
+  def getDescription(doc: Document): Option[String] =
     getMeta(doc, "description")
+      .flatMap(nonEmpty)
+      .map(clean(_))
+      .map(shorten)
+      .headOption
 
 class HtmlResponder[F[_]: Monad: HttpClient] extends Responder[F]:
 
@@ -75,20 +84,30 @@ class HtmlResponder[F[_]: Monad: HttpClient] extends Responder[F]:
 
             val doc: Document = Jsoup.parse(response.body)
 
-            List(
-              HtmlResponder.getTitle(doc).headOption,
-              HtmlResponder.getDescription(doc).headOption
-            )
-              .flatMap { xs =>
-                xs.map { x =>
+            (
+              HtmlResponder.getTitle(doc),
+              HtmlResponder.getDescription(doc)
+            ) match
+              case (Some("- YouTube"), _) =>
+                List(
                   Tx(
                     service = rx.service,
                     channel = rx.channel,
                     thread = rx.thread,
-                    message = HtmlResponder.shorten(x)
+                    message =
+                      "I can't get the video metadata because YouTube thinks I'm a bot."
                   )
-                }
-              }
+                )
+              case (t, d) =>
+                List(t, d).flatten
+                  .map { x =>
+                    Tx(
+                      service = rx.service,
+                      channel = rx.channel,
+                      thread = rx.thread,
+                      message = x
+                    )
+                  }
           }
       case _ =>
         summon[Monad[F]].pure(Nil)
