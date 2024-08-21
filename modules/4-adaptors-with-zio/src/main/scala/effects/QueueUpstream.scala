@@ -27,8 +27,9 @@ object QueueUpstream:
             logger.debug(s"dequeued ${rx} from ${dequeue.name}")
           )
           .mapZIO(rx =>
-            responders
-              .respondToMessage(rx)
+            ZIO
+              .attempt(responders.respondToMessage(rx))
+              .flatten
               .catchAllCause(cause =>
                 ZIO
                   .logError(cause.prettyPrint)
