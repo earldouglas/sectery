@@ -31,6 +31,16 @@ object LiveHttpClient:
       c.setRequestProperty(k, v)
     }
 
+    c.setRequestProperty(
+      "User-Agent",
+      "Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0"
+    )
+
+    c.setRequestProperty(
+      "Accept",
+      "text/html,application/xhtml+xml"
+    )
+
     body foreach { b =>
       c.getOutputStream.write(b.getBytes("UTF-8"))
     }
