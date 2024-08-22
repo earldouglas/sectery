@@ -89,15 +89,9 @@ class HtmlResponder[F[_]: Monad: HttpClient] extends Responder[F]:
               HtmlResponder.getDescription(doc)
             ) match
               case (Some("- YouTube"), _) =>
-                List(
-                  Tx(
-                    service = rx.service,
-                    channel = rx.channel,
-                    thread = rx.thread,
-                    message =
-                      "I can't get the video metadata because YouTube thinks I'm a bot."
-                  )
-                )
+                Nil
+              case (Some("Blocked"), _) =>
+                Nil
               case (t, d) =>
                 List(t, d).flatten
                   .map { x =>
