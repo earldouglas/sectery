@@ -35,7 +35,7 @@ object LiveConfig:
     stmt.setString(2, key)
     val rs = stmt.executeQuery
     var vo: Option[String] = None
-    if rs.next() then
+    while rs.next() do
       val value = rs.getString("VALUE")
       vo = Some(value)
     stmt.close

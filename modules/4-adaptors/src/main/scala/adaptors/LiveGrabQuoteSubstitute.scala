@@ -75,7 +75,7 @@ object LiveGrabQuoteSubstitute:
     stmt.setString(2, channel)
     val rs = stmt.executeQuery
     var ms: List[LastRx] = Nil
-    if rs.next() then
+    while rs.next() do
       val nick = rs.getString("NICK")
       val message = rs.getString("MESSAGE")
       val timestamp = rs.getTimestamp("TIMESTAMP")
@@ -110,7 +110,7 @@ object LiveGrabQuoteSubstitute:
     stmt.setString(3, nick)
     val rs = stmt.executeQuery
     var mo: Option[LastRx] = None
-    if rs.next() then
+    while rs.next() do
       val message = rs.getString("MESSAGE")
       val timestamp = rs.getTimestamp("TIMESTAMP")
       mo = Some(
@@ -168,7 +168,7 @@ object LiveGrabQuoteSubstitute:
     stmt.setString(2, channel)
     val rs = stmt.executeQuery
     var gmo: Option[GrabbedMessage] = None
-    if rs.next() then
+    while rs.next() do
       val nick = rs.getString("NICK")
       val message = rs.getString("MESSAGE")
       val timestamp = rs.getTimestamp("TIMESTAMP")
@@ -205,7 +205,7 @@ object LiveGrabQuoteSubstitute:
     stmt.setString(3, nick)
     val rs = stmt.executeQuery
     var gmo: Option[GrabbedMessage] = None
-    if rs.next() then
+    while rs.next() do
       val nick = rs.getString("NICK")
       val message = rs.getString("MESSAGE")
       val timestamp = rs.getTimestamp("TIMESTAMP")
@@ -295,7 +295,7 @@ object LiveGrabQuoteSubstitute:
       stmt.setTimestamp(1, new Timestamp(fourtyFiveMinutesAgoMillis))
       val rs = stmt.executeQuery
       var scs: List[(String, String)] = Nil
-      if rs.next() then
+      while rs.next() do
         val service = rs.getString("SERVICE")
         val channel = rs.getString("CHANNEL")
         scs = (service, channel) :: scs
