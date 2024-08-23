@@ -68,7 +68,7 @@ object LiveGrabQuoteSubstitute:
          |FROM `LAST_MESSAGE_V2`
          |WHERE `SERVICE` = ?
          |  AND `CHANNEL` = ?
-         |ORDER BY `TIMESTAMP` DESC
+         |ORDER BY `TIMESTAMP` ASC
          |""".stripMargin
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
@@ -101,7 +101,7 @@ object LiveGrabQuoteSubstitute:
          |WHERE `SERVICE` = ?
          |  AND `CHANNEL` = ?
          |  AND `NICK` = ?
-         |ORDER BY `TIMESTAMP` DESC
+         |ORDER BY `TIMESTAMP` ASC
          |LIMIT 1
          |""".stripMargin
     val stmt = c.prepareStatement(s)
