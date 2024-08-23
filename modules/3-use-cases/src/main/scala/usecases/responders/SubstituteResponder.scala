@@ -25,14 +25,10 @@ class SubstituteResponder[F[_]: Monad: LastMessage]
       toReplace: String,
       howReplace: String => String
   ): F[List[Tx]] =
-    println(
-      s"substitute(nick = ${nick}, service = ${service}, channel = ${channel}, thread = ${thread}, toReplace = ${toReplace}"
-    )
     val matcher: Regex = new Regex(s".*${toReplace}.*")
     summon[LastMessage[F]]
       .getLastMessages(service, channel)
       .map { rxs =>
-        println(s"""  rxs: ${rxs.mkString("[", ",", "]")}""")
         rxs
           .find { rx =>
             rx.nick != nick &&
