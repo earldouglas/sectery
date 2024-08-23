@@ -67,7 +67,10 @@ class Bot(
                         channel = e.getChannel().getName(),
                         thread = None,
                         nick = e.getUser().getNick(),
-                        message = e.getMessage()
+                        message = e
+                          .getMessage()
+                          .replaceAll("""^<[^>]*>""", "")
+                          .trim
                       )
                     )
             override def onJoin(
