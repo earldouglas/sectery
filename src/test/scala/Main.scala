@@ -4,7 +4,6 @@ import com.dimafeng.testcontainers.MariaDBContainer
 import com.dimafeng.testcontainers.RabbitMQContainer
 import java.sql.Connection
 import java.sql.DriverManager
-import sectery.irc.Bot
 import zio.ExitCode
 import zio.Fiber
 import zio.Runtime
