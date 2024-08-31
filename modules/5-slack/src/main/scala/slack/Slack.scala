@@ -12,8 +12,6 @@ import com.slack.api.model.event.MessageEvent
 import scala.jdk.CollectionConverters._
 import sectery._
 import sectery.adaptors._
-import sectery.domain.entities.Rx
-import sectery.domain.entities.Tx
 import sectery.domain.entities._
 import sectery.domain.operations._
 import sectery.effects._
