@@ -12,10 +12,9 @@ import sectery.effects._
 object LiveHttpClient:
 
   private val userAgent: String =
-    val name: String = BuildInfo.name
-    val url: String = "https://github.com/earldouglas/sectery"
-    val version: String = BuildInfo.version
-    s"${name}/${version} (+${url})"
+    val name: String = "sectery"
+    val homepage: String = "https://github.com/earldouglas/sectery"
+    s"${name}/${BuildInfo.version} (+${homepage})"
 
   def unsafeRequest(
       method: String,
