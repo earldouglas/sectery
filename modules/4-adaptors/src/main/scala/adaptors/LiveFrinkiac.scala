@@ -35,10 +35,7 @@ object LiveFrinkiac:
               url = new URI(
                 s"""https://frinkiac.com/api/search?q=${qEnc}"""
               ).toURL(),
-              headers = Map(
-                "User-Agent" -> "bot",
-                "Accept" -> "application/json"
-              ),
+              headers = Map("Accept" -> "application/json"),
               body = None
             )
             .map { case Response(200, _, body) =>

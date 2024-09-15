@@ -35,8 +35,8 @@ lazy val use_cases =
     .in(file("modules/3-use-cases"))
     .enablePlugins(BuildInfoPlugin)
     .settings(
-      buildInfoKeys := Seq[BuildInfoKey](version),
-      buildInfoPackage := "sectery",
+      buildInfoKeys := Seq[BuildInfoKey](name, version),
+      buildInfoPackage := "sectery.usecases",
       libraryDependencies += "org.jsoup" % "jsoup" % "1.18.1",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.9.Final",
       libraryDependencies += "net.objecthunter" % "exp4j" % "0.4.8",
@@ -48,7 +48,10 @@ lazy val use_cases =
 lazy val adaptors =
   project
     .in(file("modules/4-adaptors"))
+    .enablePlugins(BuildInfoPlugin)
     .settings(
+      buildInfoKeys := Seq[BuildInfoKey](name, version),
+      buildInfoPackage := "sectery.adaptors",
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude (
         "dev.zio",
         "zio"

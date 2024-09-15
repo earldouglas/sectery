@@ -16,6 +16,7 @@ import sectery.domain.entities._
 import sectery.domain.operations._
 import sectery.effects._
 import zio.Queue
+import zio.Schedule
 import zio.Unsafe
 import zio.ZIO
 import zio.ZLayer
@@ -25,7 +26,6 @@ import zio.json.DeriveJsonEncoder
 import zio.json.JsonDecoder
 import zio.json.JsonEncoder
 import zio.stream.ZStream
-import zio.Schedule
 
 class Bot(
     hostname: String,

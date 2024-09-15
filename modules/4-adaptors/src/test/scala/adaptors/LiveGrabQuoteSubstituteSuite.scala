@@ -1,15 +1,15 @@
 package sectery.adaptors
 
-import sectery.effects.Quote.GrabbedMessage
 import java.sql.Connection
 import java.sql.DriverManager
+import java.time.Instant
 import munit.FunSuite
 import sectery._
 import sectery.domain.entities._
+import sectery.effects.Quote.GrabbedMessage
 import sectery.effects._
 import sectery.effects.id._
 import sectery.effects.id.given
-import java.time.Instant
 
 class LiveGrabQuoteSubstituteSuite extends FunSuite:
 

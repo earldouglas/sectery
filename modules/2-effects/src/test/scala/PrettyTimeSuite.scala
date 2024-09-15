@@ -1,7 +1,7 @@
 package sectery
 
-import munit.FunSuite
 import java.time.Instant
+import munit.FunSuite
 
 class PrettyTimeSuite extends FunSuite:
 

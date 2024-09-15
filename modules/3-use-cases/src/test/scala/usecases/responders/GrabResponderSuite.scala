@@ -1,12 +1,12 @@
 package sectery.usecases.responders
 
+import java.time.Instant
 import munit.FunSuite
 import sectery.domain.entities._
+import sectery.effects.LastMessage.LastRx
 import sectery.effects._
 import sectery.effects.id.Id
 import sectery.effects.id.given
-import java.time.Instant
-import sectery.effects.LastMessage.LastRx
 
 class GrabResponderSuite extends FunSuite:
 

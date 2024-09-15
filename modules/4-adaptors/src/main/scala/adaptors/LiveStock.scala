@@ -47,7 +47,7 @@ object LiveStock:
             url = new URI(
               s"""https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${finnhubApiToken}"""
             ).toURL(),
-            headers = Map("User-Agent" -> "bot"),
+            headers = Map.empty,
             body = None
           )
           .map { case Response(200, _, body) =>

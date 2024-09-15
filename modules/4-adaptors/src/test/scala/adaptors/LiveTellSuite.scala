@@ -2,11 +2,11 @@ package sectery.adaptors
 
 import java.sql.Connection
 import java.sql.DriverManager
+import java.time.Instant
 import munit.FunSuite
 import sectery._
 import sectery.effects._
 import sectery.effects.id._
-import java.time.Instant
 
 class LiveTellSuite extends FunSuite:
 

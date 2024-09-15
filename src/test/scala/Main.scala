@@ -7,11 +7,11 @@ import java.sql.DriverManager
 import zio.ExitCode
 import zio.Fiber
 import zio.Runtime
-import zio.logging.backend.SLF4J
 import zio.ZIO
+import zio.ZIOAppArgs
 import zio.ZIOAppDefault
 import zio.ZLayer
-import zio.ZIOAppArgs
+import zio.logging.backend.SLF4J
 
 object Main extends ZIOAppDefault:
 

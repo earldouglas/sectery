@@ -45,7 +45,7 @@ object LiveBtc:
             url = new URI(
               "https://api.coindesk.com/v1/bpi/currentprice.json"
             ).toURL(),
-            headers = Map("User-Agent" -> "bot"),
+            headers = Map.empty,
             body = None
           )
           .map { case Response(200, _, body) =>

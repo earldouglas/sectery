@@ -11,6 +11,12 @@ import sectery.effects._
 
 object LiveHttpClient:
 
+  private val userAgent: String =
+    val name: String = BuildInfo.name
+    val url: String = "https://github.com/earldouglas/sectery"
+    val version: String = BuildInfo.version
+    s"${name}/${version} (+${url})"
+
   def unsafeRequest(
       method: String,
       url: URL,
@@ -27,21 +33,18 @@ object LiveHttpClient:
     c.setDoInput(true)
     c.setDoOutput(body.isDefined)
 
-    headers foreach { case (k, v) =>
-      c.setRequestProperty(k, v)
-    }
-
-    c.setRequestProperty(
-      "User-Agent",
-      "Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0"
-    )
+    c.setRequestProperty("User-Agent", userAgent)
 
     c.setRequestProperty(
       "Accept",
       "text/html,application/xhtml+xml"
     )
 
-    body foreach { b =>
+    headers.foreach { case (k, v) =>
+      c.setRequestProperty(k, v)
+    }
+
+    body.foreach { b =>
       c.getOutputStream.write(b.getBytes("UTF-8"))
     }
 

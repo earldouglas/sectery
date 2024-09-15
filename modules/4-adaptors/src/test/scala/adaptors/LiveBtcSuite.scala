@@ -1,12 +1,12 @@
 package sectery.adaptors
 
 import java.net.URL
+import munit.FunSuite
 import sectery._
+import sectery.effects.HttpClient.Response
 import sectery.effects._
 import sectery.effects.id._
 import sectery.effects.id.given
-import munit.FunSuite
-import sectery.effects.HttpClient.Response
 
 class LiveBtcSuite extends FunSuite:
 

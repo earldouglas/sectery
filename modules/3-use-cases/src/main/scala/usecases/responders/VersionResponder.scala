@@ -1,6 +1,6 @@
 package sectery.usecases.responders
 
-import sectery.BuildInfo
+import sectery.usecases.BuildInfo
 import sectery.control.Monad
 import sectery.domain.entities._
 import sectery.usecases.Responder
