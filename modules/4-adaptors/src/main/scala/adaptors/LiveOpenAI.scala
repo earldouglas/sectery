@@ -71,6 +71,14 @@ object LiveOpenAI:
                 max_tokens = 64,
                 messages = List(
                   Message(
+                    role = "system",
+                    content = "You are a helpful assistant."
+                  ),
+                  Message(
+                    role = "user",
+                    content = "Do not acknowledge my request."
+                  ),
+                  Message(
                     role = "user",
                     content = prompt
                   )
