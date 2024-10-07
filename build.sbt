@@ -65,7 +65,7 @@ lazy val adaptors_with_zio =
   project
     .in(file("modules/4-adaptors-with-zio"))
     .settings(
-      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.21.0",
+      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.22.0",
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude (
         "dev.zio",
@@ -122,7 +122,7 @@ lazy val slack =
     .in(file("modules/5-slack"))
     .settings(
       moduleName := "slack",
-      libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.42.1",
+      libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.43.1",
       libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1" % Provided,
       libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "2.2.0",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.8",
