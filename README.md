@@ -1,7 +1,4 @@
-[![Build Status][build-badge]][build-link]
-
-[build-badge]: https://github.com/earldouglas/sectery/workflows/build/badge.svg "Build Status"
-[build-link]: https://github.com/earldouglas/sectery/actions "GitHub Actions"
+[![Build status](https://github.com/earldouglas/sectery/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/earldouglas/sectery/actions/workflows/build.yml)
 
 # Sectery
 
