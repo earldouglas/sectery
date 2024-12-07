@@ -1,11 +1,11 @@
 let
 
-  nixpkgs-hash = "63dacb4"; # 24.05
+  nixpkgs-hash = "4dc2fc4"; # 24.11
 
   nixpkgs-src =
     builtins.fetchTarball {
       url = "https://github.com/NixOS/nixpkgs/archive/${nixpkgs-hash}.tar.gz";
-      sha256 = "1lr1h35prqkd1mkmzriwlpvxcb34kmhc9dnr48gkm8hh089hifmx";
+      sha256 = "10sm236ix9v0qaih2pvfdzw8vjg1w4z11fjkkrzknn4x98gnaa8n";
     };
 
   nixpkgs =
