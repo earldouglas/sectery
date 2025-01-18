@@ -17,7 +17,7 @@ object LiveEval:
           .request(
             method = "GET",
             url = new URI(
-              s"https://earldouglas.com/api/haskeval?src=${encExpr}"
+              s"https://haskeval.earldouglas.com/?src=${encExpr}"
             ).toURL(),
             headers = Map.empty,
             body = None

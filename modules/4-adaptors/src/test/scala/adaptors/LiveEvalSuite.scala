@@ -19,7 +19,7 @@ class LiveEvalSuite extends FunSuite:
           body: Option[String]
       ): Id[Response] =
         url.toString() match
-          case "https://earldouglas.com/api/haskeval?src=6+*+7" =>
+          case "https://haskeval.earldouglas.com/?src=6+*+7" =>
             Response(
               status = 200,
               headers = Map.empty,
