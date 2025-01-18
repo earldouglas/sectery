@@ -80,7 +80,7 @@ lazy val producers =
     .settings(
       moduleName := "producers",
       libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.1",
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.15",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.16",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
         "dev.zio",
         "zio"
@@ -102,7 +102,7 @@ lazy val irc =
       moduleName := "irc",
       resolvers += "jitpack" at "https://jitpack.io/", // needed for pircbotx
       libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.3.1",
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.15",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.16",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
         "dev.zio",
         "zio"
@@ -125,7 +125,7 @@ lazy val slack =
       libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.44.2",
       libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1" % Provided,
       libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "2.2.0",
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.15",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.16",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
         "dev.zio",
         "zio"
