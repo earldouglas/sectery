@@ -1,11 +1,12 @@
 let
 
-  nixpkgs-hash = "4dc2fc4"; # 24.11
+  # https://github.com/NixOS/nixpkgs/commits/nixos-24.11/
+  nixpkgs-rev = "e24b4c0";
 
   nixpkgs-src =
     builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/${nixpkgs-hash}.tar.gz";
-      sha256 = "10sm236ix9v0qaih2pvfdzw8vjg1w4z11fjkkrzknn4x98gnaa8n";
+      url = "https://github.com/NixOS/nixpkgs/archive/${nixpkgs-rev}.tar.gz";
+      sha256 = "1m383nldy1jvl8n2jw02l26w9iib4b2a9341c1kf74miaahw7qx6";
     };
 
   nixpkgs =
