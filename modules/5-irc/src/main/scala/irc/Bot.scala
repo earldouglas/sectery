@@ -120,8 +120,8 @@ object Bot:
 
         unsafeReceive: (Rx => Unit) = { rx =>
           Unsafe
-            .unsafe { implicit u: Unsafe =>
-              runtime.unsafe
+            .unsafe {
+              implicit u: Unsafe => runtime.unsafe
                 .run(
                   received
                     .offer(rx)
