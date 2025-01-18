@@ -1,5 +1,5 @@
 val zioVersion = "2.1.14"
-val zioJsonVersion = "0.7.3"
+val zioJsonVersion = "0.7.4"
 val zioLoggingVersion = "2.4.0"
 val testcontainersVersion = "0.41.5"
 
@@ -27,7 +27,7 @@ lazy val effects =
     .in(file("modules/2-effects"))
     .dependsOn(domain)
     .settings(
-      libraryDependencies += "org.scalameta" %% "munit" % "1.0.3" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "1.0.4" % Test
     )
 
 lazy val use_cases =
@@ -40,7 +40,7 @@ lazy val use_cases =
       libraryDependencies += "org.jsoup" % "jsoup" % "1.18.3",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.9.Final",
       libraryDependencies += "net.objecthunter" % "exp4j" % "0.4.8",
-      libraryDependencies += "org.scalameta" %% "munit" % "1.0.3" % Test,
+      libraryDependencies += "org.scalameta" %% "munit" % "1.0.4" % Test,
       libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "1.0.0" % Test
     )
     .dependsOn(domain, effects)
@@ -57,7 +57,7 @@ lazy val adaptors =
         "zio"
       ),
       libraryDependencies += "com.h2database" % "h2" % "2.3.232" % Test,
-      libraryDependencies += "org.scalameta" %% "munit" % "1.0.3" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "1.0.4" % Test
     )
     .dependsOn(effects)
 
@@ -80,7 +80,7 @@ lazy val producers =
     .settings(
       moduleName := "producers",
       libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.1",
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.15",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.16",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
         "dev.zio",
         "zio"
@@ -102,7 +102,7 @@ lazy val irc =
       moduleName := "irc",
       resolvers += "jitpack" at "https://jitpack.io/", // needed for pircbotx
       libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.3.1",
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.15",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.16",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
         "dev.zio",
         "zio"
@@ -122,10 +122,10 @@ lazy val slack =
     .in(file("modules/5-slack"))
     .settings(
       moduleName := "slack",
-      libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.44.2",
+      libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.45.1",
       libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1" % Provided,
       libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "2.2.0",
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.15",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.16",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
         "dev.zio",
         "zio"
