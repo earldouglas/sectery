@@ -1,9 +1,9 @@
 val zioVersion = "2.1.14"
-val zioJsonVersion = "0.7.4"
+val zioJsonVersion = "0.7.6"
 val zioLoggingVersion = "2.4.0"
-val testcontainersVersion = "0.41.5"
+val testcontainersVersion = "0.41.8"
 
-ThisBuild / scalaVersion := "3.6.2"
+ThisBuild / scalaVersion := "3.6.3"
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
@@ -27,7 +27,7 @@ lazy val effects =
     .in(file("modules/2-effects"))
     .dependsOn(domain)
     .settings(
-      libraryDependencies += "org.scalameta" %% "munit" % "1.0.4" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "1.1.0" % Test
     )
 
 lazy val use_cases =
@@ -40,7 +40,7 @@ lazy val use_cases =
       libraryDependencies += "org.jsoup" % "jsoup" % "1.18.3",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.9.Final",
       libraryDependencies += "net.objecthunter" % "exp4j" % "0.4.8",
-      libraryDependencies += "org.scalameta" %% "munit" % "1.0.4" % Test,
+      libraryDependencies += "org.scalameta" %% "munit" % "1.1.0" % Test,
       libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "1.0.0" % Test
     )
     .dependsOn(domain, effects)
@@ -57,7 +57,7 @@ lazy val adaptors =
         "zio"
       ),
       libraryDependencies += "com.h2database" % "h2" % "2.3.232" % Test,
-      libraryDependencies += "org.scalameta" %% "munit" % "1.0.4" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "1.1.0" % Test
     )
     .dependsOn(effects)
 
