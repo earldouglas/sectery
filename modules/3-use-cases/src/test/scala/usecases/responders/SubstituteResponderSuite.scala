@@ -45,7 +45,7 @@ class SubstituteResponderSuite extends FunSuite:
     )
   }
 
-  test("s/bar/baz/ replaces first bar with baz") {
+  test("s/bar/baz/ replaces the most recent bar with baz") {
 
     given substitute: LastMessage[Id] with
       override def saveLastMessage(rx: Rx): Id[Unit] =
@@ -60,8 +60,22 @@ class SubstituteResponderSuite extends FunSuite:
               LastRx(
                 "irc",
                 "#foo",
-                "jdoe",
-                "bar bar baz",
+                "alice",
+                "bar",
+                Instant.EPOCH.minusSeconds(2)
+              ),
+              LastRx(
+                "irc",
+                "#foo",
+                "bob",
+                "bar",
+                Instant.EPOCH.minusSeconds(1)
+              ),
+              LastRx(
+                "irc",
+                "#foo",
+                "charlie",
+                "bar",
                 Instant.EPOCH
               )
             )
@@ -73,7 +87,7 @@ class SubstituteResponderSuite extends FunSuite:
         )
 
     val expected: List[Tx] =
-      List(Tx("irc", "#foo", None, "<jdoe> baz bar baz"))
+      List(Tx("irc", "#foo", None, "<charlie> baz"))
 
     assertEquals(
       obtained = obtained,
