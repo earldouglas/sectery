@@ -30,6 +30,7 @@ class SubstituteResponder[F[_]: Monad: LastMessage]
       .getLastMessages(service, channel)
       .map { rxs =>
         rxs
+          .sortWith((x, y) => x.instant.compareTo(y.instant) > 0)
           .find { rx =>
             rx.nick != nick &&
             matcher.matches(rx.message)
