@@ -80,6 +80,7 @@ lazy val producers =
     .settings(
       moduleName := "producers",
       libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.3",
+      libraryDependencies += "net.java.dev.jna" % "jna" % "5.17.0",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.18",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
         "dev.zio",
