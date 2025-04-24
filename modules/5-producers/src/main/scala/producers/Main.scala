@@ -30,7 +30,9 @@ object Main extends ZIOAppDefault:
   val openAiApiKey: String = sys.env("OPENAI_APIKEY")
 
   val unsafeGetConnection: () => Connection =
-    () => DriverManager.getConnection(databaseUrl)
+    () =>
+      println(s"DEBUG: DATABASE_URL=${databaseUrl}")
+      DriverManager.getConnection(databaseUrl)
 
   override def run: ZIO[Any, Throwable, ExitCode] =
     Producers
