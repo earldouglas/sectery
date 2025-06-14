@@ -50,7 +50,7 @@ object HtmlResponder:
 
   private def getMeta(doc: Document, key: String): List[String] =
     List("", "og:", "twitter:")
-      .flatMap { prefix =>
+      .flatMap { _ =>
         selectContentAttribute(doc, s"meta[name=${key}]") ++
           selectContentAttribute(doc, s"meta[property=${key}]")
       }

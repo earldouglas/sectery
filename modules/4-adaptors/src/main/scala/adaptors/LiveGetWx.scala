@@ -46,24 +46,26 @@ object LiveGetWx:
               headers = Map("Accept" -> "application/json"),
               body = None
             )
-            .map { case Response(200, _, body) =>
-              body.fromJson[List[PlaceJson]] match
-                case Right(pjs) =>
-                  pjs.headOption.map(pj =>
-                    Place(
-                      displayName = pj.display_name,
-                      shortName = pj.display_name
-                        .split(", ")
-                        .headOption
-                        .getOrElse(q),
-                      lat = pj.lat,
-                      lon = pj.lon
+            .map:
+              case Response(200, _, body) =>
+                body.fromJson[List[PlaceJson]] match
+                  case Right(pjs) =>
+                    pjs.headOption.map(pj =>
+                      Place(
+                        displayName = pj.display_name,
+                        shortName = pj.display_name
+                          .split(", ")
+                          .headOption
+                          .getOrElse(q),
+                        lat = pj.lat,
+                        lon = pj.lon
+                      )
                     )
-                  )
-                case Left(_) =>
-                  None
-            }
+                  case Left(_) =>
+                    None
+              case _ => None
 
+          /*
       object DarkSky:
 
         case class Currently(
@@ -131,23 +133,25 @@ object LiveGetWx:
               ),
               body = None
             )
-            .map { case Response(200, _, body) =>
-              body.fromJson[ForecastJson] match
-                case Right(fj) =>
-                  fj.daily.data.headOption.map { dailyData =>
-                    Forecast(
-                      temperature = fj.currently.temperature,
-                      temperatureHigh = dailyData.temperatureHigh,
-                      temperatureLow = dailyData.temperatureLow,
-                      humidity = fj.currently.humidity * 100,
-                      wind = fj.currently.windSpeed,
-                      gusts = fj.currently.windGust,
-                      uvIndex = fj.currently.uvIndex
-                    )
-                  }
-                case Left(_) =>
-                  None
-            }
+           .map:
+             case Response(200, _, body) =>
+                body.fromJson[ForecastJson] match
+                  case Right(fj) =>
+                    fj.daily.data.headOption.map { dailyData =>
+                      Forecast(
+                        temperature = fj.currently.temperature,
+                        temperatureHigh = dailyData.temperatureHigh,
+                        temperatureLow = dailyData.temperatureLow,
+                        humidity = fj.currently.humidity * 100,
+                        wind = fj.currently.windSpeed,
+                        gusts = fj.currently.windGust,
+                        uvIndex = fj.currently.uvIndex
+                      )
+                    }
+                  case Left(_) =>
+                    None
+             case _ => None
+           */
 
       object OpenWeatherMap:
 
@@ -197,11 +201,12 @@ object LiveGetWx:
               ),
               body = None
             )
-            .map { case Response(200, _, body) =>
-              body.fromJson[OneCall] match
-                case Right(x) => Some(x.current)
-                case Left(e)  => None
-            }
+            .map:
+              case Response(200, _, body) =>
+                body.fromJson[OneCall] match
+                  case Right(x) => Some(x.current)
+                  case Left(e)  => None
+              case _ => None
 
       object AirNowObservation:
 
@@ -247,23 +252,24 @@ object LiveGetWx:
               ),
               body = None
             )
-            .map { case Response(200, _, body) =>
-              body.fromJson[List[Observation]] match
-                case Right(os) =>
-                  Some(
-                    Aqi(
-                      parameters = os.map { o =>
-                        AqiParameter(
-                          name = o.ParameterName,
-                          value = o.AQI,
-                          category = o.Category.Name
-                        )
-                      }
+            .map:
+              case Response(200, _, body) =>
+                body.fromJson[List[Observation]] match
+                  case Right(os) =>
+                    Some(
+                      Aqi(
+                        parameters = os.map { o =>
+                          AqiParameter(
+                            name = o.ParameterName,
+                            value = o.AQI,
+                            category = o.Category.Name
+                          )
+                        }
+                      )
                     )
-                  )
-                case Left(_) =>
-                  None
-            }
+                  case Left(_) =>
+                    None
+              case _ => None
 
       object AirNowForecast:
 
@@ -311,24 +317,25 @@ object LiveGetWx:
               ),
               body = None
             )
-            .map { case Response(200, _, body) =>
-              body.fromJson[List[Forecast]] match
-                case Right(fs) if fs.length > 0 =>
-                  Some(
-                    Aqi(
-                      parameters = fs.map { f =>
-                        AqiParameter(
-                          name = f.ParameterName,
-                          date = f.DateForecast,
-                          value = f.AQI,
-                          category = f.Category.Name
-                        )
-                      }
+            .map:
+              case Response(200, _, body) =>
+                body.fromJson[List[Forecast]] match
+                  case Right(fs) if fs.length > 0 =>
+                    Some(
+                      Aqi(
+                        parameters = fs.map { f =>
+                          AqiParameter(
+                            name = f.ParameterName,
+                            date = f.DateForecast,
+                            value = f.AQI,
+                            category = f.Category.Name
+                          )
+                        }
+                      )
                     )
-                  )
-                case _ =>
-                  None
-            }
+                  case _ =>
+                    None
+              case _ => None
 
       case class AqiParameter(
           name: String,

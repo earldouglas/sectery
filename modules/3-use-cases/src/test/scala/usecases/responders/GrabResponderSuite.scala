@@ -12,9 +12,6 @@ class GrabResponderSuite extends FunSuite:
 
   test("@grab [nick] can't grab own message") {
 
-    given now: Now[Id] with
-      override def now() = Instant.EPOCH
-
     given lastMessage: LastMessage[Id] with
       override def getLastMessages(service: String, channel: String) =
         ???
@@ -51,13 +48,11 @@ class GrabResponderSuite extends FunSuite:
 
   test("@grab [nick] can't grab absent message") {
 
-    given now: Now[Id] with
-      override def now() = Instant.EPOCH
-
     given lastMessage: LastMessage[Id] with
       override def getLastMessages(service: String, channel: String) =
         (service, channel) match
           case ("irc", "#foo") => Nil
+          case _               => throw new Exception("unexpected")
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
@@ -91,9 +86,6 @@ class GrabResponderSuite extends FunSuite:
 
   test("@grab [nick] grabs nick's message") {
 
-    given now: Now[Id] with
-      override def now() = Instant.EPOCH
-
     given lastMessage: LastMessage[Id] with
       override def getLastMessages(service: String, channel: String) =
         ???
@@ -107,6 +99,7 @@ class GrabResponderSuite extends FunSuite:
       ) =
         (channel, nick) match {
           case ("#foo", "baz") => true
+          case _               => throw new Exception("unexpected")
         }
 
     val obtained: List[Tx] =
@@ -126,15 +119,11 @@ class GrabResponderSuite extends FunSuite:
 
   test("@grab can't grab absent message last message") {
 
-    given now: Now[Id] with
-      override def now() = Instant.EPOCH
-
     given lastMessage: LastMessage[Id] with
       override def getLastMessages(service: String, channel: String) =
         (service, channel) match {
-          case ("irc", "#foo") =>
-            List(
-            )
+          case ("irc", "#foo") => Nil
+          case _               => throw new Exception("unexpected")
         }
       override def saveLastMessage(rx: Rx) = ???
 
@@ -169,9 +158,6 @@ class GrabResponderSuite extends FunSuite:
 
   test("@grab grabs last message") {
 
-    given now: Now[Id] with
-      override def now() = Instant.EPOCH
-
     given lastMessage: LastMessage[Id] with
       override def getLastMessages(service: String, channel: String) =
         (service, channel) match
@@ -179,6 +165,7 @@ class GrabResponderSuite extends FunSuite:
             List(
               LastRx("irc", "#foo", "baz", "I am baz.", Instant.EPOCH)
             )
+          case _ => throw new Exception("unexpected")
       override def saveLastMessage(rx: Rx) = ???
 
     given grab: Grab[Id] with
@@ -189,6 +176,7 @@ class GrabResponderSuite extends FunSuite:
       ) =
         (service, channel, nick) match
           case ("irc", "#foo", "baz") => true
+          case _ => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new GrabResponder[Id]
@@ -208,9 +196,6 @@ class GrabResponderSuite extends FunSuite:
   test("Save non-@grab message") {
 
     var saved: Option[Rx] = None
-
-    given now: Now[Id] with
-      override def now() = Instant.EPOCH
 
     given lastMessage: LastMessage[Id] with
       override def getLastMessages(service: String, channel: String) =

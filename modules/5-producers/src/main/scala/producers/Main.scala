@@ -35,7 +35,6 @@ object Main extends ZIOAppDefault:
   override def run: ZIO[Any, Throwable, ExitCode] =
     Producers
       .apply(
-        databaseUrl = databaseUrl,
         openWeatherMapApiKey = openWeatherMapApiKey,
         airNowApiKey = airNowApiKey,
         finnhubApiToken = finnhubApiToken,

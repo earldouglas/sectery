@@ -25,6 +25,7 @@ class TellResponderSuite extends FunSuite:
         (service, channel, m.to) match
           case ("irc", "#foo", "bob") =>
             saved = saved :+ m.message
+          case _ => throw new Exception("unexpected")
 
       override def pop(
           service: String,
@@ -94,6 +95,7 @@ class TellResponderSuite extends FunSuite:
                 message = message
               )
             }
+          case _ => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new TellResponder[Id]

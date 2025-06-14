@@ -15,6 +15,7 @@ class WxResponderSuite extends FunSuite:
         location match {
           case "san francisco" =>
             "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 1, o3 15, pm2.5 25, pm10 10"
+          case _ => throw new Exception("unexpected")
         }
 
     given getConfig: GetConfig[Id] with
@@ -59,6 +60,7 @@ class WxResponderSuite extends FunSuite:
         location match {
           case "san francisco" =>
             "bar: Set default location with `@set wx <location>`"
+          case _ => throw new Exception("unexpected")
         }
 
     given getConfig: GetConfig[Id] with
@@ -97,6 +99,7 @@ class WxResponderSuite extends FunSuite:
         location match {
           case "san francisco" =>
             "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 1, o3 15, pm2.5 25, pm10 10"
+          case _ => throw new Exception("unexpected")
         }
 
     given getConfig: GetConfig[Id] with
@@ -107,6 +110,7 @@ class WxResponderSuite extends FunSuite:
         (nick, key) match {
           case ("bar", "wx") =>
             Some("san francisco")
+          case _ => throw new Exception("unexpected")
         }
 
     val obtained: List[Tx] =

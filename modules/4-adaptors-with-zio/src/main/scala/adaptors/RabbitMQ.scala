@@ -48,7 +48,7 @@ class RabbitMQ(
         ZStream.async[Any, Throwable, A] { cb =>
 
           val deliver: DeliverCallback =
-            (consumerTag: String, message: Delivery) => {
+            (_: String, message: Delivery) => {
               val messageBody: String =
                 new String(message.getBody, "UTF-8")
               messageBody.fromJson[A] match {
@@ -72,7 +72,7 @@ class RabbitMQ(
             }
 
           val cancel: CancelCallback =
-            (consumerTag: String) =>
+            (_: String) =>
               cb(ZIO.fail(new Exception("cancelled")).mapError(Some(_)))
 
           channel.basicConsume(queueName, true, deliver, cancel)

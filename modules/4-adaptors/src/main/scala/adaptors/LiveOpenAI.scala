@@ -4,14 +4,13 @@ import java.net.URI
 import sectery._
 import sectery.control.Monad
 import sectery.control.Monad._
-import sectery.control.Traversable
 import sectery.effects.HttpClient.Response
 import sectery.effects._
 import zio.json._
 
 object LiveOpenAI:
 
-  def apply[F[_]: HttpClient: Monad: Traversable](
+  def apply[F[_]: HttpClient: Monad](
       openAiApiKey: String
   ): OpenAI[F] =
     new OpenAI:
@@ -87,8 +86,9 @@ object LiveOpenAI:
               ).toJson
             )
           )
-          .map { case Response(200, _, body) =>
-            body.fromJson[CompletionsResponse] match
-              case Right(cr) => cr.choices.map(_.message.content)
-              case Left(_)   => Nil
-          }
+          .map:
+            case Response(200, _, body) =>
+              body.fromJson[CompletionsResponse] match
+                case Right(cr) => cr.choices.map(_.message.content)
+                case Left(_)   => Nil
+            case _ => Nil

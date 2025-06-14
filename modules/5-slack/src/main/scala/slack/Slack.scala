@@ -9,7 +9,6 @@ import com.slack.api.methods.MethodsClient
 import com.slack.api.methods.request.chat.ChatPostMessageRequest
 import com.slack.api.model.event.MessageBotEvent
 import com.slack.api.model.event.MessageEvent
-import scala.jdk.CollectionConverters._
 import sectery._
 import sectery.adaptors._
 import sectery.domain.entities._
@@ -26,7 +25,6 @@ import zio.json.DeriveJsonDecoder
 import zio.json.DeriveJsonEncoder
 import zio.json.JsonDecoder
 import zio.json.JsonEncoder
-import zio.stream.ZStream
 
 // See https://slack.dev/java-slack-sdk/guides/web-api-basics
 class Slack(

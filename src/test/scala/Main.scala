@@ -59,7 +59,6 @@ object Main extends ZIOAppDefault:
         producersFiber <-
           sectery.producers.Producers
             .apply(
-              databaseUrl = mariaDbContainer.jdbcUrl,
               openWeatherMapApiKey = openWeatherMapApiKey,
               airNowApiKey = airNowApiKey,
               finnhubApiToken = finnhubApiToken,

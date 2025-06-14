@@ -20,7 +20,6 @@ import zio.json.DeriveJsonDecoder
 import zio.json.DeriveJsonEncoder
 import zio.json.JsonDecoder
 import zio.json.JsonEncoder
-import zio.stream.ZStream
 
 class Producers(
     rabbitMqHostname: String,
@@ -234,7 +233,6 @@ class Producers(
 object Producers:
 
   def apply(
-      databaseUrl: String,
       openWeatherMapApiKey: String,
       airNowApiKey: String,
       finnhubApiToken: String,

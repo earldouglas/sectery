@@ -3,7 +3,6 @@ package sectery.adaptors
 import java.sql.Connection
 import java.sql.DriverManager
 import munit.FunSuite
-import sectery._
 import sectery.effects._
 import sectery.effects.id._
 

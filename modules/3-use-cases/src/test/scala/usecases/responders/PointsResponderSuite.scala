@@ -19,6 +19,7 @@ class PointsResponderSuite extends FunSuite:
       ) =
         (service, channel, nick, delta) match
           case ("irc", "#foo", "jdoe", 1) => 1
+          case _ => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new PointsResponder[Id]
@@ -46,6 +47,7 @@ class PointsResponderSuite extends FunSuite:
       ) =
         (service, channel, nick, delta) match
           case ("irc", "#foo", "jdoe", 1) => 2
+          case _ => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new PointsResponder[Id]
@@ -73,6 +75,7 @@ class PointsResponderSuite extends FunSuite:
       ) =
         (service, channel, nick, delta) match
           case ("irc", "#foo", "jdoe", -1) => 1
+          case _ => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new PointsResponder[Id]
@@ -100,6 +103,7 @@ class PointsResponderSuite extends FunSuite:
       ) =
         (service, channel, nick, delta) match
           case ("irc", "#foo", "jdoe", -1) => 0
+          case _ => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new PointsResponder[Id]

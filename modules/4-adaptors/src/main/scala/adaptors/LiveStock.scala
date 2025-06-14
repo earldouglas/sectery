@@ -50,19 +50,20 @@ object LiveStock:
             headers = Map.empty,
             body = None
           )
-          .map { case Response(200, _, body) =>
-            body
-              .fromJson[FinnhubApi.Quote] match
-              case Right(jq)
-                  if jq.c != 0 || jq.h != 0 || jq.l != 0 || jq.o != 0 || jq.pc != 0 =>
-                val current: Float = jq.c
-                val previousClose: Float = jq.pc
+          .map:
+            case Response(200, _, body) =>
+              body
+                .fromJson[FinnhubApi.Quote] match
+                case Right(jq)
+                    if jq.c != 0 || jq.h != 0 || jq.l != 0 || jq.o != 0 || jq.pc != 0 =>
+                  val current: Float = jq.c
+                  val previousClose: Float = jq.pc
 
-                val change: Float = current - previousClose
-                val changeP: Float = change * 100 / previousClose
+                  val change: Float = current - previousClose
+                  val changeP: Float = change * 100 / previousClose
 
-                Some(
-                  f"""${symbol}: ${current}%.2f ${change}%+.2f (${changeP}%+.2f%%)"""
-                )
-              case _ => None
-          }
+                  Some(
+                    f"""${symbol}: ${current}%.2f ${change}%+.2f (${changeP}%+.2f%%)"""
+                  )
+                case _ => None
+            case _ => None

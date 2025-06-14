@@ -5,14 +5,13 @@ import java.net.URLEncoder
 import sectery._
 import sectery.control.Monad
 import sectery.control.Monad._
-import sectery.control.Traversable
 import sectery.effects.HttpClient.Response
 import sectery.effects._
 import zio.json._
 
 object LiveFrinkiac:
 
-  def apply[F[_]: HttpClient: Monad: Traversable](): Frinkiac[F] =
+  def apply[F[_]: HttpClient: Monad](): Frinkiac[F] =
     new Frinkiac:
 
       object Search:
@@ -38,11 +37,12 @@ object LiveFrinkiac:
               headers = Map("Accept" -> "application/json"),
               body = None
             )
-            .map { case Response(200, _, body) =>
-              body.fromJson[List[Search]] match
-                case Right(ss) => ss.headOption
-                case Left(_)   => None
-            }
+            .map:
+              case Response(200, _, body) =>
+                body.fromJson[List[Search]] match
+                  case Right(ss) => ss.headOption
+                  case Left(_)   => None
+              case _ => None
 
       object Caption:
 
@@ -123,11 +123,12 @@ object LiveFrinkiac:
               ),
               body = None
             )
-            .map { case Response(200, _, body) =>
-              body.fromJson[Caption] match
-                case Right(c) => Some(c)
-                case Left(_)  => None
-            }
+            .map:
+              case Response(200, _, body) =>
+                body.fromJson[Caption] match
+                  case Right(c) => Some(c)
+                  case Left(_)  => None
+              case _ => None
 
       override def frinkiac(q: String): F[List[String]] =
         for

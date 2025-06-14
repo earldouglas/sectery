@@ -1,8 +1,8 @@
 package sectery.usecases.responders
 
-import sectery.usecases.BuildInfo
 import sectery.control.Monad
 import sectery.domain.entities._
+import sectery.usecases.BuildInfo
 import sectery.usecases.Responder
 
 class VersionResponder[F[_]: Monad] extends Responder[F]:
