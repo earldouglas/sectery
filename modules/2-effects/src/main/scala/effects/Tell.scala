@@ -1,7 +1,6 @@
 package sectery.effects
 
 import java.time.Instant
-import sectery.control.Monad._
 
 trait Tell[F[_]]:
   def save(service: String, channel: String, m: Tell.Saved): F[Unit]

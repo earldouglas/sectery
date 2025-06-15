@@ -21,6 +21,7 @@ class SetResponderSuite extends FunSuite:
         (nick, key) match {
           case ("bar", "foo") =>
             state = Some((nick, key, value))
+          case _ => throw new Exception("unexpected")
         }
 
     val obtained: List[Tx] =

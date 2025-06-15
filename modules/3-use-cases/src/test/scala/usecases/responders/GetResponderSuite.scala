@@ -44,6 +44,8 @@ class GetResponderSuite extends FunSuite:
         (nick, key) match {
           case ("bar", "foo") =>
             Some("bar baz")
+          case _ =>
+            throw new Exception("unexpected")
         }
 
     val obtained: List[Tx] =

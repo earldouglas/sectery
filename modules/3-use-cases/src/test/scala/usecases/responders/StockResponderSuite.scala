@@ -15,6 +15,7 @@ class StockResponderSuite extends FunSuite:
         symbol match {
           case "VOO" =>
             Some("VOO: 390.09 +0.68 (+0.17%)")
+          case _ => throw new Exception("unexpected")
         }
 
     given getConfig: GetConfig[Id] with
@@ -87,6 +88,7 @@ class StockResponderSuite extends FunSuite:
         symbol match {
           case "VOO" =>
             Some("VOO: 390.09 +0.68 (+0.17%)")
+          case _ => throw new Exception("unexpected")
         }
 
     given getConfig: GetConfig[Id] with
@@ -97,6 +99,7 @@ class StockResponderSuite extends FunSuite:
         (nick, key) match {
           case ("bar", "stock") =>
             Some("VOO")
+          case _ => throw new Exception("unexpected")
         }
 
     val obtained: List[Tx] =

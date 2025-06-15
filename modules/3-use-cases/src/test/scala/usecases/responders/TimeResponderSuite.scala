@@ -53,6 +53,7 @@ class TimeResponderSuite extends FunSuite:
         (nick, key) match {
           case ("bar", "tz") =>
             Some("PST")
+          case _ => throw new Exception("unexpected")
         }
 
     given now: Now[Id] with

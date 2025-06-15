@@ -13,5 +13,7 @@ object Resource:
 
   def read(path: String): String =
     Source
-      .fromInputStream(getClass().getResourceAsStream(path))(decoder)
+      .fromInputStream(getClass().getResourceAsStream(path))(using
+        decoder
+      )
       .mkString

@@ -25,7 +25,6 @@ import zio.json.DeriveJsonDecoder
 import zio.json.DeriveJsonEncoder
 import zio.json.JsonDecoder
 import zio.json.JsonEncoder
-import zio.stream.ZStream
 
 class Bot(
     hostname: String,

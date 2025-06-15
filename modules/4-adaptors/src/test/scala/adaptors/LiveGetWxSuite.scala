@@ -62,13 +62,6 @@ class LiveGetWxSuite extends FunSuite:
 
   test("Retrieve weather for san francisco") {
 
-    given getConfig: GetConfig[Id] with
-      override def getConfig(
-          nick: String,
-          key: String
-      ): Id[Option[String]] =
-        None
-
     val obtained: String =
       LiveGetWx("alligator3", "alligator3")
         .getWx("san francisco")

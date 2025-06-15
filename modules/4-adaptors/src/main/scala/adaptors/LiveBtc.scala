@@ -48,10 +48,11 @@ object LiveBtc:
             headers = Map.empty,
             body = None
           )
-          .map { case Response(200, _, body) =>
-            body.fromJson[CoindeskApi.CurrentPrice] match
-              case Right(cp) =>
-                Some(cp.bpi.USD.rate_float)
-              case Left(_) =>
-                None
-          }
+          .map:
+            case Response(200, _, body) =>
+              body.fromJson[CoindeskApi.CurrentPrice] match
+                case Right(cp) =>
+                  Some(cp.bpi.USD.rate_float)
+                case Left(_) =>
+                  None
+            case _ => None

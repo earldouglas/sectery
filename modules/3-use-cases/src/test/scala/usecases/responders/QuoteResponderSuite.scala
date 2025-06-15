@@ -92,6 +92,7 @@ class QuoteResponderSuite extends FunSuite:
                 instant = Instant.EPOCH
               )
             )
+          case _ => throw new Exception("unexpected")
         }
       override def quote(service: String, channel: String) = None
 

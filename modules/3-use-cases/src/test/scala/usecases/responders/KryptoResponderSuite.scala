@@ -32,6 +32,7 @@ class KryptoResponderSuite extends FunSuite:
                 objective = 8,
                 cards = (9, 16, 1, 3, 18)
               )
+            case _ => throw new Exception("unexpected")
 
     assertEquals(
       new KryptoResponder[Id]
@@ -66,6 +67,7 @@ class KryptoResponderSuite extends FunSuite:
           (service, channel, guessCount) match
             case ("irc", "#foo", 1) =>
               _guessCount = guessCount
+            case _ => throw new Exception("unexpected")
 
         override def getOrStartGame(service: String, channel: String) =
           (service, channel) match
@@ -75,6 +77,7 @@ class KryptoResponderSuite extends FunSuite:
                 objective = 8,
                 cards = (9, 16, 1, 3, 18)
               )
+            case _ => throw new Exception("unexpected")
 
     assertEquals(
       obtained = new KryptoResponder[Id]
@@ -127,6 +130,7 @@ class KryptoResponderSuite extends FunSuite:
                 objective = 8,
                 cards = (9, 16, 1, 3, 18)
               )
+            case _ => throw new Exception("unexpected")
 
     assertEquals(
       obtained = new KryptoResponder[Id]
@@ -163,6 +167,7 @@ class KryptoResponderSuite extends FunSuite:
                 objective = 8,
                 cards = (9, 16, 1, 3, 18)
               )
+            case _ => throw new Exception("unexpected")
 
     assertEquals(
       obtained = new KryptoResponder[Id]
@@ -197,6 +202,7 @@ class KryptoResponderSuite extends FunSuite:
                 objective = 8,
                 cards = (9, 16, 1, 3, 18)
               )
+            case _ => throw new Exception("unexpected")
 
     assertEquals(
       obtained = new KryptoResponder[Id]

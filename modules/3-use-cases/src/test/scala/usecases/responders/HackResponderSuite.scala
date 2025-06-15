@@ -34,6 +34,7 @@ class HackResponderSuite extends FunSuite:
         override def getOrStartGame(service: String, channel: String) =
           (service, channel) match
             case ("irc", "#foo") => ("foo", 0)
+            case _               => throw new Exception("unexpected")
 
     assertEquals(
       new HackResponder[Id]
@@ -57,9 +58,11 @@ class HackResponderSuite extends FunSuite:
         override def getOrStartGame(service: String, channel: String) =
           (service, channel) match
             case ("irc", "#foo") => ("foo", 1)
+            case _               => throw new Exception("unexpected")
         override def isAWord(word: String) =
           word match
             case "bar" => false
+            case _     => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new HackResponder[Id]
@@ -84,9 +87,11 @@ class HackResponderSuite extends FunSuite:
         override def getOrStartGame(service: String, channel: String) =
           (service, channel) match
             case ("irc", "#foo") => ("foo", 1)
+            case _               => throw new Exception("unexpected")
         override def isAWord(word: String) =
           word match
             case "bar" => true
+            case _     => throw new Exception("unexpected")
         override def setGuessCount(
             service: String,
             channel: String,
@@ -94,6 +99,7 @@ class HackResponderSuite extends FunSuite:
         ) =
           (channel, guessCount) match
             case ("#foo", 2) => ()
+            case _           => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new HackResponder[Id]
@@ -123,9 +129,11 @@ class HackResponderSuite extends FunSuite:
         override def getOrStartGame(service: String, channel: String) =
           (service, channel) match
             case ("irc", "#foo") => ("foo", 2)
+            case _               => throw new Exception("unexpected")
         override def isAWord(word: String) =
           word match
             case "foe" => true
+            case _     => throw new Exception("unexpected")
         override def setGuessCount(
             service: String,
             channel: String,
@@ -133,6 +141,7 @@ class HackResponderSuite extends FunSuite:
         ) =
           (channel, guessCount) match
             case ("#foo", 3) => ()
+            case _           => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new HackResponder[Id]
@@ -164,12 +173,15 @@ class HackResponderSuite extends FunSuite:
         override def getOrStartGame(service: String, channel: String) =
           (service, channel) match
             case ("irc", "#foo") => ("foo", 3)
+            case _               => throw new Exception("unexpected")
         override def isAWord(word: String) =
           word match
             case "foo" => true
+            case _     => throw new Exception("unexpected")
         override def deleteGame(service: String, channel: String) =
           (service, channel) match
             case ("irc", "#foo") => deleted = true
+            case _               => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new HackResponder[Id]

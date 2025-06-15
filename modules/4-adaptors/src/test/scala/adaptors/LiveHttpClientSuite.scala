@@ -18,7 +18,7 @@ class LiveHttpClientSuite extends FunSuite:
   val httpClient: HttpClient[Id] = LiveHttpClient()
 
   val httpServer = FunFixture[HttpServer](
-    setup = { test =>
+    setup = { _ =>
       val httpServer: HttpServer =
         HttpServer.create(new InetSocketAddress(31337), 0)
       httpServer.createContext(

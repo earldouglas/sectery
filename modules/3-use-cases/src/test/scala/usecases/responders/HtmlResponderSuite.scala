@@ -37,6 +37,7 @@ class HtmlResponderSuite extends FunSuite:
                         |</html>
                         |""".stripMargin
             )
+          case _ => throw new Exception("unexpected")
 
     val obtained: List[Tx] =
       new HtmlResponder[Id]
