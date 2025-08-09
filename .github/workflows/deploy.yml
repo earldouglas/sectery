@@ -25,6 +25,7 @@ jobs:
     - run: |
         nix-shell -p nixos-rebuild --run \
           'nixos-rebuild switch \
+            -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/fc756aa.tar.gz \
             --fast \
             --build-host root@sectery.com \
             --target-host root@sectery.com \
