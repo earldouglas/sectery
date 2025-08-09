@@ -12,7 +12,9 @@ Sky](https://darksky.net/dev), [AirNow](https://docs.airnowapi.org/),
 and [OpenAI](https://platform.openai.com/docs/quickstart/api-keys).
 
 To start Sectery, first set a bunch of configuration variables, then run
-the two main classes with `sbt run`:
+each of the main classes with `sbt run`:
+
+### Backend
 
 ```
 $ export RABBIT_MQ_HOSTNAME=localhost
@@ -27,6 +29,8 @@ $ export OPENAI_APIKEY=my_openai_api_key
 $ sbt "project producers" run
 ```
 
+### IRC client
+
 ```
 $ export RABBIT_MQ_HOSTNAME=localhost
 $ export RABBIT_MQ_PORT=5672
@@ -39,6 +43,8 @@ $ export IRC_PASS=my_password
 $ export IRC_CHANNELS=#my_channel
 $ sbt "project irc" run
 ```
+
+### Slack client
 
 ```
 $ export RABBIT_MQ_HOSTNAME=localhost
