@@ -4,52 +4,53 @@ let
 
     let
 
-      pkgs = import <nixpkgs> {};
+      pkgs = import <nixpkgs> { };
 
-      sbt-derivation-src =
-        pkgs.fetchFromGitHub {
-          owner = "zaninime";
-          repo = "sbt-derivation";
-          rev = "6762cf2c31de50efd9ff905cbcc87239995a4ef9";
-          sha256 = "sha256-Pnej7WZIPomYWg8f/CZ65sfW85IfIUjYhphMMg7/LT0=";
-        };
+      sbt-derivation-src = pkgs.fetchFromGitHub {
+        owner = "zaninime";
+        repo = "sbt-derivation";
+        rev = "6762cf2c31de50efd9ff905cbcc87239995a4ef9";
+        sha256 = "sha256-Pnej7WZIPomYWg8f/CZ65sfW85IfIUjYhphMMg7/LT0=";
+      };
 
       sbt-derivation = import "${sbt-derivation-src}/overlay.nix";
 
-      sbt-overlay =
-        final: prev: {
-          sbt = prev.sbt.override {
-            jre = prev.jdk21;
-          };
+      sbt-overlay = final: prev: {
+        sbt = prev.sbt.override {
+          jre = prev.jdk21;
         };
+      };
 
     in
 
-      import <nixpkgs> {
-        overlays = [ sbt-derivation sbt-overlay ];
-      };
+    import <nixpkgs> {
+      overlays = [
+        sbt-derivation
+        sbt-overlay
+      ];
+    };
 
   buildCmd = "sbt scalafmtCheckAll scalafmtSbtCheck test assembly";
 
 in
 
-  pkgs.mkSbtDerivation {
+pkgs.mkSbtDerivation {
 
-    pname = "sectery";
-    version = "0.1.0-SNAPSHOT";
+  pname = "sectery";
+  version = "0.1.0-SNAPSHOT";
 
-    depsSha256 = "sha256-62dRmf5cIzDhqDitG7a0sYmpXDt4d2Nb/Mi6stUigt4=";
+  depsSha256 = "sha256-62dRmf5cIzDhqDitG7a0sYmpXDt4d2Nb/Mi6stUigt4=";
 
-    src = ./.;
+  src = ./.;
 
-    depsWarmupCommand = buildCmd;
+  depsWarmupCommand = buildCmd;
 
-    buildPhase = buildCmd;
+  buildPhase = buildCmd;
 
-    installPhase = ''
-      mkdir -p $out/
-      cp modules/5-irc/target/scala-*/irc.jar $out/
-      cp modules/5-slack/target/scala-*/slack.jar $out/
-      cp modules/5-producers/target/scala-*/producers.jar $out/
-    '';
-  }
+  installPhase = ''
+    mkdir -p $out/
+    cp modules/5-irc/target/scala-*/irc.jar $out/
+    cp modules/5-slack/target/scala-*/slack.jar $out/
+    cp modules/5-producers/target/scala-*/producers.jar $out/
+  '';
+}

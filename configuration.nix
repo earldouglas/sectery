@@ -1,28 +1,50 @@
-{ resources, pkgs, lib, modulesPath, ... }:
+{
+  resources,
+  pkgs,
+  lib,
+  modulesPath,
+  ...
+}:
 
 let
 
-  sectery =
-    import ./.;  
+  sectery = import ./.;
 
-  slf4jSimple =
-    pkgs.fetchurl {
-      url = "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.36/slf4j-simple-1.7.36.jar";
-      sha256 = "sha256-Lzm+2UPWJN+o9BAtBXEoOhCHC2qjbxl6ilBvFHAQwQ8=";
-    };
+  slf4jSimple = pkgs.fetchurl {
+    url = "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.36/slf4j-simple-1.7.36.jar";
+    sha256 = "sha256-Lzm+2UPWJN+o9BAtBXEoOhCHC2qjbxl6ilBvFHAQwQ8=";
+  };
 
-in {
+in
+{
 
   # Base Configuration ############################################
 
   ## hardware-configuration.nix ###################################
   imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
-  boot.initrd.availableKernelModules = [ "ahci" "xhci_pci" "virtio_pci" "virtio_scsi" "sd_mod" "sr_mod" ];
+  boot.initrd.availableKernelModules = [
+    "ahci"
+    "xhci_pci"
+    "virtio_pci"
+    "virtio_scsi"
+    "sd_mod"
+    "sr_mod"
+  ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
-  fileSystems."/" = { device = "/dev/disk/by-uuid/b9653418-a61b-498d-a806-5ead1842f90e"; fsType = "ext4"; };
-  fileSystems."/boot" = { device = "/dev/disk/by-uuid/6B97-946A"; fsType = "vfat"; options = [ "fmask=0022" "dmask=0022" ]; };
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/b9653418-a61b-498d-a806-5ead1842f90e";
+    fsType = "ext4";
+  };
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/6B97-946A";
+    fsType = "vfat";
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+    ];
+  };
   swapDevices = [ ];
   networking.useDHCP = lib.mkDefault true;
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
@@ -72,7 +94,7 @@ in {
   # IRC Module #####################################################
 
   ## IRC Service User ##############################################
-  users.groups.irc = {};
+  users.groups.irc = { };
   users.users.irc = {
     group = "irc";
     isSystemUser = true;
@@ -111,7 +133,7 @@ in {
   # Slack Module ###################################################
 
   ## Slack Service User ############################################
-  users.groups.slack = {};
+  users.groups.slack = { };
   users.users.slack = {
     group = "slack";
     isSystemUser = true;
@@ -141,7 +163,7 @@ in {
   # Producers Module ###############################################
 
   ## Producers Service User ########################################
-  users.groups.producers = {};
+  users.groups.producers = { };
   users.users.producers = {
     group = "producers";
     isSystemUser = true;
