@@ -53,4 +53,11 @@ pkgs.mkSbtDerivation {
     cp modules/5-slack/target/scala-*/slack.jar $out/
     cp modules/5-producers/target/scala-*/producers.jar $out/
   '';
+
+  meta = {
+    description = "A digital assistant chatbot";
+    homepage = "https://github.com/earldouglas/sectery";
+    license = pkgs.lib.licenses.mit;
+    maintainers = [ pkgs.lib.maintainers.earldouglas ];
+  };
 }
