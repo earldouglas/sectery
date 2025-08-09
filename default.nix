@@ -1,42 +1,42 @@
 let
 
-  # https://github.com/NixOS/nixpkgs/commits/nixos-24.11/
-  nixpkgs-rev = "e24b4c0";
+  pkgs =
 
-  nixpkgs-src =
-    builtins.fetchTarball {
-      url = "https://github.com/NixOS/nixpkgs/archive/${nixpkgs-rev}.tar.gz";
-      sha256 = "1m383nldy1jvl8n2jw02l26w9iib4b2a9341c1kf74miaahw7qx6";
-    };
+    let
 
-  nixpkgs =
-    (import nixpkgs-src) {
-      overlays = [ sbt-derivation sbt-overlay ];
-    };
+      pkgs = import <nixpkgs> {};
 
-  sbt-derivation-src =
-    builtins.fetchTarball {
-      url = "https://github.com/zaninime/sbt-derivation/archive/6762cf2.tar.gz";
-      sha256 = "0g9dzw734k4qhvc4h88zjbrxdiz6g8kgq7qgbac8jgj8cvns6xry";
-    };
+      sbt-derivation-src =
+        pkgs.fetchFromGitHub {
+          owner = "zaninime";
+          repo = "sbt-derivation";
+          rev = "6762cf2c31de50efd9ff905cbcc87239995a4ef9";
+          sha256 = "sha256-Pnej7WZIPomYWg8f/CZ65sfW85IfIUjYhphMMg7/LT0=";
+        };
 
-  sbt-derivation = import "${sbt-derivation-src}/overlay.nix";
+      sbt-derivation = import "${sbt-derivation-src}/overlay.nix";
 
-  sbt-overlay =
-    final: prev: {
-      sbt = prev.sbt.override {
-        jre = prev.jdk17;
+      sbt-overlay =
+        final: prev: {
+          sbt = prev.sbt.override {
+            jre = prev.jdk21;
+          };
+        };
+
+    in
+
+      import <nixpkgs> {
+        overlays = [ sbt-derivation sbt-overlay ];
       };
-    };
 
   buildCmd = "sbt scalafmtCheckAll scalafmtSbtCheck test assembly";
 
 in
 
-  nixpkgs.mkSbtDerivation {
+  pkgs.mkSbtDerivation {
 
     pname = "sectery";
-    version = "1.0.0";
+    version = "0.1.0-SNAPSHOT";
 
     depsSha256 = "sha256-ZhKv681qVayi0eA5Oq7ISDt7nO8cYpi4LCwcYqJwnL4=";
 
