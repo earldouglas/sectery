@@ -2,7 +2,7 @@
 
 # Sectery
 
-Sectery is an digital assistant chatbot.
+Sectery is a digital assistant chatbot.
 
 ## Usage
 
