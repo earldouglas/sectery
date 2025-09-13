@@ -3,7 +3,7 @@ val zioJsonVersion = "0.7.44"
 val zioLoggingVersion = "2.5.1"
 val testcontainersVersion = "0.43.0"
 
-ThisBuild / scalaVersion := "3.7.2"
+ThisBuild / scalaVersion := "3.7.3"
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
@@ -27,7 +27,7 @@ lazy val effects =
     .in(file("modules/2-effects"))
     .dependsOn(domain)
     .settings(
-      libraryDependencies += "org.scalameta" %% "munit" % "1.1.1" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "1.1.2" % Test
     )
 
 lazy val use_cases =
@@ -40,7 +40,7 @@ lazy val use_cases =
       libraryDependencies += "org.jsoup" % "jsoup" % "1.21.2",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.9.Final",
       libraryDependencies += "net.objecthunter" % "exp4j" % "0.4.8",
-      libraryDependencies += "org.scalameta" %% "munit" % "1.1.1" % Test,
+      libraryDependencies += "org.scalameta" %% "munit" % "1.1.2" % Test,
       libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "1.2.0" % Test
     )
     .dependsOn(domain, effects)
@@ -57,7 +57,7 @@ lazy val adaptors =
         "zio"
       ),
       libraryDependencies += "com.h2database" % "h2" % "2.3.232" % Test,
-      libraryDependencies += "org.scalameta" %% "munit" % "1.1.1" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "1.1.2" % Test
     )
     .dependsOn(effects)
 
@@ -79,7 +79,7 @@ lazy val producers =
     .in(file("modules/5-producers"))
     .settings(
       moduleName := "producers",
-      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.5",
+      libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.6",
       libraryDependencies += "net.java.dev.jna" % "jna" % "5.17.0",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.18",
       libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
