@@ -41,7 +41,7 @@ lazy val use_cases =
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.9.Final",
       libraryDependencies += "net.objecthunter" % "exp4j" % "0.4.8",
       libraryDependencies += "org.scalameta" %% "munit" % "1.1.1" % Test,
-      libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "1.0.0" % Test
+      libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "1.2.0" % Test
     )
     .dependsOn(domain, effects)
 
