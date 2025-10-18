@@ -21,6 +21,7 @@ $ export RABBIT_MQ_HOSTNAME=localhost
 $ export RABBIT_MQ_PORT=5672
 $ export RABBIT_MQ_USERNAME=guest
 $ export RABBIT_MQ_PASSWORD=guest
+$ export DATABASE_DRIVER=com.mysql.jdbc.Driver
 $ export DATABASE_URL=jdbc:mysql://username:password@host:port/dbname
 $ export FINNHUB_API_TOKEN=my_finnhub_api_token
 $ export OPEN_WEATHER_MAP_API_KEY=my_open_weather_map_api_key
