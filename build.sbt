@@ -8,14 +8,10 @@ ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 ThisBuild / assembly / assemblyMergeStrategy := {
-  case "module-info.class"                     => MergeStrategy.first
-  case "META-INF/io.netty.versions.properties" => MergeStrategy.first
-  case "META-INF/versions/9/module-info.class" => MergeStrategy.first
-  case "META-INF/okio.kotlin_module"           => MergeStrategy.first
-  case "logback.xml"                           => MergeStrategy.first
-  case x =>
-    val oldStrategy = (assembly / assemblyMergeStrategy).value
-    oldStrategy(x)
+  case x if x.startsWith("META-INF/") => MergeStrategy.discard
+  case "module-info.class"            => MergeStrategy.discard
+  case "logback.xml"                  => MergeStrategy.first
+  case x => ((assembly / assemblyMergeStrategy).value)(x)
 }
 
 lazy val domain =
@@ -65,7 +61,7 @@ lazy val adaptors_with_zio =
   project
     .in(file("modules/4-adaptors-with-zio"))
     .settings(
-      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.26.0",
+      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.27.0",
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude (
         "dev.zio",
