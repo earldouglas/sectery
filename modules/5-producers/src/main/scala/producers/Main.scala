@@ -17,6 +17,7 @@ object Main extends ZIOAppDefault:
   override val bootstrap: ZLayer[ZIOAppArgs, Any, Any] =
     zio.Runtime.removeDefaultLoggers >>> SLF4J.slf4j
 
+  val databaseDriver: String = sys.env("DATABASE_DRIVER")
   val databaseUrl: String = sys.env("DATABASE_URL")
   val openWeatherMapApiKey: String = sys.env("OPEN_WEATHER_MAP_API_KEY")
   val airNowApiKey: String = sys.env("AIRNOW_API_KEY")
@@ -30,7 +31,9 @@ object Main extends ZIOAppDefault:
   val openAiApiKey: String = sys.env("OPENAI_APIKEY")
 
   val unsafeGetConnection: () => Connection =
-    () => DriverManager.getConnection(databaseUrl)
+    () =>
+      Class.forName(databaseDriver)
+      DriverManager.getConnection(databaseUrl)
 
   override def run: ZIO[Any, Throwable, ExitCode] =
     Producers

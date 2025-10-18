@@ -32,6 +32,7 @@ jobs:
             -I nixos-config=./configuration.nix'
       env:
         AIRNOW_API_KEY: ${{ secrets.AIRNOW_API_KEY }}
+        DATABASE_DRIVER: ${{ secrets.DATABASE_DRIVER }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         FINNHUB_API_TOKEN: ${{ secrets.FINNHUB_API_TOKEN }}
         IRC_CHANNELS: ${{ secrets.IRC_CHANNELS }}

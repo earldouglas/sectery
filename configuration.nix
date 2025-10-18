@@ -204,6 +204,7 @@ in
       RABBIT_MQ_PORT = builtins.getEnv "RABBIT_MQ_PORT";
       RABBIT_MQ_USERNAME = builtins.getEnv "RABBIT_MQ_USERNAME";
       RABBIT_MQ_PASSWORD = builtins.getEnv "RABBIT_MQ_PASSWORD";
+      DATABASE_DRIVER = builtins.getEnv "DATABASE_DRIVER";
       DATABASE_URL = builtins.getEnv "DATABASE_URL";
       FINNHUB_API_TOKEN = builtins.getEnv "FINNHUB_API_TOKEN";
       OPEN_WEATHER_MAP_API_KEY = builtins.getEnv "OPEN_WEATHER_MAP_API_KEY";
