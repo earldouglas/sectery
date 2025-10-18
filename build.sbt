@@ -48,10 +48,7 @@ lazy val adaptors =
     .settings(
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "sectery.adaptors",
-      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude (
-        "dev.zio",
-        "zio"
-      ),
+      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion,
       libraryDependencies += "com.h2database" % "h2" % "2.4.240" % Test,
       libraryDependencies += "org.scalameta" %% "munit" % "1.2.1" % Test
     )
@@ -63,10 +60,7 @@ lazy val adaptors_with_zio =
     .settings(
       libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.27.0",
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
-      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion exclude (
-        "dev.zio",
-        "zio"
-      )
+      libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion
     )
     .dependsOn(domain, effects, use_cases)
 
@@ -78,14 +72,8 @@ lazy val producers =
       libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.6",
       libraryDependencies += "net.java.dev.jna" % "jna" % "5.18.1",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.19",
-      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
-        "dev.zio",
-        "zio"
-      ),
-      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion exclude (
-        "dev.zio",
-        "zio"
-      ),
+      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion,
+      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion,
       assembly / mainClass := Some("sectery.producers.Main"),
       assembly / assemblyJarName := s"${name.value}.jar",
       Compile / run / fork := true
@@ -100,14 +88,8 @@ lazy val irc =
       resolvers += "jitpack" at "https://jitpack.io/", // needed for pircbotx
       libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.3.1",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.19",
-      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
-        "dev.zio",
-        "zio"
-      ),
-      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion exclude (
-        "dev.zio",
-        "zio"
-      ),
+      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion,
+      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion,
       assembly / mainClass := Some("sectery.irc.Main"),
       assembly / assemblyJarName := s"${name.value}.jar",
       Compile / run / fork := true
@@ -123,14 +105,8 @@ lazy val slack =
       libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1" % Provided,
       libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "2.2.0",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.5.19",
-      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion exclude (
-        "dev.zio",
-        "zio"
-      ),
-      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion exclude (
-        "dev.zio",
-        "zio"
-      ),
+      libraryDependencies += "dev.zio" %% "zio-logging" % zioLoggingVersion,
+      libraryDependencies += "dev.zio" %% "zio-logging-slf4j2" % zioLoggingVersion,
       assembly / mainClass := Some("sectery.slack.Main"),
       assembly / assemblyJarName := s"${name.value}.jar",
       Compile / run / fork := true

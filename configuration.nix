@@ -11,8 +11,8 @@ let
   sectery = import ./.;
 
   slf4jSimple = pkgs.fetchurl {
-    url = "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.36/slf4j-simple-1.7.36.jar";
-    sha256 = "sha256-Lzm+2UPWJN+o9BAtBXEoOhCHC2qjbxl6ilBvFHAQwQ8=";
+    url = "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.17/slf4j-simple-2.0.17.jar";
+    sha256 = "0r39ps0dgr6s9gnkh2zp2xg8jqyrs8i8dhy29bid7iklq2dabznx";
   };
 
 in
