@@ -3,7 +3,7 @@ val zioJsonVersion = "0.7.45"
 val zioLoggingVersion = "2.5.1"
 val testcontainersVersion = "0.43.6"
 
-ThisBuild / scalaVersion := "3.7.3"
+ThisBuild / scalaVersion := "3.7.4"
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
