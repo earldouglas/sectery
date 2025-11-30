@@ -39,7 +39,7 @@ pkgs.mkSbtDerivation {
   pname = "sectery";
   version = "0.1.0-SNAPSHOT";
 
-  depsSha256 = "sha256-DWTjb8ImE2OexbEhShCJ7yWJddNWxXruBYBYGUqvSXM=";
+  depsSha256 = "sha256-YuKhXtiy4T32WCh7XdfYJtLPOZeqVQC3Yq0zLmElnOI=";
 
   src = ./.;
 
