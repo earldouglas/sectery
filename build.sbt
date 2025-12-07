@@ -58,7 +58,7 @@ lazy val adaptors_with_zio =
   project
     .in(file("modules/4-adaptors-with-zio"))
     .settings(
-      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.27.1",
+      libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.28.0",
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion
     )
