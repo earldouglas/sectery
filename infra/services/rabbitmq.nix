@@ -1,0 +1,4 @@
+{ }:
+{
+  services.rabbitmq.enable = true;
+}

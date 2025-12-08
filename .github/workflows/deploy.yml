@@ -18,19 +18,16 @@ jobs:
       with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - run: |
-        line='sectery.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILymLWrdQIf1f3lDZBWuoRz3QKPVGjeFL0FNlaXmnbku'
-        echo "$line" >> ~/.ssh/known_hosts
-
-    - run: |
-        nix-shell -p nixos-rebuild --run \
-          'nixos-rebuild switch \
-            -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/fc756aa.tar.gz \
-            --fast \
-            --build-host root@sectery.com \
-            --target-host root@sectery.com \
-            -I nixos-config=./configuration.nix'
+    - run: echo "$HOST_NAME.$DOMAIN $HOST_KEY" >> ~/.ssh/known_hosts
       env:
+        HOST_NAME: ${{ secrets.HOST_NAME }}
+        DOMAIN: ${{ secrets.DOMAIN }}
+        HOST_KEY: ${{ secrets.HOST_KEY }}
+
+    - run: nix-shell -p nixos-rebuild --run ./infra/deploy.sh
+      env:
+        HOST_NAME: ${{ secrets.HOST_NAME }}
+        DOMAIN: ${{ secrets.DOMAIN }}
         AIRNOW_API_KEY: ${{ secrets.AIRNOW_API_KEY }}
         DATABASE_DRIVER: ${{ secrets.DATABASE_DRIVER }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
