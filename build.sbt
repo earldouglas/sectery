@@ -33,7 +33,7 @@ lazy val use_cases =
     .settings(
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "sectery.usecases",
-      libraryDependencies += "org.jsoup" % "jsoup" % "1.21.2",
+      libraryDependencies += "org.jsoup" % "jsoup" % "1.22.1",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.9.Final",
       libraryDependencies += "net.objecthunter" % "exp4j" % "0.4.8",
       libraryDependencies += "org.scalameta" %% "munit" % "1.2.1" % Test,
