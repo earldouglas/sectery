@@ -23,7 +23,7 @@ lazy val effects =
     .in(file("modules/2-effects"))
     .dependsOn(domain)
     .settings(
-      libraryDependencies += "org.scalameta" %% "munit" % "1.2.1" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "1.2.2" % Test
     )
 
 lazy val use_cases =
@@ -36,7 +36,7 @@ lazy val use_cases =
       libraryDependencies += "org.jsoup" % "jsoup" % "1.22.1",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.9.Final",
       libraryDependencies += "net.objecthunter" % "exp4j" % "0.4.8",
-      libraryDependencies += "org.scalameta" %% "munit" % "1.2.1" % Test,
+      libraryDependencies += "org.scalameta" %% "munit" % "1.2.2" % Test,
       libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.19.0" % Test
     )
     .dependsOn(domain, effects)
@@ -50,7 +50,7 @@ lazy val adaptors =
       buildInfoPackage := "sectery.adaptors",
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion,
       libraryDependencies += "com.h2database" % "h2" % "2.4.240" % Test,
-      libraryDependencies += "org.scalameta" %% "munit" % "1.2.1" % Test
+      libraryDependencies += "org.scalameta" %% "munit" % "1.2.2" % Test
     )
     .dependsOn(effects)
 
