@@ -6,7 +6,6 @@ import com.sun.net.httpserver.HttpServer
 import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.URI
-import java.net.URL
 import munit.FunSuite
 import sectery._
 import sectery.effects._
