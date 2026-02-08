@@ -12,6 +12,7 @@ class Responders[
     : Counter //
     : Eval //
     : Frinkiac //
+    : Morbotron //
     : GetConfig //
     : GetWx //
     : Grab //
@@ -39,6 +40,7 @@ class Responders[
         new CountResponder,
         new EvalResponder,
         new FrinkiacResponder,
+        new MorbotronResponder,
         new GetResponder,
         new GrabResponder,
         new HackResponder,

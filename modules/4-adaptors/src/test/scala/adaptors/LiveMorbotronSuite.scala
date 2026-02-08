@@ -8,7 +8,7 @@ import sectery.effects._
 import sectery.effects.id._
 import sectery.effects.id.given
 
-class LiveFrinkiacSuite extends FunSuite:
+class LiveMorbotronSuite extends FunSuite:
 
   given http: HttpClient[Id] =
     new HttpClient:
@@ -19,37 +19,37 @@ class LiveFrinkiacSuite extends FunSuite:
           body: Option[String]
       ): Id[Response] =
         url.toString() match
-          case "https://frinkiac.com/api/search?q=i+got+to+think+of+a+lie+fast" =>
+          case "https://morbotron.com/api/search?q=windmills+do+not+work+that+way" =>
             Response(
               status = 200,
               headers = Map.empty,
               body = Resource.read(
-                "/com/frinkiac/api/search?q=i+got+to+think+of+a+lie+fast"
+                "/com/morbotron/api/search?q=windmills+do+not+work+that+way"
               )
             )
-          case "https://frinkiac.com/api/caption?e=S04E16&t=166465" =>
+          case "https://morbotron.com/api/caption?e=S05E01&t=378945" =>
             Response(
               status = 200,
               headers = Map.empty,
               body = Resource.read(
-                "/com/frinkiac/api/caption?e=S04E16&t=166465"
+                "/com/morbotron/api/caption?e=S05E01&t=378945"
               )
             )
 
-  val frinkiac: Frinkiac[Id] = LiveFrinkiac()
+  val morbotron: Morbotron[Id] = LiveMorbotron()
 
-  test("Retrieve caption from frinkiac.com") {
+  test("Retrieve caption from morbotron.com") {
 
     val expected: List[String] =
       List(
-        "https://frinkiac.com/caption/S04E16/166465",
-        "DID I SAY THAT OR JUST THINK IT?",
-        "I GOT TO THINK OF A LIE FAST.",
-        "HOMER, ARE YOU GOING TO THE DUFF BREWERY?"
+        "https://morbotron.com/caption/S05E01/378945",
+        "I'm sure those windmills will keep them cool.",
+        "Windmills do not work that way!",
+        "Good night!"
       )
 
     val obtained: List[String] =
-      frinkiac.frinkiac("i got to think of a lie fast")
+      morbotron.morbotron("windmills do not work that way")
 
     assertEquals(
       obtained = obtained.toList,

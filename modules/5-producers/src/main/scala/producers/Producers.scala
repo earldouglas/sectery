@@ -88,6 +88,9 @@ class Producers(
   given frinkiac: Frinkiac[Task] =
     LiveFrinkiac()
 
+  given morbotron: Morbotron[Task] =
+    LiveMorbotron()
+
   given getConfig: GetConfig[Task] =
     getSetConfig
 
