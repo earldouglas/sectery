@@ -56,11 +56,17 @@ object HtmlResponder:
       }
 
   def getTitle(doc: Document): Option[String] =
-    selectText(doc, "title")
+    getMeta(doc, "title")
       .flatMap(nonEmpty)
       .map(clean(_))
       .map(shorten)
       .headOption
+      .orElse:
+        selectText(doc, "title")
+          .flatMap(nonEmpty)
+          .map(clean(_))
+          .map(shorten)
+          .headOption
 
   def getDescription(doc: Document): Option[String] =
     getMeta(doc, "description")
