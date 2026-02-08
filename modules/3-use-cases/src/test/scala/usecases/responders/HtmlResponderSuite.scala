@@ -28,6 +28,8 @@ class HtmlResponderSuite extends FunSuite:
                         |<html lang="en" dir="ltr">
                         |  <head>
                         |    <meta charset="utf-8">
+                        |    <meta property="og:title" content="this is meta[property=og:title]" />
+                        |    <meta name="twitter:title" content="this is meta[name=twitter:title]">
                         |    <meta property="og:description" content="this is meta[property=og:description]" />
                         |    <meta name="description" content="this is meta[name=description]" />
                         |    <meta name="twitter:description" content="this is meta[property=twitter:description]">
@@ -59,7 +61,7 @@ class HtmlResponderSuite extends FunSuite:
           "irc",
           "#foo",
           None,
-          "Hello, world!"
+          "this is meta[property=og:title]"
         ),
         Tx(
           "irc",
