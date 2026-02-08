@@ -6,6 +6,7 @@ val testcontainersVersion = "0.44.1"
 ThisBuild / scalaVersion := "3.8.1"
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+ThisBuild / scalacOptions += "-Wunused:imports"
 
 ThisBuild / assembly / assemblyMergeStrategy := {
   case x if x.startsWith("META-INF/") => MergeStrategy.discard

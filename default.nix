@@ -30,7 +30,7 @@ let
       ];
     };
 
-  buildCmd = "sbt scalafmtCheckAll scalafmtSbtCheck test assembly";
+  buildCmd = "sbt scalafmtCheckAll scalafmtSbtCheck 'scalafixAll --check' test assembly";
 
 in
 
@@ -39,7 +39,7 @@ pkgs.mkSbtDerivation {
   pname = "sectery";
   version = "0.1.0-SNAPSHOT";
 
-  depsSha256 = "sha256-6C0btLx7oZAT1aFMAYRHpcBFivd8CnRnpzdqhSrri1o=";
+  depsSha256 = "sha256-RnMKLRkCSV6wEWBImuDUDebEWBjMe/u3c/AaYtF2wFg=";
 
   src = ./.;
 
