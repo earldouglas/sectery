@@ -49,10 +49,10 @@ object HtmlResponder:
       .map(clean(_))
 
   private def getMeta(doc: Document, key: String): List[String] =
-    List("", "og:", "twitter:")
-      .flatMap { _ =>
-        selectContentAttribute(doc, s"meta[name=${key}]") ++
-          selectContentAttribute(doc, s"meta[property=${key}]")
+    List("og:", "twitter:", "")
+      .flatMap { prefix =>
+        selectContentAttribute(doc, s"meta[name=${prefix}${key}]") ++
+          selectContentAttribute(doc, s"meta[property=${prefix}${key}]")
       }
 
   def getTitle(doc: Document): Option[String] =
