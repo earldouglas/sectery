@@ -30,8 +30,6 @@ let
       ];
     };
 
-  buildCmd = "sbt scalafmtCheckAll scalafmtSbtCheck 'scalafixAll --check' test assembly";
-
 in
 
 pkgs.mkSbtDerivation {
@@ -39,13 +37,23 @@ pkgs.mkSbtDerivation {
   pname = "sectery";
   version = "0.1.0-SNAPSHOT";
 
-  depsSha256 = "sha256-WM6j1MoZ5/pEb8HUpflx+XmYy/a8L7sgAFlumjolp8E=";
+  depsSha256 = "sha256-QCWoUg1TMryskDmQDmVRKFi/6HH1q1kwidanX2FW6Os=";
 
   src = ./.;
 
-  depsWarmupCommand = buildCmd;
+  depsWarmupCommand = ''
+    sbt \
+      scalafmtCheckAll \
+      scalafmtSbtCheck \
+      "scalafixAll --check" \
+      test
+  '';
 
-  buildPhase = buildCmd;
+  buildPhase = ''
+    sbt \
+      assembly
+  '';
+
 
   installPhase = ''
     mkdir -p $out/
