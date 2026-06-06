@@ -1,59 +1,45 @@
 let
 
-  pkgs =
+  nixpkgs = builtins.fetchTarball {
+    # nix-prefetch-git --branch-name nixos-26.05 https://github.com/NixOS/nixpkgs.git
+    url = "https://github.com/NixOS/nixpkgs/archive/de0d0d5.tar.gz";
+    sha256 = "0hzj56kp42h7fiac6d4av051s71rqcc8c6wx2d8qqhh5x3wgrqca";
+  };
 
-    let
+  pkgs = import nixpkgs { };
 
-      pkgs = import <nixpkgs> { };
+  version = "0.1.0-SNAPSHOT";
 
-      sbt-derivation-src = pkgs.fetchFromGitHub {
-        owner = "zaninime";
-        repo = "sbt-derivation";
-        rev = "6762cf2c31de50efd9ff905cbcc87239995a4ef9";
-        sha256 = "sha256-Pnej7WZIPomYWg8f/CZ65sfW85IfIUjYhphMMg7/LT0=";
-      };
-
-      sbt-derivation = import "${sbt-derivation-src}/overlay.nix";
-
-      sbt-overlay = final: prev: {
-        sbt = prev.sbt.override {
-          jre = prev.jdk21;
-        };
-      };
-
-    in
-
-    import <nixpkgs> {
-      overlays = [
-        sbt-derivation
-        sbt-overlay
-      ];
-    };
+  sbt = import ./sbt.nix {
+    inherit pkgs;
+    jdk = pkgs.jdk21;
+    depsWarmupCommand = ''
+      sbt \
+        update \
+        scalafmtCheckAll \
+        scalafmtSbtCheck \
+        "scalafixAll --check"
+    '';
+    depsSha256 = "sha256-2Ry1gVfmnw93tCeqtGndtyXHO0CWB73s81qgAQv1SHM=";
+  };
 
 in
 
-pkgs.mkSbtDerivation {
+pkgs.stdenv.mkDerivation {
+
+  inherit version;
 
   pname = "sectery";
-  version = "0.1.0-SNAPSHOT";
 
-  depsSha256 = "sha256-UHggyjXp7voT3UlnKBWGHpGyQdG9KRD5k7vSeO5QQl0=";
+  buildInputs = [
+    sbt
+  ];
 
   src = ./.;
 
-  depsWarmupCommand = ''
-    sbt \
-      scalafmtCheckAll \
-      scalafmtSbtCheck \
-      "scalafixAll --check" \
-      test
-  '';
-
   buildPhase = ''
-    sbt \
-      assembly
+    sbt test assembly
   '';
-
 
   installPhase = ''
     mkdir -p $out/
@@ -68,4 +54,5 @@ pkgs.mkSbtDerivation {
     license = pkgs.lib.licenses.mit;
     maintainers = [ pkgs.lib.maintainers.earldouglas ];
   };
+
 }
