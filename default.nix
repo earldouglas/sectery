@@ -20,7 +20,7 @@ let
         scalafmtSbtCheck \
         "scalafixAll --check"
     '';
-    depsSha256 = "sha256-DiU4/Kamz0NE4Nc7+BjxbI0wo9X9nSxglngDRfUPTnE=";
+    depsSha256 = "sha256-+oTVkuSXyLc3fwJZPFsW/WaLnT6ykV57nM5zwNF3t7k=";
   };
 
 in
@@ -43,9 +43,9 @@ pkgs.stdenv.mkDerivation {
 
   installPhase = ''
     mkdir -p $out/
-    cp modules/5-irc/target/scala-*/irc.jar $out/
-    cp modules/5-slack/target/scala-*/slack.jar $out/
-    cp modules/5-producers/target/scala-*/producers.jar $out/
+    cp target/out/jvm/scala-*/irc/irc.jar $out/
+    cp target/out/jvm/scala-*/producers/producers.jar $out/
+    cp target/out/jvm/scala-*/slack/slack.jar $out/
   '';
 
   meta = {
