@@ -20,7 +20,7 @@ let
         scalafmtSbtCheck \
         "scalafixAll --check"
     '';
-    depsSha256 = "sha256-+oTVkuSXyLc3fwJZPFsW/WaLnT6ykV57nM5zwNF3t7k=";
+    depsSha256 = "sha256-7c7WlPD/TEgj8WFfP2ttzABARmayW1E2iQbuRBH4kZ4=";
   };
 
 in
