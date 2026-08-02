@@ -35,7 +35,13 @@ pkgs.stdenv.mkDerivation {
     sbt
   ];
 
-  src = ./.;
+  src =
+    pkgs.fetchFromGitHub {
+      owner = "earldouglas";
+      repo = "sectery";
+      rev = "50bead10a396feea52f66967b4dc4698221241ee";
+      hash = "sha256-GfvikPXecQbJBbfbYBWlekcA6BQo2CHXnAsYWg02e+A=";
+    };
 
   buildPhase = ''
     sbt test assembly

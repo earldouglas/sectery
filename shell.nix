@@ -1,14 +1,29 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
+
 let
 
   jdk = pkgs.jdk17;
 
+  sbt-launch-jar =
+    let
+      sbt-version = "2.0.4";
+    in
+    pkgs.fetchurl {
+      url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/${sbt-version}/sbt-launch-${sbt-version}.jar";
+      hash = "sha256-Z2ygQzdIw3J2AhudNBPzS9Jx7qabEvwzLMiodioHOT4=";
+    };
+
+  sbt = pkgs.writeShellScriptBin "sbt" ''
+    ${jdk}/bin/java -jar ${sbt-launch-jar} "$@"
+  '';
+
   nvim =
     let
 
-      nvim-metals_lua = ''
+      nvim-metals-dot-vim = ''
+        :lua << EOF
         local map = vim.keymap.set
 
         local metals_config = require("metals").bare_config()
@@ -112,15 +127,10 @@ let
             end,
           }),
         })
-      '';
-
-      nvim-metals_vim = ''
-        :lua << EOF
-        ${nvim-metals_lua}
         EOF
       '';
 
-      nerdtree_vim = ''
+      nerdtree-dot-vim = ''
         nnoremap <C-,> :vertical resize -10<CR>
         nnoremap <C-.> :vertical resize +10<CR>
         nnoremap <C-f> :NERDTreeFind<CR>
@@ -152,13 +162,18 @@ let
         set textwidth=72
 
         colorscheme vim
+
+        " Use Pmenu colors from lunaperche colorscheme
+        hi Pmenu      ctermbg=236 guibg=#303030
+        hi PmenuSel   ctermbg=239 guibg=#4e4e4e
+        hi PmenuThumb ctermbg=251 guibg=#c6c6c6
       '';
 
       nvim_with_plugins = pkgs.neovim.override {
         configure = {
           customRC = builtins.concatStringsSep "\n" [
-            nvim-metals_vim
-            nerdtree_vim
+            nvim-metals-dot-vim
+            nerdtree-dot-vim
             vimrc
           ];
 
@@ -186,6 +201,7 @@ let
             pkgs.lib.makeBinPath [
               jdk
               pkgs.bash
+              pkgs.git
               pkgs.coreutils # kill
               pkgs.coursier
             ]
@@ -195,13 +211,33 @@ let
 in
 
 pkgs.mkShell {
+
   nativeBuildInputs = [
-    (pkgs.sbt.override { jre = jdk; })
-    jdk
-    nvim
-  ];
+    sbt
+  ]
+  ++ (
+    if builtins.getEnv "CI" == "true" then
+      [ ]
+    else
+      [
+        jdk
+        nvim
+      ]
+  );
+
   shellHook = ''
-    export JAVA_HOME=${jdk}
-    PATH="${jdk}/bin:$PATH"
+    sbt-test() {
+      sbt \
+        scalafmtCheckAll \
+        "scalafixAll --check" \
+        test
+    }
+
+    sbt-fmt() {
+      sbt \
+        scalafixAll \
+        scalafmtAll \
+        scalafmtSbt
+    }
   '';
 }
