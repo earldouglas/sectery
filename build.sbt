@@ -3,12 +3,12 @@ val zioJsonVersion = "0.10.0"
 val zioLoggingVersion = "2.5.3"
 val testcontainersVersion = "0.44.1"
 
-ThisBuild / scalaVersion := "3.8.4"
-ThisBuild / semanticdbEnabled := true
-ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-ThisBuild / scalacOptions += "-Wunused:imports"
+scalaVersion := "3.8.4"
+semanticdbEnabled := true
+semanticdbVersion := scalafixSemanticdb.revision
+scalacOptions += "-Wunused:imports"
 
-ThisBuild / assembly / assemblyMergeStrategy := {
+assembly / assemblyMergeStrategy := {
   case x if x.startsWith("META-INF/") => MergeStrategy.discard
   case "module-info.class"            => MergeStrategy.discard
   case "logback.xml"                  => MergeStrategy.first
