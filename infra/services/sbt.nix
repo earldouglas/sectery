@@ -6,10 +6,10 @@ let
       jdk,
     }:
     let
-      sbt-version = "2.0.0-RC14";
+      sbt-version = "2.0.6";
       sbt-launch-jar = pkgs.fetchurl {
         url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/${sbt-version}/sbt-launch-${sbt-version}.jar";
-        hash = "sha256-z3/zEyxrLm6fNabwRAqVZDTYTshIhjThBLXZ83tqZgI=";
+        hash = "sha256-SnDW1eUuxr+2wOEXhn5VRo2E7vnw44KNMUVu2GCjvUI=";
       };
     in
     pkgs.writeScriptBin "sbt" ''
@@ -32,6 +32,7 @@ let
     {
       pkgs,
       sbt,
+      src,
       buildPhase,
       outputHash,
     }:
@@ -48,7 +49,7 @@ let
       outputHashMode = "recursive";
       outputHash = outputHash;
 
-      src = ./.;
+      src = src;
 
       buildPhase = buildPhase;
 
@@ -66,6 +67,7 @@ in
 {
   pkgs,
   jdk,
+  src,
   depsWarmupCommand,
   depsSha256,
 }:
@@ -78,7 +80,7 @@ let
   };
 
   deps = mkDeps {
-    inherit pkgs;
+    inherit pkgs src;
     sbt = sbt;
     buildPhase = depsWarmupCommand;
     outputHash = depsSha256;
