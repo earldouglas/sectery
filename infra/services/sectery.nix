@@ -2,13 +2,12 @@
 
 let
 
-  src =
-    pkgs.fetchFromGitHub {
-      owner = "earldouglas";
-      repo = "sectery";
-      rev = "50bead10a396feea52f66967b4dc4698221241ee";
-      hash = "sha256-GfvikPXecQbJBbfbYBWlekcA6BQo2CHXnAsYWg02e+A=";
-    };
+  src = pkgs.fetchFromGitHub {
+    owner = "earldouglas";
+    repo = "sectery";
+    rev = "b6bb73493470ba3eb28270fae39683dea1e5c9cd";
+    hash = "sha256-o/DY9SwoSNB6FwBSHLYEsbsij2ztu8xdN6pe3PKOtwM=";
+  };
 
   sbt = import ./sbt.nix {
     inherit pkgs src;
@@ -20,7 +19,7 @@ let
         scalafmtSbtCheck \
         "scalafixAll --check"
     '';
-    depsSha256 = "sha256-zkn3SaCifBcag6i7Lhp0zEwwPRL77NpFozrt53mtrqc=";
+    depsSha256 = "sha256-/HHD2ijwJXiPMiWgF59xoIrYeUK3Pt7LImF5IQOr8Lk=";
   };
 
 in
@@ -38,7 +37,9 @@ pkgs.stdenv.mkDerivation {
   ];
 
   buildPhase = ''
-    sbt test assembly
+    sbt \
+      test \
+      assembly
   '';
 
   installPhase = ''
