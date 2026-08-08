@@ -18,7 +18,9 @@ let
   hostName = getEnv "HOST_NAME";
   domain = getEnv "DOMAIN";
 
-  sectery = import ./services/sectery.nix;
+  sectery = import ./services/sectery.nix {
+    inherit pkgs;
+  };
 
   slf4jSimple = pkgs.fetchurl {
     url = "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.17/slf4j-simple-2.0.17.jar";

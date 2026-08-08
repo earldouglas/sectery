@@ -1,17 +1,17 @@
+{ pkgs }:
+
 let
 
-  nixpkgs = builtins.fetchTarball {
-    # nix-prefetch-git --branch-name nixos-26.05 https://github.com/NixOS/nixpkgs.git
-    url = "https://github.com/NixOS/nixpkgs/archive/de0d0d5.tar.gz";
-    sha256 = "0hzj56kp42h7fiac6d4av051s71rqcc8c6wx2d8qqhh5x3wgrqca";
-  };
-
-  pkgs = import nixpkgs { };
-
-  version = "0.1.0-SNAPSHOT";
+  src =
+    pkgs.fetchFromGitHub {
+      owner = "earldouglas";
+      repo = "sectery";
+      rev = "50bead10a396feea52f66967b4dc4698221241ee";
+      hash = "sha256-GfvikPXecQbJBbfbYBWlekcA6BQo2CHXnAsYWg02e+A=";
+    };
 
   sbt = import ./sbt.nix {
-    inherit pkgs;
+    inherit pkgs src;
     jdk = pkgs.jdk21;
     depsWarmupCommand = ''
       sbt \
@@ -27,21 +27,15 @@ in
 
 pkgs.stdenv.mkDerivation {
 
-  inherit version;
+  inherit src;
+
+  version = "0.1.0-SNAPSHOT";
 
   pname = "sectery";
 
   buildInputs = [
     sbt
   ];
-
-  src =
-    pkgs.fetchFromGitHub {
-      owner = "earldouglas";
-      repo = "sectery";
-      rev = "50bead10a396feea52f66967b4dc4698221241ee";
-      hash = "sha256-GfvikPXecQbJBbfbYBWlekcA6BQo2CHXnAsYWg02e+A=";
-    };
 
   buildPhase = ''
     sbt test assembly
