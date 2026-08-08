@@ -10,12 +10,19 @@
   users.users.producers = {
     group = "producers";
     isSystemUser = true;
+    home = "/home/producers";
+    createHome = true;
   };
 
   # Database ###########################################################
   services.mysql = {
-    enable = true;
-    package = pkgs.mariadb;
+    enable = false;
+    package = pkgs.mariadb_118;
+    settings = {
+      mariadb = {
+        plugin_load_add = "auth_mysql_sha2";
+      };
+    };
     ensureDatabases = [
       "producers"
     ];
