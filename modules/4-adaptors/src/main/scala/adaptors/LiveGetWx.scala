@@ -1,5 +1,6 @@
 package sectery.adaptors
 
+import scala.collection.immutable.TreeMap
 import sectery._
 import sectery.control.Monad
 import sectery.control.Monad._
@@ -44,7 +45,7 @@ object LiveGetWx:
           aqiObservation <- aqiObservationO
           aqiForecast <- aqiForecastO
         yield
-          var aqiMap: Map[String, AqiParameter] = Map.empty
+          var aqiMap: TreeMap[String, AqiParameter] = TreeMap.empty
           aqiObservation.parameters.foreach { case p =>
             if !aqiMap.contains(p.name) then
               aqiMap = aqiMap + (p.name -> AqiParameter(

@@ -73,7 +73,7 @@ class LiveGetWxSuite extends FunSuite:
         .getWx("san francisco")
 
     val expected: String =
-      "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 0, pm2.5 34, ozone 21"
+      "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 0, ozone 21, pm2.5 34"
 
     assertEquals(
       obtained = obtained.toList,
