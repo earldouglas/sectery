@@ -32,8 +32,11 @@ pkgs.mkShell {
   shellHook = ''
     sbt-test() {
       sbt \
+        scalafmtSbtCheck \
         scalafmtCheckAll \
+        integration/scalafmtCheckAll \
         "scalafixAll --check" \
+        "integration/scalafixAll --check" \
         test
     }
 
