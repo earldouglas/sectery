@@ -10,18 +10,10 @@ import zio.json._
 
 object AirNowObservation:
 
-  case class Category(
-      Name: String
-  )
-
-  object Category:
-    implicit val decoder: JsonDecoder[Category] =
-      DeriveJsonDecoder.gen[Category]
-
   case class Observation(
-      ParameterName: String,
-      AQI: Int,
-      Category: Category
+      parameterName: String,
+      nowcastAQI: Int,
+      aqiCategoryName: String
   )
 
   object Observation:
@@ -47,7 +39,7 @@ object AirNowObservation:
       .request(
         method = "GET",
         url = new URI(
-          s"""https://www.airnowapi.org/aq/observation/latLong/current/?format=application/json&latitude=${lat}&longitude=${lon}&distance=50&API_KEY=${apiKey}"""
+          s"""https://www.airnowapi.org/aq/observation/current/ziplatLong/?format=application/json&latitude=${lat}&longitude=${lon}&distance=50&API_KEY=${apiKey}"""
         ).toURL(),
         headers = Map(
           "User-Agent" -> "bot",
@@ -63,9 +55,9 @@ object AirNowObservation:
                 Aqi(
                   parameters = os.map { o =>
                     AqiParameter(
-                      name = o.ParameterName,
-                      value = o.AQI,
-                      category = o.Category.Name
+                      name = o.parameterName,
+                      value = o.nowcastAQI,
+                      category = o.aqiCategoryName
                     )
                   }
                 )

@@ -10,19 +10,11 @@ import zio.json._
 
 object AirNowForecast:
 
-  case class Category(
-      Name: String
-  )
-
-  object Category:
-    implicit val decoder: JsonDecoder[Category] =
-      DeriveJsonDecoder.gen[Category]
-
   case class Forecast(
-      DateForecast: String,
-      ParameterName: String,
-      AQI: Int,
-      Category: Category
+      dateValid: String,
+      parameterName: String,
+      aqi: Int,
+      categoryName: String
   )
 
   object Forecast:
@@ -49,7 +41,7 @@ object AirNowForecast:
       .request(
         method = "GET",
         url = new URI(
-          s"""https://www.airnowapi.org/aq/forecast/latLong/?format=application/json&latitude=${lat}&longitude=${lon}&distance=50&API_KEY=${apiKey}"""
+          s"""https://www.airnowapi.org/aq/forecast/current/?format=application/json&latitude=${lat}&longitude=${lon}&distance=50&API_KEY=${apiKey}"""
         ).toURL(),
         headers = Map(
           "User-Agent" -> "bot",
@@ -60,19 +52,21 @@ object AirNowForecast:
       .map:
         case Response(200, _, body) =>
           body.fromJson[List[Forecast]] match
-            case Right(fs) if fs.length > 0 =>
-              Some(
-                Aqi(
-                  parameters = fs.map { f =>
-                    AqiParameter(
-                      name = f.ParameterName,
-                      date = f.DateForecast,
-                      value = f.AQI,
-                      category = f.Category.Name
-                    )
-                  }
+            case Right(fs) =>
+              if fs.length > 0 then
+                Some(
+                  Aqi(
+                    parameters = fs.map { f =>
+                      AqiParameter(
+                        name = f.parameterName,
+                        date = f.dateValid,
+                        value = f.aqi,
+                        category = f.categoryName
+                      )
+                    }
+                  )
                 )
-              )
+              else None
             case Left(e) =>
               logger.error(s"error ${e} parsing json: ${body}")
               None
