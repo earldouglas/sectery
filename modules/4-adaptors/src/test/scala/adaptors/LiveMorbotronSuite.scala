@@ -33,12 +33,12 @@ class LiveMorbotronSuite extends FunSuite:
                 "/com/morbotron/api/search?q=windmills+do+not+work+that+way"
               )
             )
-          case "https://morbotron.com/api/caption?e=S05E01&t=378945" =>
+          case "https://morbotron.com/api/caption?e=S05E01&t=377835" =>
             Response(
               status = 200,
               headers = Map.empty,
               body = Resource.read(
-                "/com/morbotron/api/caption?e=S05E01&t=378945"
+                "/com/morbotron/api/caption?e=S05E01&t=377835"
               )
             )
 
@@ -48,7 +48,7 @@ class LiveMorbotronSuite extends FunSuite:
 
     val expected: List[String] =
       List(
-        "https://morbotron.com/caption/S05E01/378945",
+        "https://morbotron.com/caption/S05E01/377835",
         "I'm sure those windmills will keep them cool.",
         "Windmills do not work that way!",
         "Good night!"
