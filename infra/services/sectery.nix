@@ -15,9 +15,11 @@ let
     depsWarmupCommand = ''
       sbt \
         update \
-        scalafmtCheckAll \
         scalafmtSbtCheck \
-        "scalafixAll --check"
+        scalafmtCheckAll \
+        integration/scalafmtCheckAll \
+        "scalafixAll --check" \
+        "integration/scalafixAll --check"
     '';
     depsSha256 = "sha256-/HHD2ijwJXiPMiWgF59xoIrYeUK3Pt7LImF5IQOr8Lk=";
   };
@@ -39,6 +41,7 @@ pkgs.stdenv.mkDerivation {
   buildPhase = ''
     sbt \
       test \
+      integration/test \
       assembly
   '';
 

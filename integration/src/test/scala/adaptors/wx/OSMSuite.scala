@@ -1,0 +1,37 @@
+package sectery.adaptors.wx
+
+import munit.FunSuite
+import sectery._
+import sectery.adaptors._
+import sectery.effects._
+import sectery.effects.id._
+import sectery.effects.id.given
+
+class OSMSuite extends FunSuite:
+
+  given logger: Logger[Id] with
+    override def debug(message: => String) =
+      println(message)
+    override def error(message: => String) =
+      println(message)
+
+  given httpClient: HttpClient[Id] =
+    new LiveHttpClient[Id]
+
+  test("findPlace"):
+
+    val obtained: Option[OSM.Place] =
+      OSM.findPlace("san francisco")
+
+    val expected: OSM.Place =
+      OSM.Place(
+        displayName = "San Francisco, California, United States",
+        shortName = "San Francisco",
+        lat = 37.7879363d,
+        lon = -122.4075201d
+      )
+
+    assertEquals(
+      obtained = obtained,
+      expected = Some(expected)
+    )
