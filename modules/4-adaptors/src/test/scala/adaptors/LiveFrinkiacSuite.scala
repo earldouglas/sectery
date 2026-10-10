@@ -10,6 +10,12 @@ import sectery.effects.id.given
 
 class LiveFrinkiacSuite extends FunSuite:
 
+  given logger: Logger[Id] with
+    override def debug(message: => String) =
+      println(message)
+    override def error(message: => String) =
+      println(message)
+
   given http: HttpClient[Id] =
     new HttpClient:
       override def request(
