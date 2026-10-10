@@ -49,20 +49,20 @@ class LiveGetWxSuite extends FunSuite:
                 "/org/openweathermap/api/data/3.0/onecall?lat=37.7790262&lon=-122.419906&exclude=minutely,hourly,daily,alerts&units=imperial&appid=alligator3"
               )
             )
-          case "https://www.airnowapi.org/aq/observation/latLong/current/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3" =>
+          case "https://www.airnowapi.org/aq/observation/current/ziplatLong/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3" =>
             Response(
               status = 200,
               headers = Map.empty,
               body = Resource.read(
-                "/org/airnowapi/www/aq/observation/latLong/current/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3"
+                "/org/airnowapi/www/aq/observation/current/ziplatLong/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3"
               )
             )
-          case s"""https://www.airnowapi.org/aq/forecast/latLong/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3""" =>
+          case s"""https://www.airnowapi.org/aq/forecast/current/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3""" =>
             Response(
               status = 200,
               headers = Map.empty,
               body = Resource.read(
-                "/org/airnowapi/www/aq/forecast/latLong/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3"
+                "/org/airnowapi/www/aq/forecast/current/?format=application/json&latitude=37.7790262&longitude=-122.419906&distance=50&API_KEY=alligator3"
               )
             )
 
@@ -73,7 +73,7 @@ class LiveGetWxSuite extends FunSuite:
         .getWx("san francisco")
 
     val expected: String =
-      "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 0, o3 15, pm2.5 0"
+      "San Francisco: 44°, hum 65%, wnd 10 mph, few clouds, uv 0, pm2.5 34, ozone 21"
 
     assertEquals(
       obtained = obtained.toList,

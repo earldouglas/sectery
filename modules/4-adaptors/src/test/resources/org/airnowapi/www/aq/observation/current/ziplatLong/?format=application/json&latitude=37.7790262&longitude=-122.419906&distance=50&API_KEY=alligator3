@@ -1,0 +1,33 @@
+[
+  {
+    "dateObserved": "2026-10-07",
+    "hourObserved": "20:00",
+    "localTimeZone": "PDT",
+    "reportingAreaName": "San Francisco",
+    "siteID": "060750005",
+    "siteName": "San Francisco",
+    "parameterName": "PM2.5",
+    "nowcastAQI": 34,
+    "aqiCategoryName": "Good",
+    "reportingAgency": "Bay Area Air District",
+    "lookupBehavior": "Closest Reading By Pollutant",
+    "consideredMonitors": "All",
+    "lookupBoundary": "50 Miles"
+  },
+  {
+    "dateObserved": "2026-10-07",
+    "hourObserved": "20:00",
+    "localTimeZone": "PDT",
+    "reportingAreaName": "San Francisco",
+    "siteID": "060750005",
+    "siteName": "San Francisco",
+    "parameterName": "OZONE",
+    "nowcastAQI": 21,
+    "aqiCategoryName": "Good",
+    "reportingAgency": "Bay Area Air District",
+    "lookupBehavior": "Closest Reading By Pollutant",
+    "consideredMonitors": "All",
+    "lookupBoundary": "50 Miles"
+  }
+]
+
