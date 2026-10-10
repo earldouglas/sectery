@@ -11,7 +11,7 @@ let
 
   sbt = import ./sbt.nix {
     inherit pkgs src;
-    jdk = pkgs.jdk21;
+    jdk = pkgs.jdk25;
     depsWarmupCommand = ''
       sbt \
         update \

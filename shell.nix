@@ -4,7 +4,7 @@
 
 let
 
-  jdk = pkgs.jdk17;
+  jdk = pkgs.jdk25;
 
   derivations = builtins.fetchGit {
     url = "https://git.earldouglas.com/earldouglas/derivations.git";
