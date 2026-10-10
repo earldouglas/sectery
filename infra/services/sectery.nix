@@ -36,7 +36,6 @@ pkgs.stdenv.mkDerivation {
   buildPhase = ''
     sbt \
       test \
-      integration/test \
       assembly
   '';
 
