@@ -34,6 +34,12 @@ class Producers(
     openAiApiKey: String
 ):
 
+  given logger: Logger[Task] with
+    override def debug(message: => String) =
+      ZIO.logDebug(message)
+    override def error(message: => String) =
+      ZIO.logError(message)
+
   given monad: Monad[Task] with
     override def pure[A](value: => A): Task[A] =
       ZIO.attempt(value)
@@ -174,13 +180,6 @@ class Producers(
         given encoder: JsonEncoder[Tx] =
           DeriveJsonEncoder.gen[Tx]
         rabbitMQ.enqueue[Tx](outboxName)
-
-      val logger: QueueDownstream.LoggerR =
-        new Logger:
-          override def debug(message: => String) =
-            ZIO.logDebug(message)
-          override def error(message: => String) =
-            ZIO.logError(message)
 
       QueueUpstream
         .respondLoop()
