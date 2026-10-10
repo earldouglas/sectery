@@ -19,7 +19,9 @@ object Caption:
       Director: String,
       Writer: String,
       OriginalAirDate: String,
-      WikiLink: String
+      WikiLink: String,
+      VideoWidth: Long,
+      VideoHeight: Long
   )
 
   object Episode:
@@ -50,21 +52,12 @@ object Caption:
     implicit val decoder: JsonDecoder[Subtitles] =
       DeriveJsonDecoder.gen[Subtitles]
 
-  case class Nearby(
-      Id: Long,
-      Episode: String,
-      Timestamp: Long
-  )
-
-  object Nearby:
-    implicit val decoder: JsonDecoder[Nearby] =
-      DeriveJsonDecoder.gen[Nearby]
-
   case class Caption(
       Episode: Episode,
       Frame: Frame,
       Subtitles: List[Subtitles],
-      Nearby: List[Nearby]
+      MinTimestamp: Long,
+      MaxTimestamp: Long
   )
 
   object Caption:
