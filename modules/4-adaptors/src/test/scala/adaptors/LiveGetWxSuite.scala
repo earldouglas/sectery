@@ -10,6 +10,12 @@ import sectery.effects.id.given
 
 class LiveGetWxSuite extends FunSuite:
 
+  given logger: Logger[Id] with
+    override def debug(message: => String) =
+      println(message)
+    override def error(message: => String) =
+      println(message)
+
   given httpClient: HttpClient[Id] =
     new HttpClient:
       override def request(

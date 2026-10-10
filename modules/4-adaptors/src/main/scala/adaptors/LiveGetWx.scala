@@ -10,11 +10,13 @@ import sectery.effects._
 import zio.json._
 
 object LiveGetWx:
-  def apply[F[_]: HttpClient: Monad](
+  def apply[F[_]: HttpClient: Monad: Logger](
       openWeatherMapApiKey: String,
       airNowApiKey: String
   ): GetWx[F] =
     new GetWx:
+
+      val logger: Logger[F] = summon
 
       object OSM:
 
@@ -61,9 +63,12 @@ object LiveGetWx:
                         lon = pj.lon
                       )
                     )
-                  case Left(_) =>
+                  case Left(e) =>
+                    logger.error(s"error ${e} parsing json: ${body}")
                     None
-              case _ => None
+              case response =>
+                logger.error(s"unexpected response: ${response}")
+                None
 
           /*
       object DarkSky:
@@ -204,9 +209,14 @@ object LiveGetWx:
             .map:
               case Response(200, _, body) =>
                 body.fromJson[OneCall] match
-                  case Right(x) => Some(x.current)
-                  case Left(e)  => None
-              case _ => None
+                  case Right(x) =>
+                    Some(x.current)
+                  case Left(e) =>
+                    logger.error(s"error ${e} parsing json: ${body}")
+                    None
+              case response =>
+                logger.error(s"unexpected response: ${response}")
+                None
 
       object AirNowObservation:
 
@@ -267,9 +277,12 @@ object LiveGetWx:
                         }
                       )
                     )
-                  case Left(_) =>
+                  case Left(e) =>
+                    logger.error(s"error ${e} parsing json: ${body}")
                     None
-              case _ => None
+              case response =>
+                logger.error(s"unexpected response: ${response}")
+                None
 
       object AirNowForecast:
 
@@ -333,9 +346,12 @@ object LiveGetWx:
                         }
                       )
                     )
-                  case _ =>
+                  case Left(e) =>
+                    logger.error(s"error ${e} parsing json: ${body}")
                     None
-              case _ => None
+              case response =>
+                logger.error(s"unexpected response: ${response}")
+                None
 
       case class AqiParameter(
           name: String,
