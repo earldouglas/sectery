@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+nix-shell ./shell.nix --run "sbt integration/test"
+
 nixos-rebuild switch \
   --fast \
   --build-host root@$HOST_NAME.$DOMAIN \
