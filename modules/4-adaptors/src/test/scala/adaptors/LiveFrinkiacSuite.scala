@@ -33,12 +33,12 @@ class LiveFrinkiacSuite extends FunSuite:
                 "/com/frinkiac/api/search?q=i+got+to+think+of+a+lie+fast"
               )
             )
-          case "https://frinkiac.com/api/caption?e=S04E16&t=166465" =>
+          case "https://frinkiac.com/api/caption?e=S04E16&t=164915" =>
             Response(
               status = 200,
               headers = Map.empty,
               body = Resource.read(
-                "/com/frinkiac/api/caption?e=S04E16&t=166465"
+                "/com/frinkiac/api/caption?e=S04E16&t=164915"
               )
             )
 
@@ -48,10 +48,11 @@ class LiveFrinkiacSuite extends FunSuite:
 
     val expected: List[String] =
       List(
-        "https://frinkiac.com/caption/S04E16/166465",
-        "DID I SAY THAT OR JUST THINK IT?",
-        "I GOT TO THINK OF A LIE FAST.",
-        "HOMER, ARE YOU GOING TO THE DUFF BREWERY?"
+        "https://frinkiac.com/caption/S04E16/164915",
+        "Uh-oh.",
+        "Did I say that or just think it?",
+        "I got to think of a lie fast.",
+        "Homer, are you going to the Duff Brewery?"
       )
 
     val obtained: List[String] =
