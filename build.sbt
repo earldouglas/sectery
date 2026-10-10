@@ -134,3 +134,12 @@ lazy val root =
       effects,
       domain
     )
+
+lazy val integration =
+  project
+    .in(file("integration"))
+    .settings(
+      publish / skip := true,
+      libraryDependencies += "org.scalameta" %% "munit" % "1.3.6" % Test
+    )
+    .dependsOn(adaptors)
