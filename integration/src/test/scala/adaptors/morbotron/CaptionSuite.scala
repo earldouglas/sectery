@@ -35,7 +35,10 @@ class CaptionSuite extends FunSuite:
             Director = "Peter Avanzino",
             Writer = "Aaron Ehasz",
             OriginalAirDate = "2002-11-10",
-            WikiLink = "https://en.wikipedia.org/wiki/Crimes_of_the_Hot"
+            WikiLink =
+              "https://en.wikipedia.org/wiki/Crimes_of_the_Hot",
+            VideoWidth = 480,
+            VideoHeight = 360
           ),
           Frame = Caption.Frame(
             Id = 2987490,
@@ -71,43 +74,8 @@ class CaptionSuite extends FunSuite:
               Language = "en"
             )
           ),
-          Nearby = List(
-            Caption.Nearby(
-              Id = 2003314,
-              Episode = "S05E01",
-              Timestamp = 378311
-            ),
-            Caption.Nearby(
-              Id = 2003313,
-              Episode = "S05E01",
-              Timestamp = 378528
-            ),
-            Caption.Nearby(
-              Id = 2003321,
-              Episode = "S05E01",
-              Timestamp = 378728
-            ),
-            Caption.Nearby(
-              Id = 2003319,
-              Episode = "S05E01",
-              Timestamp = 378945
-            ),
-            Caption.Nearby(
-              Id = 2003324,
-              Episode = "S05E01",
-              Timestamp = 379145
-            ),
-            Caption.Nearby(
-              Id = 2003322,
-              Episode = "S05E01",
-              Timestamp = 379362
-            ),
-            Caption.Nearby(
-              Id = 2003323,
-              Episode = "S05E01",
-              Timestamp = 379562
-            )
-          )
+          MinTimestamp = 1000,
+          MaxTimestamp = 1352976
         )
       )
 
