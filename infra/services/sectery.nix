@@ -14,12 +14,7 @@ let
     jdk = pkgs.jdk25;
     depsWarmupCommand = ''
       sbt \
-        update \
-        scalafmtSbtCheck \
-        scalafmtCheckAll \
-        integration/scalafmtCheckAll \
-        "scalafixAll --check" \
-        "integration/scalafixAll --check"
+        update
     '';
     depsSha256 = "sha256-/HHD2ijwJXiPMiWgF59xoIrYeUK3Pt7LImF5IQOr8Lk=";
   };
