@@ -37,6 +37,7 @@ pkgs.mkShell {
         integration/scalafmtCheckAll \
         "scalafixAll --check" \
         "integration/scalafixAll --check" \
+        "integration/Test/compile" \
         test
     }
 
