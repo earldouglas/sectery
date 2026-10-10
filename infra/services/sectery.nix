@@ -5,8 +5,8 @@ let
   src = pkgs.fetchFromGitHub {
     owner = "earldouglas";
     repo = "sectery";
-    rev = "b6bb73493470ba3eb28270fae39683dea1e5c9cd";
-    hash = "sha256-o/DY9SwoSNB6FwBSHLYEsbsij2ztu8xdN6pe3PKOtwM=";
+    rev = "524079683687b4e8e26292ef4b15d35627623ccc";
+    hash = "sha256-9zQ4xfyGWbDlXaao2cMC8EU67jicxAXWuNJtIJt5+UI=";
   };
 
   sbt = import ./sbt.nix {
@@ -16,7 +16,7 @@ let
       sbt \
         update
     '';
-    depsSha256 = "sha256-/HHD2ijwJXiPMiWgF59xoIrYeUK3Pt7LImF5IQOr8Lk=";
+    depsSha256 = "sha256-88n0XPmgE/Fq7xI3+rPdxZu2xTxOF8id4itI/hs4caQ=";
   };
 
 in
