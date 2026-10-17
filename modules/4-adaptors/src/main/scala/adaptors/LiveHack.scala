@@ -1,5 +1,6 @@
 package sectery.adaptors
 
+import com.earldouglas.outdent.Outdent.outdent
 import java.sql.Connection
 import sectery._
 import sectery.effects._
@@ -8,25 +9,27 @@ object LiveHack:
 
   private def unsafeInit(c: Connection): Unit =
     val s1 =
-      """|CREATE TABLE IF NOT EXISTS
-         |`HACK_WORDS` (
-         |  `WORD` VARCHAR(24) NOT NULL
-         |)
-         |""".stripMargin
+      """
+        CREATE TABLE IF NOT EXISTS
+        `HACK_WORDS` (
+          `WORD` VARCHAR(24) NOT NULL
+        )
+      """.outdent
     val stmt1 = c.createStatement()
     stmt1.executeUpdate(s1)
     stmt1.close()
 
     val s2 =
-      """|CREATE TABLE IF NOT EXISTS
-         |`HACK_GAMES_V2` (
-         |  `SERVICE` VARCHAR(256) NOT NULL,
-         |  `CHANNEL` VARCHAR(256) NOT NULL,
-         |  `WORD` VARCHAR(24) NOT NULL,
-         |  `COUNT` INT NOT NULL,
-         |  PRIMARY KEY (`SERVICE`, `CHANNEL`)
-         |)
-         |""".stripMargin
+      """
+        CREATE TABLE IF NOT EXISTS
+        `HACK_GAMES_V2` (
+          `SERVICE` VARCHAR(256) NOT NULL,
+          `CHANNEL` VARCHAR(256) NOT NULL,
+          `WORD` VARCHAR(24) NOT NULL,
+          `COUNT` INT NOT NULL,
+          PRIMARY KEY (`SERVICE`, `CHANNEL`)
+        )
+      """.outdent
     val stmt2 = c.createStatement()
     stmt2.executeUpdate(s2)
     stmt2.close()
@@ -37,11 +40,12 @@ object LiveHack:
       channel: String
   ): Option[(String, Int)] =
     val s =
-      """|SELECT `WORD`, `COUNT`
-         |FROM `HACK_GAMES_V2`
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |""".stripMargin
+      """
+        SELECT `WORD`, `COUNT`
+        FROM `HACK_GAMES_V2`
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -54,11 +58,12 @@ object LiveHack:
 
   private def unsafeGetRandomWord(c: Connection): String =
     val q =
-      """|SELECT `WORD`
-         |FROM `HACK_WORDS`
-         |ORDER BY RAND()
-         |LIMIT 1
-         |""".stripMargin
+      """
+        SELECT `WORD`
+        FROM `HACK_WORDS`
+        ORDER BY RAND()
+        LIMIT 1
+      """.outdent
     val stmt = c.createStatement
     val rs = stmt.executeQuery(q)
     rs.next()
@@ -68,11 +73,12 @@ object LiveHack:
 
   private def unsafeIsAWord(c: Connection, word: String): Boolean =
     val s =
-      """|SELECT `WORD`
-         |FROM `HACK_WORDS`
-         |WHERE LOWER(`WORD`) = ?
-         |LIMIT 1
-         |""".stripMargin
+      """
+        SELECT `WORD`
+        FROM `HACK_WORDS`
+        WHERE LOWER(`WORD`) = ?
+        LIMIT 1
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, word.toLowerCase)
     val rs = stmt.executeQuery
@@ -90,10 +96,11 @@ object LiveHack:
     unsafeDeleteGame(c, service, channel)
 
     val s =
-      """|INSERT INTO
-         |HACK_GAMES_V2 (`SERVICE`, `CHANNEL`, `WORD`, `COUNT`)
-         |VALUES (?, ?, ?, ?)
-         |""".stripMargin
+      """
+        INSERT INTO
+        HACK_GAMES_V2 (`SERVICE`, `CHANNEL`, `WORD`, `COUNT`)
+        VALUES (?, ?, ?, ?)
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -122,11 +129,12 @@ object LiveHack:
       guessCount: Int
   ): Unit =
     val s =
-      """|UPDATE `HACK_GAMES_V2`
-         |SET `COUNT` = ?
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |""".stripMargin
+      """
+        UPDATE `HACK_GAMES_V2`
+        SET `COUNT` = ?
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setInt(1, guessCount)
     stmt.setString(2, service)
@@ -140,11 +148,12 @@ object LiveHack:
       channel: String
   ): Unit =
     val s =
-      """|DELETE FROM
-         |`HACK_GAMES_V2`
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |""".stripMargin
+      """
+        DELETE FROM
+        `HACK_GAMES_V2`
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)

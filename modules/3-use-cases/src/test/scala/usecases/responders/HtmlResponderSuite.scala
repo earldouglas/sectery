@@ -1,5 +1,6 @@
 package sectery.usecases.responders
 
+import com.earldouglas.outdent.Outdent.outdent
 import java.net.URL
 import munit.FunSuite
 import sectery.domain.entities._
@@ -24,22 +25,23 @@ class HtmlResponderSuite extends FunSuite:
             Response(
               status = 200,
               headers = Map.empty,
-              body = """|<!DOCTYPE html>
-                        |<html lang="en" dir="ltr">
-                        |  <head>
-                        |    <meta charset="utf-8">
-                        |    <meta property="og:title" content="this is meta[property=og:title]" />
-                        |    <meta name="twitter:title" content="this is meta[name=twitter:title]">
-                        |    <meta property="og:description" content="this is meta[property=og:description]" />
-                        |    <meta name="description" content="this is meta[name=description]" />
-                        |    <meta name="twitter:description" content="this is meta[property=twitter:description]">
-                        |    <title>Hello, world!</title>
-                        |  </head>
-                        |  <body>
-                        |    <h1>Hello, world!</h1>
-                        |  </body>
-                        |</html>
-                        |""".stripMargin
+              body = """
+                <!DOCTYPE html>
+                <html lang="en" dir="ltr">
+                  <head>
+                    <meta charset="utf-8">
+                    <meta property="og:title" content="this is meta[property=og:title]" />
+                    <meta name="twitter:title" content="this is meta[name=twitter:title]">
+                    <meta property="og:description" content="this is meta[property=og:description]" />
+                    <meta name="description" content="this is meta[name=description]" />
+                    <meta name="twitter:description" content="this is meta[property=twitter:description]">
+                    <title>Hello, world!</title>
+                  </head>
+                  <body>
+                    <h1>Hello, world!</h1>
+                  </body>
+                </html>
+              """.outdent
             )
           case _ => throw new Exception("unexpected")
 

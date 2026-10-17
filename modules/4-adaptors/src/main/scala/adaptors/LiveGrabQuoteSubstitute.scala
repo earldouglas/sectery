@@ -1,5 +1,6 @@
 package sectery.adaptors
 
+import com.earldouglas.outdent.Outdent.outdent
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
@@ -21,41 +22,44 @@ object LiveGrabQuoteSubstitute:
   private def unsafeInit(c: Connection): Unit =
     executeUpdate(
       c,
-      """|CREATE TABLE IF NOT EXISTS
-         |`GRABBED_MESSAGES_V2`(
-         |  `SERVICE` VARCHAR(256) NOT NULL,
-         |  `CHANNEL` VARCHAR(256) NOT NULL,
-         |  `NICK` VARCHAR(256) NOT NULL,
-         |  `MESSAGE` TEXT NOT NULL,
-         |  `TIMESTAMP` TIMESTAMP NOT NULL
-         |)
-         |""".stripMargin
+      """
+        CREATE TABLE IF NOT EXISTS
+        `GRABBED_MESSAGES_V2`(
+          `SERVICE` VARCHAR(256) NOT NULL,
+          `CHANNEL` VARCHAR(256) NOT NULL,
+          `NICK` VARCHAR(256) NOT NULL,
+          `MESSAGE` TEXT NOT NULL,
+          `TIMESTAMP` TIMESTAMP NOT NULL
+        )
+      """.outdent
     )
 
     executeUpdate(
       c,
-      """|CREATE TABLE IF NOT EXISTS
-         |`LAST_MESSAGE_V2`(
-         |  `SERVICE` VARCHAR(256) NOT NULL,
-         |  `CHANNEL` VARCHAR(256) NOT NULL,
-         |  `NICK` VARCHAR(256) NOT NULL,
-         |  `MESSAGE` TEXT NOT NULL,
-         |  `TIMESTAMP` TIMESTAMP NOT NULL,
-         |  PRIMARY KEY (`SERVICE`, `CHANNEL`, `NICK`)
-         |)
-         |""".stripMargin
+      """
+        CREATE TABLE IF NOT EXISTS
+        `LAST_MESSAGE_V2`(
+          `SERVICE` VARCHAR(256) NOT NULL,
+          `CHANNEL` VARCHAR(256) NOT NULL,
+          `NICK` VARCHAR(256) NOT NULL,
+          `MESSAGE` TEXT NOT NULL,
+          `TIMESTAMP` TIMESTAMP NOT NULL,
+          PRIMARY KEY (`SERVICE`, `CHANNEL`, `NICK`)
+        )
+      """.outdent
     )
 
     executeUpdate(
       c,
-      """|CREATE TABLE IF NOT EXISTS
-         |`AUTOQUOTE_V2`(
-         |  `SERVICE` VARCHAR(256) NOT NULL,
-         |  `CHANNEL` VARCHAR(256) NOT NULL,
-         |  `TIMESTAMP` TIMESTAMP NOT NULL,
-         |  PRIMARY KEY (`SERVICE`, `CHANNEL`)
-         |)
-         |""".stripMargin
+      """
+        CREATE TABLE IF NOT EXISTS
+        `AUTOQUOTE_V2`(
+          `SERVICE` VARCHAR(256) NOT NULL,
+          `CHANNEL` VARCHAR(256) NOT NULL,
+          `TIMESTAMP` TIMESTAMP NOT NULL,
+          PRIMARY KEY (`SERVICE`, `CHANNEL`)
+        )
+      """.outdent
     )
 
   private def unsafeLastRxs(
@@ -64,12 +68,13 @@ object LiveGrabQuoteSubstitute:
       channel: String
   ): List[LastRx] =
     val s =
-      """|SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
-         |FROM `LAST_MESSAGE_V2`
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |ORDER BY `TIMESTAMP` ASC
-         |""".stripMargin
+      """
+        SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
+        FROM `LAST_MESSAGE_V2`
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+        ORDER BY `TIMESTAMP` ASC
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -96,14 +101,15 @@ object LiveGrabQuoteSubstitute:
       nick: String
   ): Option[LastRx] =
     val s =
-      """|SELECT `MESSAGE`, `TIMESTAMP`
-         |FROM `LAST_MESSAGE_V2`
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |  AND `NICK` = ?
-         |ORDER BY `TIMESTAMP` ASC
-         |LIMIT 1
-         |""".stripMargin
+      """
+        SELECT `MESSAGE`, `TIMESTAMP`
+        FROM `LAST_MESSAGE_V2`
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+          AND `NICK` = ?
+        ORDER BY `TIMESTAMP` ASC
+        LIMIT 1
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -134,10 +140,11 @@ object LiveGrabQuoteSubstitute:
     unsafeLastRx(c, service, channel, nick) match
       case Some(m) =>
         val s =
-          """|INSERT INTO `GRABBED_MESSAGES_V2` (
-             |  `SERVICE`, `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
-             |) VALUES (?, ?, ?, ?, ?)
-             |""".stripMargin
+          """
+            INSERT INTO `GRABBED_MESSAGES_V2` (
+              `SERVICE`, `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`
+            ) VALUES (?, ?, ?, ?, ?)
+          """.outdent
         val stmt = c.prepareStatement(s)
         stmt.setString(1, service)
         stmt.setString(2, channel)
@@ -156,13 +163,14 @@ object LiveGrabQuoteSubstitute:
       channel: String
   ): Option[GrabbedMessage] =
     val s =
-      """|SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
-         |FROM `GRABBED_MESSAGES_V2`
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |ORDER BY RAND()
-         |LIMIT 1
-         |""".stripMargin
+      """
+        SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
+        FROM `GRABBED_MESSAGES_V2`
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+        ORDER BY RAND()
+        LIMIT 1
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -191,14 +199,15 @@ object LiveGrabQuoteSubstitute:
       nick: String
   ): Option[GrabbedMessage] =
     val s =
-      """|SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
-         |FROM `GRABBED_MESSAGES_V2`
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |  AND `NICK` = ?
-         |ORDER BY RAND()
-         |LIMIT 1
-         |""".stripMargin
+      """
+        SELECT `NICK`, `MESSAGE`, `TIMESTAMP`
+        FROM `GRABBED_MESSAGES_V2`
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+          AND `NICK` = ?
+        ORDER BY RAND()
+        LIMIT 1
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -225,11 +234,12 @@ object LiveGrabQuoteSubstitute:
 
     def deleteLastRx(c: Connection): Unit =
       val s =
-        """|DELETE FROM `LAST_MESSAGE_V2`
-           |WHERE `SERVICE` = ?
-           |  AND `CHANNEL` = ?
-           |  AND `NICK` = ?
-           |""".stripMargin
+        """
+          DELETE FROM `LAST_MESSAGE_V2`
+          WHERE `SERVICE` = ?
+            AND `CHANNEL` = ?
+            AND `NICK` = ?
+        """.outdent
       val stmt = c.prepareStatement(s)
       stmt.setString(1, rx.service)
       stmt.setString(2, rx.channel)
@@ -239,9 +249,10 @@ object LiveGrabQuoteSubstitute:
 
     def addLastRx(nowMillis: Long)(c: Connection): Unit =
       val s =
-        """|INSERT INTO `LAST_MESSAGE_V2` (`SERVICE`, `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`)
-           |VALUES (?, ?, ?, ?, ?)
-           |""".stripMargin
+        """
+          INSERT INTO `LAST_MESSAGE_V2` (`SERVICE`, `CHANNEL`, `NICK`, `MESSAGE`, `TIMESTAMP`)
+          VALUES (?, ?, ?, ?, ?)
+        """.outdent
       val stmt = c.prepareStatement(s)
       stmt.setString(1, rx.service)
       stmt.setString(2, rx.channel)
@@ -253,10 +264,11 @@ object LiveGrabQuoteSubstitute:
 
     def deleteAutoquote(c: Connection): Unit =
       val s =
-        """|DELETE FROM `AUTOQUOTE_V2`
-           |WHERE `SERVICE` = ?
-           |  AND `CHANNEL` = ?
-           |""".stripMargin
+        """
+          DELETE FROM `AUTOQUOTE_V2`
+          WHERE `SERVICE` = ?
+            AND `CHANNEL` = ?
+        """.outdent
       val stmt = c.prepareStatement(s)
       stmt.setString(1, rx.service)
       stmt.setString(2, rx.channel)
@@ -265,9 +277,10 @@ object LiveGrabQuoteSubstitute:
 
     def addAutoquote(nowMillis: Long)(c: Connection): Unit =
       val s =
-        """|INSERT INTO `AUTOQUOTE_V2` (`SERVICE`, `CHANNEL`, `TIMESTAMP`)
-           |VALUES (?, ?, ?)
-           |""".stripMargin
+        """
+          INSERT INTO `AUTOQUOTE_V2` (`SERVICE`, `CHANNEL`, `TIMESTAMP`)
+          VALUES (?, ?, ?)
+        """.outdent
       val stmt = c.prepareStatement(s)
       stmt.setString(1, rx.service)
       stmt.setString(2, rx.channel)
@@ -286,10 +299,11 @@ object LiveGrabQuoteSubstitute:
 
     def getServiceChannels(c: Connection): List[(String, String)] =
       val s =
-        """|SELECT SERVICE, CHANNEL
-           |FROM AUTOQUOTE_V2
-           |WHERE TIMESTAMP <= ?
-           |""".stripMargin
+        """
+          SELECT SERVICE, CHANNEL
+          FROM AUTOQUOTE_V2
+          WHERE TIMESTAMP <= ?
+        """.outdent
       val stmt = c.prepareStatement(s)
       val fourtyFiveMinutesAgoMillis = nowMillis - 45L * 60L * 1000L
       stmt.setTimestamp(1, new Timestamp(fourtyFiveMinutesAgoMillis))
@@ -308,11 +322,12 @@ object LiveGrabQuoteSubstitute:
       if scs.length > 0 then
         val now = new Timestamp(nowMillis)
         val s =
-          s"""|UPDATE AUTOQUOTE_V2
-              |SET TIMESTAMP = ?
-              |WHERE SERVICE = ?
-              |  AND CHANNEL = ?
-              |""".stripMargin
+          """
+            UPDATE AUTOQUOTE_V2
+            SET TIMESTAMP = ?
+            WHERE SERVICE = ?
+              AND CHANNEL = ?
+          """.outdent
         scs
           .foreach { case (service, channel) =>
             val stmt = c.prepareStatement(s)

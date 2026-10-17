@@ -1,5 +1,6 @@
 package sectery.adaptors
 
+import com.earldouglas.outdent.Outdent.outdent
 import java.sql.Connection
 import sectery.effects.Points
 import sectery.effects.Transactor
@@ -8,15 +9,16 @@ object LivePoints:
 
   private def unsafeInit(c: Connection): Unit =
     val s =
-      """|CREATE TABLE IF NOT EXISTS
-         |`POINTS_V2`(
-         |  `SERVICE` VARCHAR(256) NOT NULL,
-         |  `CHANNEL` VARCHAR(256) NOT NULL,
-         |  `NICK` VARCHAR(256) NOT NULL,
-         |  `VALUE` INT NOT NULL,
-         |  PRIMARY KEY (`SERVICE`, `CHANNEL`, `NICK`)
-         |)
-         |""".stripMargin
+      """
+        CREATE TABLE IF NOT EXISTS
+        `POINTS_V2`(
+          `SERVICE` VARCHAR(256) NOT NULL,
+          `CHANNEL` VARCHAR(256) NOT NULL,
+          `NICK` VARCHAR(256) NOT NULL,
+          `VALUE` INT NOT NULL,
+          PRIMARY KEY (`SERVICE`, `CHANNEL`, `NICK`)
+        )
+      """.outdent
     val stmt = c.createStatement
     stmt.executeUpdate(s)
     stmt.close
@@ -31,12 +33,13 @@ object LivePoints:
 
     def getOldValue(c: Connection): Int =
       val s =
-        """|SELECT `VALUE` FROM `POINTS_V2`
-           |WHERE `SERVICE` = ?
-           |  AND `CHANNEL` = ?
-           |  AND `NICK` = ?
-           |LIMIT 1
-           |""".stripMargin
+        """
+          SELECT `VALUE` FROM `POINTS_V2`
+          WHERE `SERVICE` = ?
+            AND `CHANNEL` = ?
+            AND `NICK` = ?
+          LIMIT 1
+        """.outdent
       val stmt = c.prepareStatement(s)
       stmt.setString(1, service)
       stmt.setString(2, channel)
@@ -50,11 +53,12 @@ object LivePoints:
 
     def dropValue(c: Connection): Unit =
       val s =
-        """|DELETE FROM `POINTS_V2`
-           |WHERE `SERVICE` = ?
-           |  AND `CHANNEL` = ?
-           |  AND `NICK` = ?
-           |""".stripMargin
+        """
+          DELETE FROM `POINTS_V2`
+          WHERE `SERVICE` = ?
+            AND `CHANNEL` = ?
+            AND `NICK` = ?
+        """.outdent
       val stmt = c.prepareStatement(s)
       stmt.setString(1, service)
       stmt.setString(2, channel)
@@ -64,9 +68,10 @@ object LivePoints:
 
     def setNewValue(c: Connection, newValue: Int): Int =
       val s =
-        """|INSERT INTO `POINTS_V2` (`SERVICE`, `CHANNEL`, `NICK`, `VALUE`)
-           |VALUES (?, ?, ?, ?)
-           |""".stripMargin
+        """
+          INSERT INTO `POINTS_V2` (`SERVICE`, `CHANNEL`, `NICK`, `VALUE`)
+          VALUES (?, ?, ?, ?)
+        """.outdent
       val stmt = c.prepareStatement(s)
       stmt.setString(1, service)
       stmt.setString(2, channel)

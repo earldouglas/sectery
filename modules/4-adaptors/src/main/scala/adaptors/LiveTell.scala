@@ -1,5 +1,6 @@
 package sectery.adaptors
 
+import com.earldouglas.outdent.Outdent.outdent
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
@@ -10,15 +11,16 @@ object LiveTell:
 
   private def unsafeInit(c: Connection): Unit =
     val s =
-      """|CREATE TABLE IF NOT EXISTS `TELL_V2` (
-         |  `SERVICE` VARCHAR(64) NOT NULL,
-         |  `CHANNEL` VARCHAR(64) NOT NULL,
-         |  `FROM` VARCHAR(64) NOT NULL,
-         |  `TO` VARCHAR(64) NOT NULL,
-         |  `MESSAGE` VARCHAR(64) NOT NULL,
-         |  `TIMESTAMP` TIMESTAMP NOT NULL
-         |)
-         |""".stripMargin
+      """
+        CREATE TABLE IF NOT EXISTS `TELL_V2` (
+          `SERVICE` VARCHAR(64) NOT NULL,
+          `CHANNEL` VARCHAR(64) NOT NULL,
+          `FROM` VARCHAR(64) NOT NULL,
+          `TO` VARCHAR(64) NOT NULL,
+          `MESSAGE` VARCHAR(64) NOT NULL,
+          `TIMESTAMP` TIMESTAMP NOT NULL
+        )
+      """.outdent
     val stmt = c.createStatement
     stmt.executeUpdate(s)
     stmt.close
@@ -30,9 +32,10 @@ object LiveTell:
       m: Tell.Saved
   ): Unit =
     val s =
-      """|INSERT INTO `TELL_V2` (`SERVICE`, `CHANNEL`, `FROM`, `TO`, `MESSAGE`, `TIMESTAMP`)
-         |VALUES (?, ?, ?, ?, ?, ?)
-         |""".stripMargin
+      """
+        INSERT INTO `TELL_V2` (`SERVICE`, `CHANNEL`, `FROM`, `TO`, `MESSAGE`, `TIMESTAMP`)
+        VALUES (?, ?, ?, ?, ?, ?)
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -52,13 +55,14 @@ object LiveTell:
 
     def findMessages(c: Connection): List[Tell.Saved] =
       val s =
-        """|SELECT `FROM`, `MESSAGE`, `TIMESTAMP`
-           |FROM `TELL_V2`
-           |WHERE `SERVICE` = ?
-           |  AND `CHANNEL` = ?
-           |  AND `TO` = ?
-           |ORDER BY `TIMESTAMP` DESC
-           |""".stripMargin
+        """
+          SELECT `FROM`, `MESSAGE`, `TIMESTAMP`
+          FROM `TELL_V2`
+          WHERE `SERVICE` = ?
+            AND `CHANNEL` = ?
+            AND `TO` = ?
+          ORDER BY `TIMESTAMP` DESC
+        """.outdent
       val stmt = c.prepareStatement(s)
       stmt.setString(1, service)
       stmt.setString(2, channel)
@@ -81,11 +85,12 @@ object LiveTell:
 
     def dropMessages(c: Connection): Unit =
       val s =
-        """|DELETE FROM `TELL_V2`
-           |WHERE `SERVICE` = ?
-           |  AND `CHANNEL` = ?
-           |  AND `TO` = ?
-           |""".stripMargin
+        """
+          DELETE FROM `TELL_V2`
+          WHERE `SERVICE` = ?
+            AND `CHANNEL` = ?
+            AND `TO` = ?
+        """.outdent
       val stmt = c.prepareStatement(s)
       stmt.setString(1, service)
       stmt.setString(2, channel)

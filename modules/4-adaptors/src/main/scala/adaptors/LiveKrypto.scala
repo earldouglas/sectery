@@ -1,5 +1,6 @@
 package sectery.adaptors
 
+import com.earldouglas.outdent.Outdent.outdent
 import java.sql.Connection
 import sectery._
 import sectery.effects._
@@ -8,20 +9,21 @@ object LiveKrypto:
 
   private def unsafeInit(c: Connection): Unit =
     val s =
-      """|CREATE TABLE IF NOT EXISTS
-         |`KRYPTO_V2` (
-         |  `SERVICE` VARCHAR(256) NOT NULL,
-         |  `CHANNEL` VARCHAR(256) NOT NULL,
-         |  `OBJECTIVE` INT NOT NULL,
-         |  `CARD1` INT NOT NULL,
-         |  `CARD2` INT NOT NULL,
-         |  `CARD3` INT NOT NULL,
-         |  `CARD4` INT NOT NULL,
-         |  `CARD5` INT NOT NULL,
-         |  `COUNT` INT NOT NULL,
-         |  PRIMARY KEY (`SERVICE`, `CHANNEL`)
-         |)
-         |""".stripMargin
+      """
+        CREATE TABLE IF NOT EXISTS
+        `KRYPTO_V2` (
+          `SERVICE` VARCHAR(256) NOT NULL,
+          `CHANNEL` VARCHAR(256) NOT NULL,
+          `OBJECTIVE` INT NOT NULL,
+          `CARD1` INT NOT NULL,
+          `CARD2` INT NOT NULL,
+          `CARD3` INT NOT NULL,
+          `CARD4` INT NOT NULL,
+          `CARD5` INT NOT NULL,
+          `COUNT` INT NOT NULL,
+          PRIMARY KEY (`SERVICE`, `CHANNEL`)
+        )
+      """.outdent
     val stmt = c.createStatement()
     stmt.executeUpdate(s)
     stmt.close()
@@ -32,11 +34,12 @@ object LiveKrypto:
       channel: String
   ): Option[Krypto.Game] =
     val s =
-      """|SELECT *
-         |FROM `KRYPTO_V2`
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |""".stripMargin
+      """
+        SELECT *
+        FROM `KRYPTO_V2`
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -66,10 +69,11 @@ object LiveKrypto:
       channel: String
   ): Unit =
     val s =
-      """|DELETE FROM `KRYPTO_V2`
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |""".stripMargin
+      """
+        DELETE FROM `KRYPTO_V2`
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -86,9 +90,10 @@ object LiveKrypto:
     unsafeDeleteGame(c, service, channel)
 
     val s =
-      """|INSERT INTO `KRYPTO_V2` (`SERVICE`, `CHANNEL`, `OBJECTIVE`, `CARD1`, `CARD2`, `CARD3`, `CARD4`, `CARD5`, `COUNT`)
-         |VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-         |""".stripMargin
+      """
+        INSERT INTO `KRYPTO_V2` (`SERVICE`, `CHANNEL`, `OBJECTIVE`, `CARD1`, `CARD2`, `CARD3`, `CARD4`, `CARD5`, `COUNT`)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, service)
     stmt.setString(2, channel)
@@ -122,11 +127,12 @@ object LiveKrypto:
       guessCount: Int
   ): Unit =
     val s =
-      """|UPDATE `KRYPTO_V2`
-         |SET `COUNT` = ?
-         |WHERE `SERVICE` = ?
-         |  AND `CHANNEL` = ?
-         |""".stripMargin
+      """
+        UPDATE `KRYPTO_V2`
+        SET `COUNT` = ?
+        WHERE `SERVICE` = ?
+          AND `CHANNEL` = ?
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setInt(1, guessCount)
     stmt.setString(2, service)
