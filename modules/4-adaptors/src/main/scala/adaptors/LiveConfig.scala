@@ -1,5 +1,6 @@
 package sectery.adaptors
 
+import com.earldouglas.outdent.Outdent.outdent
 import java.sql.Connection
 import sectery._
 import sectery.effects._
@@ -8,14 +9,15 @@ object LiveConfig:
 
   private def unsafeInit(c: Connection): Unit =
     val s =
-      """|CREATE TABLE IF NOT EXISTS
-         |`CONFIG`(
-         |  `NICK` VARCHAR(256) NOT NULL,
-         |  `KEY` VARCHAR(256) NOT NULL,
-         |  `VALUE` VARCHAR(256) NOT NULL,
-         |  PRIMARY KEY (`NICK`, `KEY`)
-         |)
-         |""".stripMargin
+      """
+        CREATE TABLE IF NOT EXISTS
+        `CONFIG`(
+          `NICK` VARCHAR(256) NOT NULL,
+          `KEY` VARCHAR(256) NOT NULL,
+          `VALUE` VARCHAR(256) NOT NULL,
+          PRIMARY KEY (`NICK`, `KEY`)
+        )
+      """.outdent
     val stmt = c.createStatement
     stmt.executeUpdate(s)
     stmt.close
@@ -25,11 +27,12 @@ object LiveConfig:
       key: String
   )(c: Connection): Option[String] =
     val s =
-      """|SELECT `VALUE`
-         |FROM `CONFIG`
-         |WHERE `NICK` = ?
-         |  AND `KEY` = ?
-         |""".stripMargin
+      """
+        SELECT `VALUE`
+        FROM `CONFIG`
+        WHERE `NICK` = ?
+          AND `KEY` = ?
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, nick)
     stmt.setString(2, key)
@@ -46,10 +49,11 @@ object LiveConfig:
       key: String
   )(c: Connection): Unit =
     val s =
-      """|DELETE FROM `CONFIG`
-         |WHERE `NICK` = ?
-         |  AND `KEY` = ?
-         |""".stripMargin
+      """
+        DELETE FROM `CONFIG`
+        WHERE `NICK` = ?
+          AND `KEY` = ?
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, nick)
     stmt.setString(2, key)
@@ -62,10 +66,11 @@ object LiveConfig:
       value: String
   )(c: Connection): Unit =
     val s =
-      """|INSERT INTO `CONFIG`
-         |(`NICK`, `KEY`, `VALUE`)
-         |VALUES (?, ?, ?)
-         |""".stripMargin
+      """
+        INSERT INTO `CONFIG`
+        (`NICK`, `KEY`, `VALUE`)
+        VALUES (?, ?, ?)
+      """.outdent
     val stmt = c.prepareStatement(s)
     stmt.setString(1, nick)
     stmt.setString(2, key)

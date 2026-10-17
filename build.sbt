@@ -15,6 +15,11 @@ assembly / assemblyMergeStrategy := {
   case x => ((assembly / assemblyMergeStrategy).value)(x)
 }
 
+lazy val outdent =
+  RootProject(
+    uri("https://git.earldouglas.com/earldouglas/outdent.git")
+  )
+
 lazy val domain =
   project
     .in(file("modules/1-domain"))
@@ -40,7 +45,7 @@ lazy val use_cases =
       libraryDependencies += "org.scalameta" %% "munit" % "1.3.6" % Test,
       libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.20.0" % Test
     )
-    .dependsOn(domain, effects)
+    .dependsOn(domain, effects, outdent)
 
 lazy val adaptors =
   project
@@ -53,7 +58,7 @@ lazy val adaptors =
       libraryDependencies += "com.h2database" % "h2" % "2.5.252" % Test,
       libraryDependencies += "org.scalameta" %% "munit" % "1.3.6" % Test
     )
-    .dependsOn(effects)
+    .dependsOn(effects, outdent)
 
 lazy val adaptors_with_zio =
   project
