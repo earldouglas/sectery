@@ -17,7 +17,7 @@ assembly / assemblyMergeStrategy := {
 
 lazy val outdent =
   RootProject(
-    uri("https://git.earldouglas.com/earldouglas/outdent.git")
+    uri("https://gitlab.com/earldouglas/outdent.git")
   )
 
 lazy val domain =
