@@ -30,6 +30,8 @@ object Main extends ZIOAppDefault:
 
   val openAiApiKey: String = sys.env("OPENAI_APIKEY")
 
+  val geodeUrl: String = sys.env("GEODE_URL")
+
   val unsafeGetConnection: () => Connection =
     () =>
       Class.forName(databaseDriver)
@@ -47,6 +49,7 @@ object Main extends ZIOAppDefault:
         rabbitMqPassword = rabbitMqPassword,
         rabbitMqChannelSuffix = "live",
         openAiApiKey = openAiApiKey,
-        unsafeGetConnection = unsafeGetConnection
+        unsafeGetConnection = unsafeGetConnection,
+        geodeUrl = geodeUrl
       )
       .map(_ => ExitCode.failure) // should never exit

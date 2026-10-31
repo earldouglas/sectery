@@ -33,6 +33,8 @@ object Main extends ZIOAppDefault:
   val slackBotToken: String = sys.env("SLACK_BOT_TOKEN")
   val slackAppToken: String = sys.env("SLACK_APP_TOKEN")
 
+  val geodeUrl: String = sys.env("GEODE_URL")
+
   override def run: ZIO[Any, Any, ExitCode] =
     val mariaDbContainer = MariaDBContainer.Def().createContainer()
     mariaDbContainer.start()
@@ -68,7 +70,8 @@ object Main extends ZIOAppDefault:
               rabbitMqPassword = rabbitMqPassword,
               rabbitMqChannelSuffix = "test",
               openAiApiKey = openAiApiKey,
-              unsafeGetConnection = unsafeGetConnection
+              unsafeGetConnection = unsafeGetConnection,
+              geodeUrl = geodeUrl
             )
             .fork
         ircFiber <-

@@ -58,6 +58,7 @@
       OPEN_WEATHER_MAP_API_KEY = builtins.getEnv "OPEN_WEATHER_MAP_API_KEY";
       AIRNOW_API_KEY = builtins.getEnv "AIRNOW_API_KEY";
       OPENAI_APIKEY = builtins.getEnv "OPENAI_APIKEY";
+      GEODE_URL = builtins.getEnv "GEODE_URL";
     };
   };
 

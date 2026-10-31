@@ -27,6 +27,7 @@ $ export FINNHUB_API_TOKEN=my_finnhub_api_token
 $ export OPEN_WEATHER_MAP_API_KEY=my_open_weather_map_api_key
 $ export AIRNOW_API_KEY=my_airnow_api_key
 $ export OPENAI_APIKEY=my_openai_api_key
+$ export GEODE_URL=http://geode
 $ sbt "project producers" run
 ```
 
