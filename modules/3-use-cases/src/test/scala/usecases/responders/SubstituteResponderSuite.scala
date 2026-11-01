@@ -83,7 +83,7 @@ class SubstituteResponderSuite extends FunSuite:
     val obtained: List[Tx] =
       new SubstituteResponder[Id]
         .respondToMessage(
-          Rx("irc", "#foo", None, "bar", "s/bar/baz/")
+          Rx("irc", "#foo", None, "charlie", "s/bar/baz/")
         )
 
     val expected: List[Tx] =
@@ -95,7 +95,7 @@ class SubstituteResponderSuite extends FunSuite:
     )
   }
 
-  test("s/bar/baz/ replaces every bar with baz") {
+  test("s/bar/baz/g replaces every bar with baz") {
 
     given substitute: LastMessage[Id] with
       override def saveLastMessage(rx: Rx): Id[Unit] =
