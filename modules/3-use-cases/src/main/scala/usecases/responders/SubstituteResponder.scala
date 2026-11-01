@@ -32,7 +32,6 @@ class SubstituteResponder[F[_]: Monad: LastMessage]
         rxs
           .sortWith((x, y) => x.instant.compareTo(y.instant) > 0)
           .find { rx =>
-            rx.nick != nick &&
             matcher.matches(rx.message)
           }
           .map { rx =>
