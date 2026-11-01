@@ -11,6 +11,12 @@ import sectery.effects.id.given
 
 class LiveGeodeSuite extends FunSuite:
 
+  given logger: Logger[Id] with
+    override def debug(message: => String) =
+      println(message)
+    override def error(message: => String) =
+      println(message)
+
   given http: HttpClient[Id] =
     new HttpClient:
       override def request(
@@ -73,8 +79,6 @@ class LiveGeodeSuite extends FunSuite:
   test("@geode 127.0.0.1") {
     assertEquals(
       obtained = geode.geode("127.0.0.1"),
-      expected = Left(
-        "unexpected response: Response(404,Map(),Information for address does not exist.)"
-      )
+      expected = Left("can't figure that one out")
     )
   }

@@ -20,16 +20,16 @@ class GeodeResponder[F[_]: Monad: Geode] extends Responder[F]:
         summon[Geode[F]]
           .geode(ip)
           .map {
-            case Right(x) => x
-            case Left(x)  => x
+            case Right(location) => location.toString()
+            case Left(error)     => error
           }
-          .map { data =>
+          .map { message =>
             List(
               Tx(
                 service = rx.service,
                 channel = rx.channel,
                 thread = rx.thread,
-                message = data.toString
+                message = message
               )
             )
           }
