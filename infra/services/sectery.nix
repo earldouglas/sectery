@@ -5,8 +5,8 @@ let
   src = pkgs.fetchFromGitHub {
     owner = "earldouglas";
     repo = "sectery";
-    rev = "ded67b708c0bb04507ff0397a951d55e5ad5ce10";
-    hash = "sha256-ZwXgrhvE1Jmx7xGqB3oo96wU3g8FNQlAgprENkqcP4g=";
+    rev = "06eb0a6190ef0f8cf11846ff18868b6e00691393";
+    hash = "sha256-tio2TAJ02uwiA5+Tdlp8x7gLMYGo337166ENRyibnU0=";
   };
 
   sbt = import ./sbt.nix {
