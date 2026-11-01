@@ -15,11 +15,6 @@ assembly / assemblyMergeStrategy := {
   case x => ((assembly / assemblyMergeStrategy).value)(x)
 }
 
-lazy val outdent =
-  RootProject(
-    uri("https://gitlab.com/earldouglas/outdent.git")
-  )
-
 lazy val domain =
   project
     .in(file("modules/1-domain"))
@@ -42,10 +37,11 @@ lazy val use_cases =
       libraryDependencies += "org.jsoup" % "jsoup" % "1.23.2",
       libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "5.0.9.Final",
       libraryDependencies += "net.objecthunter" % "exp4j" % "0.4.8",
+      libraryDependencies += "com.earldouglas" %% "outdent" % "0.0.1",
       libraryDependencies += "org.scalameta" %% "munit" % "1.3.6" % Test,
       libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.20.0" % Test
     )
-    .dependsOn(domain, effects, outdent)
+    .dependsOn(domain, effects)
 
 lazy val adaptors =
   project
@@ -55,10 +51,11 @@ lazy val adaptors =
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "sectery.adaptors",
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion,
+      libraryDependencies += "com.earldouglas" %% "outdent" % "0.0.1",
       libraryDependencies += "com.h2database" % "h2" % "2.5.252" % Test,
       libraryDependencies += "org.scalameta" %% "munit" % "1.3.6" % Test
     )
-    .dependsOn(effects, outdent)
+    .dependsOn(effects)
 
 lazy val adaptors_with_zio =
   project
