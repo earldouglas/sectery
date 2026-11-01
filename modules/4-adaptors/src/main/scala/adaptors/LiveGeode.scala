@@ -14,7 +14,7 @@ object LiveGeode:
   implicit val decoder: JsonDecoder[Geode.Location] =
     DeriveJsonDecoder.gen[Geode.Location]
 
-  def apply[F[_]: HttpClient: Monad](url: String): Geode[F] =
+  def apply[F[_]: HttpClient: Monad: Logger](url: String): Geode[F] =
     val urlNoSlash = url.replaceAll("""\/$""", "")
     new Geode:
       override def geode(
@@ -34,7 +34,13 @@ object LiveGeode:
                 case Right(location) =>
                   Right(location)
                 case Left(e) =>
-                  Left(s"couldn't parse location: ${e}")
-            case r =>
-              Left(s"unexpected response: ${r}")
+                  summon[Logger[F]].error(
+                    s"can't parse geode location for ip ${ip}: ${e}"
+                  )
+                  Left("can't figure that one out")
+            case x =>
+              summon[Logger[F]].error(
+                s"unsupported geode response for ip ${ip}: ${x}"
+              )
+              Left("can't figure that one out")
           }
