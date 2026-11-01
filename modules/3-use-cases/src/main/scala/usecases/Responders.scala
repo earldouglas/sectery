@@ -29,6 +29,7 @@ class Responders[
     : Stock //
     : Tell //
     : Traversable //
+    : Geode //
 ]:
 
   val responders: List[Responder[F]] =
@@ -57,7 +58,8 @@ class Responders[
         new TellResponder,
         new TimeResponder,
         new VersionResponder,
-        new WxResponder
+        new WxResponder,
+        new GeodeResponder
       )
     new HelpResponder(allExceptHelp) :: allExceptHelp
 

@@ -51,6 +51,7 @@ $ IRC_USER=redacted \
   OPENAI_APIKEY=redacted \
   SLACK_BOT_TOKEN=redacted \
   SLACK_APP_TOKEN=redacted \
+  GEODE_URL=redacted \
   sbt Test/run
 ```
 

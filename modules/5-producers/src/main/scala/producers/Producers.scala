@@ -31,7 +31,8 @@ class Producers(
     openWeatherMapApiKey: String,
     airNowApiKey: String,
     finnhubApiToken: String,
-    openAiApiKey: String
+    openAiApiKey: String,
+    geodeUrl: String
 ):
 
   given logger: Logger[Task] with
@@ -135,6 +136,9 @@ class Producers(
 
   given tell: Tell[Task] =
     LiveTell(unsafeGetConnection())
+
+  given geode: Geode[Task] =
+    LiveGeode(geodeUrl)
 
   val grabQuoteSubstitute =
     LiveGrabQuoteSubstitute(unsafeGetConnection())
@@ -244,7 +248,8 @@ object Producers:
       rabbitMqPassword: String,
       rabbitMqChannelSuffix: String,
       openAiApiKey: String,
-      unsafeGetConnection: () => Connection
+      unsafeGetConnection: () => Connection,
+      geodeUrl: String
   ): ZIO[Any, Throwable, Nothing] = {
     for
       producerFiber <-
@@ -258,7 +263,8 @@ object Producers:
           openWeatherMapApiKey = openWeatherMapApiKey,
           airNowApiKey = airNowApiKey,
           finnhubApiToken = finnhubApiToken,
-          openAiApiKey = openAiApiKey
+          openAiApiKey = openAiApiKey,
+          geodeUrl = geodeUrl
         ).start
       _ <- producerFiber.join
     yield ()
