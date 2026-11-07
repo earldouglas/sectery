@@ -40,41 +40,42 @@ object LiveGetWx:
             lat = lat,
             lon = lon
           )
-        yield for
-          current <- currentO
-          aqiObservation <- aqiObservationO
-          aqiForecast <- aqiForecastO
         yield
-          var aqiMap: TreeMap[String, AqiParameter] = TreeMap.empty
-          aqiObservation.parameters.foreach { case p =>
-            if !aqiMap.contains(p.name) then
-              aqiMap = aqiMap + (p.name -> AqiParameter(
-                name = p.name,
-                value = p.value,
-                category = p.category
-              ))
-          }
-          aqiForecast.parameters.sortBy(_.date).foreach { case p =>
-            if !aqiMap.contains(p.name) then
-              aqiMap = aqiMap + (p.name -> AqiParameter(
-                name = p.name,
-                value = p.value,
-                category = p.category
-              ))
-          }
-          (
-            List(
-              f"${current.temp}%.0f°",
-              f"hum ${current.humidity}%.0f%%",
-              f"wnd ${current.wind_speed}%.0f mph"
-            ) ++ current.weather.map { w =>
-              w.description
-            } ++ List(
-              f"uv ${current.uvi.toInt}"
-            ) ++ aqiMap.values.map { p =>
-              s"${p.name.toLowerCase} ${p.value}"
+          for
+            current <- currentO
+            aqiObservation <- aqiObservationO
+            aqiForecast <- aqiForecastO
+          yield
+            var aqiMap: TreeMap[String, AqiParameter] = TreeMap.empty
+            aqiObservation.parameters.foreach { case p =>
+              if !aqiMap.contains(p.name) then
+                aqiMap = aqiMap + (p.name -> AqiParameter(
+                  name = p.name,
+                  value = p.value,
+                  category = p.category
+                ))
             }
-          ).mkString(", ")
+            aqiForecast.parameters.sortBy(_.date).foreach { case p =>
+              if !aqiMap.contains(p.name) then
+                aqiMap = aqiMap + (p.name -> AqiParameter(
+                  name = p.name,
+                  value = p.value,
+                  category = p.category
+                ))
+            }
+            (
+              List(
+                f"${current.temp}%.0f°",
+                f"hum ${current.humidity}%.0f%%",
+                f"wnd ${current.wind_speed}%.0f mph"
+              ) ++ current.weather.map { w =>
+                w.description
+              } ++ List(
+                f"uv ${current.uvi.toInt}"
+              ) ++ aqiMap.values.map { p =>
+                s"${p.name.toLowerCase} ${p.value}"
+              }
+            ).mkString(", ")
 
       private def findWx(
           q: String

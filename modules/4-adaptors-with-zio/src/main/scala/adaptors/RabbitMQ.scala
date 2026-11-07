@@ -46,7 +46,6 @@ class RabbitMQ(
       override def apply() =
         import zio.json.DecoderOps
         ZStream.async[Any, Throwable, A] { cb =>
-
           val deliver: DeliverCallback =
             (_: String, message: Delivery) => {
               val messageBody: String =
@@ -61,7 +60,7 @@ class RabbitMQ(
 
                   val channelMatches =
                     channels match
-                      case None => true
+                      case None     => true
                       case Some(cs) =>
                         cs.contains(ch)
 

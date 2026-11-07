@@ -87,7 +87,7 @@ object Caption:
         case Response(200, _, body) =>
           body.fromJson[Caption] match
             case Right(c) => Some(c)
-            case Left(e) =>
+            case Left(e)  =>
               logger.error(s"Error ${e} parsing json ${body}")
               None
         case response =>

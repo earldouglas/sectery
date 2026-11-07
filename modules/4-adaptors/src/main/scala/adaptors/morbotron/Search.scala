@@ -42,7 +42,7 @@ object Search:
         case Response(200, _, body) =>
           body.fromJson[List[Search]] match
             case Right(ss) => ss.headOption
-            case Left(e) =>
+            case Left(e)   =>
               logger.error(s"Error ${e} parsing json ${body}")
               None
         case response =>
