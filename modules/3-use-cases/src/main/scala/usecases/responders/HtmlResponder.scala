@@ -87,7 +87,6 @@ class HtmlResponder[F[_]: Monad: HttpClient] extends Responder[F]:
         summon[HttpClient[F]]
           .request("GET", new URI(url).toURL(), Map.empty, None)
           .map { response =>
-
             val doc: Document = Jsoup.parse(response.body)
 
             (

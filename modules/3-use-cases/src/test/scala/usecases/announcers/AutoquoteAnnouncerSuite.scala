@@ -37,7 +37,6 @@ class AutoquoteAnnouncerSuite extends Properties("Autoquote announcer"):
 
   _property("Autoquote does not run in the morning") = forAll {
     (_year: Int, _week: Int, _day: Int, _hour: Int) =>
-
       val timeMillis: Long =
         getTimeMillis(
           year = math.abs(_year % 100) + 1970,
@@ -63,7 +62,6 @@ class AutoquoteAnnouncerSuite extends Properties("Autoquote announcer"):
 
   _property("Autoquote does not run in the evening") = forAll {
     (_year: Int, _week: Int, _day: Int, _hour: Int) =>
-
       val timeMillis: Long =
         getTimeMillis(
           year = math.abs(_year % 100) + 1970,
@@ -89,7 +87,6 @@ class AutoquoteAnnouncerSuite extends Properties("Autoquote announcer"):
 
   _property("Autoquote does not run on the weekend") = forAll {
     (_year: Int, _week: Int, _day: Int, _hour: Int) =>
-
       val timeMillis: Long =
         getTimeMillis(
           year = math.abs(_year % 100) + 1970,
@@ -115,7 +112,6 @@ class AutoquoteAnnouncerSuite extends Properties("Autoquote announcer"):
 
   _property("Autoquote runs during the weekday") = forAll {
     (_year: Int, _week: Int, _day: Int, _hour: Int) =>
-
       val timeMillis: Long =
         getTimeMillis(
           year = math.abs(_year % 100) + 1970,

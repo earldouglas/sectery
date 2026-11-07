@@ -41,7 +41,6 @@ class LiveHttpClientSuite extends FunSuite:
   )
 
   httpServer.test("@eval 6 * 7") { _ =>
-
     val response =
       httpClient
         .request(
