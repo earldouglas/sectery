@@ -28,8 +28,6 @@ object Main extends ZIOAppDefault:
   val rabbitMqUsername: String = sys.env("RABBIT_MQ_USERNAME")
   val rabbitMqPassword: String = sys.env("RABBIT_MQ_PASSWORD")
 
-  val openAiApiKey: String = sys.env("OPENAI_APIKEY")
-
   val geodeUrl: String = sys.env("GEODE_URL")
 
   val unsafeGetConnection: () => Connection =
@@ -48,7 +46,6 @@ object Main extends ZIOAppDefault:
         rabbitMqUsername = rabbitMqUsername,
         rabbitMqPassword = rabbitMqPassword,
         rabbitMqChannelSuffix = "live",
-        openAiApiKey = openAiApiKey,
         unsafeGetConnection = unsafeGetConnection,
         geodeUrl = geodeUrl
       )
