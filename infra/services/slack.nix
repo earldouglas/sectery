@@ -1,8 +1,17 @@
 {
   pkgs,
-  sectery,
   slf4jSimple,
+  mavenRepo,
 }:
+
+let
+
+  slackJar = pkgs.fetchurl {
+    url = "${mavenRepo}/sectery/slack-assembly_3/0.1.0-SNAPSHOT/slack-assembly_3-0.1.0-SNAPSHOT.jar";
+    sha256 = "";
+  };
+
+in
 {
 
   # Service account ####################################################
@@ -19,7 +28,7 @@
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${pkgs.jdk25}/bin/java -server -Xms192m -Xmx192m -cp ${slf4jSimple}:${sectery}/slack.jar sectery.slack.Main";
+      ExecStart = "${pkgs.jdk25}/bin/java -server -Xms192m -Xmx192m -cp ${slf4jSimple} -jar ${slackJar}";
       Restart = "always";
       User = "slack";
     };

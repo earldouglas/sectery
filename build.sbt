@@ -18,12 +18,16 @@ assembly / assemblyMergeStrategy := {
 lazy val domain =
   project
     .in(file("modules/1-domain"))
+    .settings(
+      publish / skip := true
+    )
 
 lazy val effects =
   project
     .in(file("modules/2-effects"))
     .dependsOn(domain)
     .settings(
+      publish / skip := true,
       libraryDependencies += "org.scalameta" %% "munit" % "1.3.6" % Test
     )
 
@@ -32,6 +36,7 @@ lazy val use_cases =
     .in(file("modules/3-use-cases"))
     .enablePlugins(BuildInfoPlugin)
     .settings(
+      publish / skip := true,
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "sectery.usecases",
       libraryDependencies += "org.jsoup" % "jsoup" % "1.23.2",
@@ -48,6 +53,7 @@ lazy val adaptors =
     .in(file("modules/4-adaptors"))
     .enablePlugins(BuildInfoPlugin)
     .settings(
+      publish / skip := true,
       buildInfoKeys := Seq[BuildInfoKey](version),
       buildInfoPackage := "sectery.adaptors",
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion,
@@ -61,6 +67,7 @@ lazy val adaptors_with_zio =
   project
     .in(file("modules/4-adaptors-with-zio"))
     .settings(
+      publish / skip := true,
       libraryDependencies += "com.rabbitmq" % "amqp-client" % "5.37.0",
       libraryDependencies += "dev.zio" %% "zio" % zioVersion,
       libraryDependencies += "dev.zio" %% "zio-json" % zioJsonVersion
@@ -71,6 +78,7 @@ lazy val producers =
   project
     .in(file("modules/5-producers"))
     .settings(
+      publish / skip := true,
       moduleName := "producers",
       libraryDependencies += "com.h2database" % "h2" % "2.5.252",
       libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.11",
@@ -88,6 +96,7 @@ lazy val irc =
   project
     .in(file("modules/5-irc"))
     .settings(
+      publish / skip := true,
       moduleName := "irc",
       resolvers += "jitpack" at "https://jitpack.io/", // needed for pircbotx
       libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.3.1",
@@ -104,6 +113,7 @@ lazy val slack =
   project
     .in(file("modules/5-slack"))
     .settings(
+      publish / skip := true,
       moduleName := "slack",
       libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.52.0",
       libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1" % Provided,
@@ -117,10 +127,35 @@ lazy val slack =
     )
     .dependsOn(adaptors_with_zio, use_cases, adaptors)
 
+lazy val producers_assembly =
+  project
+    .settings(
+      organization := "sectery",
+      moduleName := "producers-assembly",
+      Compile / packageBin := Def.uncached((producers / assembly).value)
+    )
+
+lazy val irc_assembly =
+  project
+    .settings(
+      organization := "sectery",
+      moduleName := "irc-assembly",
+      Compile / packageBin := Def.uncached((irc / assembly).value)
+    )
+
+lazy val slack_assembly =
+  project
+    .settings(
+      organization := "sectery",
+      moduleName := "slack-assembly",
+      Compile / packageBin := Def.uncached((slack / assembly).value)
+    )
+
 lazy val root =
   project
     .in(file("."))
     .settings(
+      publish / skip := true,
       libraryDependencies += "com.dimafeng" %% "testcontainers-scala-rabbitmq" % testcontainersVersion % Test,
       libraryDependencies += "com.dimafeng" %% "testcontainers-scala-mariadb" % testcontainersVersion % Test,
       Test / run / fork := true
@@ -134,7 +169,10 @@ lazy val root =
       adaptors,
       use_cases,
       effects,
-      domain
+      domain,
+      producers_assembly,
+      irc_assembly,
+      slack_assembly
     )
 
 lazy val integration =

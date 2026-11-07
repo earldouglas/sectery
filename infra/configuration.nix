@@ -17,14 +17,11 @@ let
 
   hostName = getEnv "HOST_NAME";
   domain = getEnv "DOMAIN";
-
-  sectery = import ./services/sectery.nix {
-    inherit pkgs;
-  };
+  mavenRepo = getEnv "MAVEN_REPO";
 
   slf4jSimple = pkgs.fetchurl {
     url = "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.17/slf4j-simple-2.0.17.jar";
-    sha256 = "0r39ps0dgr6s9gnkh2zp2xg8jqyrs8i8dhy29bid7iklq2dabznx";
+    sha256 = "sha256-3f6lmsB0xtPiSsLDhiLS2WOJXhf3CzjtS9rk14C+aWQ=";
   };
 
   system = import ./services/system.nix {
@@ -36,15 +33,11 @@ let
   };
 
   producers = import ./services/producers.nix {
-    inherit pkgs;
-    sectery = sectery;
-    slf4jSimple = slf4jSimple;
+    inherit pkgs mavenRepo slf4jSimple;
   };
 
   irc = import ./services/irc.nix {
-    inherit pkgs;
-    sectery = sectery;
-    slf4jSimple = slf4jSimple;
+    inherit pkgs mavenRepo slf4jSimple;
   };
 
 in
@@ -56,5 +49,4 @@ in
     producers
     irc
   ];
-
 }
