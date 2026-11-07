@@ -29,6 +29,8 @@ pkgs.mkShell {
 
   nativeBuildInputs = [ sbt ] ++ (if builtins.getEnv "CI" == "true" then [ ] else [ nvim ]);
 
+  SBT_OPTS="--enable-native-access=ALL-UNNAMED";
+
   shellHook = ''
     sbt-test() {
       sbt \
