@@ -48,7 +48,6 @@ $ IRC_USER=redacted \
   OPEN_WEATHER_MAP_API_KEY=redacted \
   AIRNOW_API_KEY=redacted \
   FINNHUB_API_TOKEN=redacted \
-  OPENAI_APIKEY=redacted \
   SLACK_BOT_TOKEN=redacted \
   SLACK_APP_TOKEN=redacted \
   GEODE_URL=redacted \

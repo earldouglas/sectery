@@ -22,7 +22,6 @@ class Responders[
     : LastMessage //
     : Monad //
     : Now //
-    : OpenAI //
     : Points //
     : Quote //
     : SetConfig //
@@ -48,7 +47,6 @@ class Responders[
         new HtmlResponder,
         new KryptoResponder,
         new MorseResponder,
-        new OpenAIResponder,
         new PingResponder,
         new PointsResponder,
         new QuoteResponder,

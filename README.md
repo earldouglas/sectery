@@ -8,8 +8,8 @@ Sectery is a digital assistant chatbot.
 
 To run Sectery, you'll need API keys for
 [Finnhub](https://finnhub.io/docs/api), [Dark
-Sky](https://darksky.net/dev), [AirNow](https://docs.airnowapi.org/),
-and [OpenAI](https://platform.openai.com/docs/quickstart/api-keys).
+Sky](https://darksky.net/dev), and
+[AirNow](https://docs.airnowapi.org/).
 
 To start Sectery, first set a bunch of configuration variables, then run
 each of the main classes with `sbt run`:
@@ -26,7 +26,6 @@ $ export DATABASE_URL=jdbc:mysql://username:password@host:port/dbname
 $ export FINNHUB_API_TOKEN=my_finnhub_api_token
 $ export OPEN_WEATHER_MAP_API_KEY=my_open_weather_map_api_key
 $ export AIRNOW_API_KEY=my_airnow_api_key
-$ export OPENAI_APIKEY=my_openai_api_key
 $ export GEODE_URL=http://geode
 $ sbt "project producers" run
 ```

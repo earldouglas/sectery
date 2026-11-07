@@ -21,7 +21,6 @@ object Main extends ZIOAppDefault:
   val openWeatherMapApiKey: String = sys.env("OPEN_WEATHER_MAP_API_KEY")
   val airNowApiKey: String = sys.env("AIRNOW_API_KEY")
   val finnhubApiToken: String = sys.env("FINNHUB_API_TOKEN")
-  val openAiApiKey: String = sys.env("OPENAI_APIKEY")
 
   val ircUsername: String = sys.env("IRC_USER")
   val ircPassword: String = sys.env("IRC_PASS")
@@ -69,7 +68,6 @@ object Main extends ZIOAppDefault:
               rabbitMqUsername = rabbitMqUsername,
               rabbitMqPassword = rabbitMqPassword,
               rabbitMqChannelSuffix = "test",
-              openAiApiKey = openAiApiKey,
               unsafeGetConnection = unsafeGetConnection,
               geodeUrl = geodeUrl
             )

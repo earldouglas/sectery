@@ -31,7 +31,6 @@ class Producers(
     openWeatherMapApiKey: String,
     airNowApiKey: String,
     finnhubApiToken: String,
-    openAiApiKey: String,
     geodeUrl: String
 ):
 
@@ -118,9 +117,6 @@ class Producers(
 
   given lastMessage: LastMessage[Task] =
     grabQuoteSubstitute
-
-  given openAI: OpenAI[Task] =
-    LiveOpenAI(openAiApiKey)
 
   given points: Points[Task] =
     LivePoints(unsafeGetConnection())
@@ -247,7 +243,6 @@ object Producers:
       rabbitMqUsername: String,
       rabbitMqPassword: String,
       rabbitMqChannelSuffix: String,
-      openAiApiKey: String,
       unsafeGetConnection: () => Connection,
       geodeUrl: String
   ): ZIO[Any, Throwable, Nothing] = {
@@ -263,7 +258,6 @@ object Producers:
           openWeatherMapApiKey = openWeatherMapApiKey,
           airNowApiKey = airNowApiKey,
           finnhubApiToken = finnhubApiToken,
-          openAiApiKey = openAiApiKey,
           geodeUrl = geodeUrl
         ).start
       _ <- producerFiber.join
