@@ -43,7 +43,6 @@ class Responders[
         new FrinkiacResponder,
         new MorbotronResponder,
         new GetResponder,
-        new GrabResponder,
         new HackResponder,
         new HtmlResponder,
         new KryptoResponder,
@@ -59,7 +58,8 @@ class Responders[
         new TimeResponder,
         new VersionResponder,
         new WxResponder,
-        new GeodeResponder
+        new GeodeResponder,
+        new GrabResponder // keep this one last, since it writes the current message to LAST_MESSAGE_V2
       )
     new HelpResponder(allExceptHelp) :: allExceptHelp
 
