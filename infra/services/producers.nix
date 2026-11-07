@@ -1,8 +1,17 @@
 {
   pkgs,
-  sectery,
   slf4jSimple,
+  mavenRepo,
 }:
+
+let
+
+  producersJar = pkgs.fetchurl {
+    url = "${mavenRepo}/sectery/producers-assembly_3/0.1.0-SNAPSHOT/producers-assembly_3-0.1.0-SNAPSHOT.jar";
+    sha256 = "sha256-5nFxcg04MNg1HWMlFq1dnGkmc2K8gJZILLn54+Shl6Y=";
+  };
+
+in
 {
 
   # Service account ####################################################
@@ -43,7 +52,7 @@
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${pkgs.jdk25}/bin/java -server -Xss192m -Xmx192m -cp ${slf4jSimple}:${sectery}/producers.jar sectery.producers.Main";
+      ExecStart = "${pkgs.jdk25}/bin/java -server -Xss192m -Xmx192m -cp ${slf4jSimple} -jar ${producersJar}";
       Restart = "always";
       User = "producers";
     };
@@ -58,6 +67,7 @@
       OPEN_WEATHER_MAP_API_KEY = builtins.getEnv "OPEN_WEATHER_MAP_API_KEY";
       AIRNOW_API_KEY = builtins.getEnv "AIRNOW_API_KEY";
       GEODE_URL = builtins.getEnv "GEODE_URL";
+      LLM_URL = builtins.getEnv "LLM_URL";
     };
   };
 

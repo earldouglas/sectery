@@ -9,7 +9,7 @@ let
       sbt-version = "2.0.6";
       sbt-launch-jar = pkgs.fetchurl {
         url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/${sbt-version}/sbt-launch-${sbt-version}.jar";
-        hash = "sha256-SnDW1eUuxr+2wOEXhn5VRo2E7vnw44KNMUVu2GCjvUI=";
+        hash = "";
       };
     in
     pkgs.writeScriptBin "sbt" ''

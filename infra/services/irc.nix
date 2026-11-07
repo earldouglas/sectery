@@ -1,8 +1,17 @@
 {
   pkgs,
-  sectery,
   slf4jSimple,
+  mavenRepo,
 }:
+
+let
+
+  ircJar = pkgs.fetchurl {
+    url = "${mavenRepo}/sectery/irc-assembly_3/0.1.0-SNAPSHOT/irc-assembly_3-0.1.0-SNAPSHOT.jar";
+    sha256 = "sha256-czk/W7XUPjCMl+8Ui5mS6V3p73JlQhhxUmGSF5SPbVM=";
+  };
+
+in
 {
 
   # Service account ####################################################
@@ -19,7 +28,7 @@
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${pkgs.jdk25}/bin/java -server -Xms192m -Xmx192m -cp ${slf4jSimple}:${sectery}/irc.jar sectery.irc.Main";
+      ExecStart = "${pkgs.jdk25}/bin/java -server -Xms192m -Xmx192m -cp ${slf4jSimple} -jar ${ircJar}";
       Restart = "always";
       User = "irc";
     };

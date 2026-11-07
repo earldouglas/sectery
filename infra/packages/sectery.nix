@@ -2,11 +2,15 @@
 
 let
 
-  src = pkgs.fetchFromGitHub {
+  _src = pkgs.fetchFromGitHub {
     owner = "earldouglas";
     repo = "sectery";
-    rev = "da0b79b39d9048eceb4a3c206fc3d03de24d1521";
-    hash = "sha256-hwWMWC2B6l6dewr09GGXSdXyTsv6Nf9mE/NbBu7aMeU=";
+    rev = "df780888afa99c3b1954c0991cb4e5f81292e37c";
+    hash = "";
+  };
+
+  src = builtins.fetchGit {
+    url = /home/james/src/sectery;
   };
 
   sbt = import ./sbt.nix {
@@ -16,7 +20,7 @@ let
       sbt \
         update
     '';
-    depsSha256 = "sha256-ZTccn5uBY+AC/hXXDBWw7nTQS2JinWz8fLWzlLFTeEA=";
+    depsSha256 = "";
   };
 
 in
