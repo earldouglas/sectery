@@ -1,14 +1,46 @@
 {
   pkgs,
-  slf4jSimple,
+  mavenHost,
+  mavenUsername,
+  mavenPassword,
   mavenRepo,
 }:
 
 let
 
-  producersJar = pkgs.fetchurl {
-    url = "${mavenRepo}/sectery/producers-assembly_3/0.1.0-SNAPSHOT/producers-assembly_3-0.1.0-SNAPSHOT.jar";
-    sha256 = "sha256-5nFxcg04MNg1HWMlFq1dnGkmc2K8gJZILLn54+Shl6Y=";
+  sectery-producers = pkgs.stdenv.mkDerivation rec {
+
+    pname = "sectery-producers";
+    version = "0.1.0-SNAPSHOT";
+
+    buildInputs = [
+      pkgs.coursier
+    ];
+
+    outputHashAlgo = "sha256";
+    outputHashMode = "recursive";
+    outputHash = "sha256-RIe9AjsR79n/Mlcw/N5jlAXrCOXvD6wKlWgkiCSdxGY=";
+
+    src = null;
+    dontUnpack = true;
+
+    installPhase = ''
+
+      mkdir -p $out/cache
+
+      cs fetch \
+        --quiet \
+        --credentials "${mavenHost} ${mavenUsername}:${mavenPassword}" \
+        --repository "${mavenRepo}" \
+        --cache $out/cache \
+        com.earldouglas:sectery-producers_3:${version}
+
+      find $out/cache \
+        -name "sectery-producers_3-*.jar" \
+          -exec cp {} $out/sectery-producers.jar \;
+
+      rm -rf $out/cache
+    '';
   };
 
 in
@@ -52,7 +84,7 @@ in
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${pkgs.jdk25}/bin/java -server -Xss192m -Xmx192m -cp ${slf4jSimple} -jar ${producersJar}";
+      ExecStart = "${pkgs.jdk25}/bin/java -server -Xss192m -Xmx192m -jar ${sectery-producers}/sectery-producers.jar";
       Restart = "always";
       User = "producers";
     };
