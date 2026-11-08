@@ -79,7 +79,6 @@ lazy val producers =
     .in(file("modules/5-producers"))
     .settings(
       publish / skip := true,
-      moduleName := "producers",
       libraryDependencies += "com.h2database" % "h2" % "2.5.252",
       libraryDependencies += "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.11",
       libraryDependencies += "net.java.dev.jna" % "jna" % "5.19.1",
@@ -97,7 +96,6 @@ lazy val irc =
     .in(file("modules/5-irc"))
     .settings(
       publish / skip := true,
-      moduleName := "irc",
       resolvers += "jitpack" at "https://jitpack.io/", // needed for pircbotx
       libraryDependencies += "com.github.pircbotx" % "pircbotx" % "2.3.1",
       libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.6.5",
@@ -114,7 +112,6 @@ lazy val slack =
     .in(file("modules/5-slack"))
     .settings(
       publish / skip := true,
-      moduleName := "slack",
       libraryDependencies += "com.slack.api" % "bolt-socket-mode" % "1.52.0",
       libraryDependencies += "javax.websocket" % "javax.websocket-api" % "1.1" % Provided,
       libraryDependencies += "org.glassfish.tyrus.bundles" % "tyrus-standalone-client" % "2.2.2",
@@ -130,24 +127,24 @@ lazy val slack =
 lazy val producers_assembly =
   project
     .settings(
-      organization := "sectery",
-      moduleName := "producers-assembly",
+      name := "sectery-producers",
+      libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.17",
       Compile / packageBin := Def.uncached((producers / assembly).value)
     )
 
 lazy val irc_assembly =
   project
     .settings(
-      organization := "sectery",
-      moduleName := "irc-assembly",
+      name := "sectery-irc",
+      libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.17",
       Compile / packageBin := Def.uncached((irc / assembly).value)
     )
 
 lazy val slack_assembly =
   project
     .settings(
-      organization := "sectery",
-      moduleName := "slack-assembly",
+      name := "sectery-slack",
+      libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.17",
       Compile / packageBin := Def.uncached((slack / assembly).value)
     )
 

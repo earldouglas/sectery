@@ -6,14 +6,10 @@ on:
       - main
 jobs:
   build:
-    strategy:
-      matrix:
-        os:
-          - ubuntu-24.04
-    runs-on: '${{ matrix.os }}'
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
     - uses: cachix/install-nix-action@v31
       with:
         nix_path: nixpkgs=channel:nixos-26.05
-    - run: nix-shell --run sbt-test
+    - run: nix-shell --run sectery-test

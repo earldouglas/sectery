@@ -1,14 +1,46 @@
 {
   pkgs,
-  slf4jSimple,
+  mavenHost,
+  mavenUsername,
+  mavenPassword,
   mavenRepo,
 }:
 
 let
 
-  ircJar = pkgs.fetchurl {
-    url = "${mavenRepo}/sectery/irc-assembly_3/0.1.0-SNAPSHOT/irc-assembly_3-0.1.0-SNAPSHOT.jar";
-    sha256 = "sha256-czk/W7XUPjCMl+8Ui5mS6V3p73JlQhhxUmGSF5SPbVM=";
+  sectery-irc = pkgs.stdenv.mkDerivation rec {
+
+    pname = "sectery-irc";
+    version = "0.1.0-SNAPSHOT";
+
+    buildInputs = [
+      pkgs.coursier
+    ];
+
+    outputHashAlgo = "sha256";
+    outputHashMode = "recursive";
+    outputHash = "sha256-iLLAdUQidhVYF888J7j1SN5T4PcQjRrAdtl/PwL/NW0=";
+
+    src = null;
+    dontUnpack = true;
+
+    installPhase = ''
+
+      mkdir -p $out/cache
+
+      cs fetch \
+        --quiet \
+        --credentials "${mavenHost} ${mavenUsername}:${mavenPassword}" \
+        --repository "${mavenRepo}" \
+        --cache $out/cache \
+        com.earldouglas:sectery-irc_3:${version}
+
+      find $out/cache \
+        -name "sectery-irc_3-*.jar" \
+          -exec cp {} $out/sectery-irc.jar \;
+
+      rm -rf $out/cache
+    '';
   };
 
 in
@@ -28,7 +60,7 @@ in
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${pkgs.jdk25}/bin/java -server -Xms192m -Xmx192m -cp ${slf4jSimple} -jar ${ircJar}";
+      ExecStart = "${pkgs.jdk25}/bin/java -server -Xms192m -Xmx192m -jar ${sectery-irc}/sectery-irc.jar";
       Restart = "always";
       User = "irc";
     };

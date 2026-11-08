@@ -1,0 +1,17 @@
+name: deploy
+on: workflow_dispatch
+jobs:
+  deploy:
+    environment: publish
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+    - uses: cachix/install-nix-action@v31
+      with:
+        nix_path: nixpkgs=channel:nixos-26.05
+    - run: nix-shell -p nixos-rebuild --run sectery-publish
+      env:
+        MAVEN_REPO: ${{ secrets.MAVEN_REPO }}
+        MAVEN_HOST: ${{ secrets.MAVEN_HOST }}
+        MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
